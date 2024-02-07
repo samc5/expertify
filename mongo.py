@@ -94,7 +94,7 @@ pipeline2 = [
         }
     },
     {"$sort": {"date": -1}},
-    {"$limit": 25}
+    {"$limit": 5}
 ]
 
 def aggregate(pipeline_input):
@@ -118,4 +118,4 @@ for i in aggregate(pipeline2):
     #print(i['title'])
     #print(i['dates'])
     #print(i['titles'])
-    print(i['value'])
+    #print(i['value'])

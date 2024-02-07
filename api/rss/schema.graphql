@@ -1,0 +1,42 @@
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type BlogEntry {
+    id: ID!
+    pub_name: String!
+    title: String!
+    is_content: Boolean!
+    pub_date: String!
+    text: String!
+    url: String!
+    author: String!
+}
+
+type BlogEntryResult {
+    success: Boolean!
+    errors: [String]
+    entries: BlogEntry
+}
+
+type BlogEntriesResult {
+    success: Boolean!
+    errors: [String]
+    entries: [BlogEntry]
+}
+
+type Query {
+    entries: BlogEntriesResult!
+    blogEntry(entryId: ID!): BlogEntryResult!
+}
+
+type DeleteEntryResult {
+    success: Boolean!
+    errors: [String]
+}
+
+type Mutation {
+    createBlogEntry(url: String!): BlogEntryResult!
+    deleteBlogEntry(entryId: ID!): DeleteEntryResult!
+}

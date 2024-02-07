@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'todo_provider.dart';
-import 'tasks.dart';
+import 'articles.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'navigation_bar_controller.dart';
 
 const String query = """
 query fetchAllTodos {
@@ -43,8 +42,13 @@ class MyApp extends StatelessWidget {
           title: 'Flutter Demo',
           theme: ThemeData(
             primarySwatch: Colors.purple,
+            textTheme: TextTheme(
+              bodySmall: TextStyle(fontSize: 11, fontFamily: "Arial"),
+            ),
           ),
-          home: const MyHomePage(title: 'Todo app'),
+          initialRoute: '/',
+          // home: const MyHomePage(title: 'Reader app'),
+          home: BottomNavigationBarController(),
         ));
   }
 }
@@ -66,7 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
         centerTitle: true,
       ),
-      body: TasksWidget(),
+      body: ArticlesWidget(),
     );
   }
 }
