@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'blog_screen.dart';
 
 class ArticleScreen extends StatelessWidget {
   final String title;
   final String articleText;
   final String pubName;
   final String author;
+  final String pub_url;
 
   const ArticleScreen(
       {Key? key,
       required this.title,
       required this.articleText,
       required this.pubName,
-      required this.author})
+      required this.author,
+      required this.pub_url})
       : super(key: key);
 
   static const routeName = '/article';
@@ -21,8 +24,15 @@ class ArticleScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        surfaceTintColor: Colors.transparent,
         centerTitle: true,
-        title: Text(pubName), // Set your desired app bar title
+        title: InkWell(
+            child: Text(pubName),
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => PubArticlesWidget(
+                        url: pub_url)))), // Set your desired app bar title
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -52,10 +62,15 @@ class ArticleScreen extends StatelessWidget {
                   double maxWidth = constraints.maxWidth;
                   double thresholdWidth = 600.0;
 
-                  return Center(
-                    child: Container(
-                      width: maxWidth < thresholdWidth ? null : thresholdWidth,
-                      child: HtmlWidget(articleText),
+                  return Padding(
+                    padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+                    child: Center(
+                      child: Container(
+                        width:
+                            maxWidth < thresholdWidth ? null : thresholdWidth,
+                        child: HtmlWidget(articleText,
+                            textStyle: TextStyle(fontSize: 15)),
+                      ),
                     ),
                   );
                 },

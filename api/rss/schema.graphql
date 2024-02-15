@@ -6,6 +6,7 @@ schema {
 type BlogEntry {
     id: ID!
     pub_name: String!
+    pub_url: String
     title: String!
     is_content: Boolean!
     pub_date: String!
@@ -27,7 +28,8 @@ type BlogEntriesResult {
 }
 
 type Query {
-    entries: BlogEntriesResult!
+    entries: BlogEntriesResult
+    pub_entries(url: String!): BlogEntriesResult
     blogEntry(entryId: ID!): BlogEntryResult!
 }
 
