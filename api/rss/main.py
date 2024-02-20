@@ -124,10 +124,9 @@ def pub_pipeline(url):
 #stacks = Substacks + non_substacks
 #print(stacks)
 def resolve_entries(obj, info):
-    urls = mongo.aggregate(url_pipeline)
-    feed_dicts = [parser.construct_feed_dict(i['url']) for i in urls]
-
-    mongo.add_feeds(feed_dicts)
+    # urls = mongo.aggregate(url_pipeline)
+    # feed_dicts = [parser.construct_feed_dict(i['url']) for i in urls]
+    # mongo.add_feeds(feed_dicts)
     try:
         entries = mongo.aggregate(pipeline2)
         real_entries = []
@@ -158,7 +157,6 @@ def resolve_entries(obj, info):
 
 
 def resolve_pub_entries(obj, info, url):
-    #url = "https://www.astralcodexten.com/feed"
     try:
         entries = mongo.aggregate(pub_pipeline(url))
         real_entries = []

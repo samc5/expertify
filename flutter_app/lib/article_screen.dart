@@ -32,6 +32,7 @@ class ArticleScreen extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                     builder: (context) => PubArticlesWidget(
+                        pub_name: pubName,
                         url: pub_url)))), // Set your desired app bar title
       ),
       body: SingleChildScrollView(
@@ -69,7 +70,8 @@ class ArticleScreen extends StatelessWidget {
                         width:
                             maxWidth < thresholdWidth ? null : thresholdWidth,
                         child: HtmlWidget(articleText,
-                            textStyle: TextStyle(fontSize: 15)),
+                            textStyle: TextStyle(
+                                fontSize: 16, fontFamily: "Spectral")),
                       ),
                     ),
                   );

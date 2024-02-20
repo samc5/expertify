@@ -45,6 +45,7 @@ class Article_List extends StatelessWidget {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => PubArticlesWidget(
+                                            pub_name: entries[i]['pub_name'],
                                             url: entries[i]['pub_url']))),
                                 child: Text(
                                   entries[i]['pub_name'],
