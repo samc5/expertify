@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'blog_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ArticleScreen extends StatelessWidget {
   final String title;
@@ -70,8 +71,7 @@ class ArticleScreen extends StatelessWidget {
                         width:
                             maxWidth < thresholdWidth ? null : thresholdWidth,
                         child: HtmlWidget(articleText,
-                            textStyle: TextStyle(
-                                fontSize: 16, fontFamily: "Spectral")),
+                            textStyle: GoogleFonts.sourceSerif4(fontSize: 16)),
                       ),
                     ),
                   );

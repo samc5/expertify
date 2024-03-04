@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'articles.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'navigation_bar_controller.dart';
+import 'login_screen.dart';
+import 'dart:io';
 
 const String query = """
 query fetchAllTodos {
@@ -18,6 +20,15 @@ query fetchAllTodos {
 """;
 
 final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
+
+// bool _certificateCheck(X509Certificate cert, String host, int port) =>
+//     host == 'local.domain.ext'; // <- change
+
+//   SecurityContext securityContext = SecurityContext.defaultContext;
+//   securityContext.setTrustedCertificates('path_to_certificate.crt');
+
+// Create a HttpClient with the trusted certificate
+// HttpClient client = HttpClient(context: securityContext);
 
 final ValueNotifier<GraphQLClient> client = ValueNotifier<GraphQLClient>(
   GraphQLClient(
@@ -48,7 +59,8 @@ class MyApp extends StatelessWidget {
           ),
           initialRoute: '/',
           // home: const MyHomePage(title: 'Reader app'),
-          home: BottomNavigationBarController(),
+          home: LoginScreen(),
+          // home: BottomNavigationBarController(),
         ));
   }
 }
@@ -70,7 +82,8 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
         centerTitle: true,
       ),
-      body: ArticlesWidget(),
+      // body: ArticlesWidget(),
+      body: LoginScreen(),
     );
   }
 }

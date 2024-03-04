@@ -12,10 +12,27 @@ class Article_List extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (entries == null) {
+      return Scaffold(
+          appBar: AppBar(
+            surfaceTintColor: Colors.transparent,
+            centerTitle: true,
+            automaticallyImplyLeading: pub_title == 'Your Inbox' ? false : true,
+            //automaticallyImplyLeading: false,
+            title: Text(pub_title), // Set your desired app bar title
+          ),
+          body: Padding(
+              padding: const EdgeInsets.only(left: 30, right: 30),
+              child: Center(
+                  child: Text(
+                      "You don't have any feeds yet! Add an RSS feed and it'll show up here"))));
+    }
     return Scaffold(
       appBar: AppBar(
         surfaceTintColor: Colors.transparent,
         centerTitle: true,
+        automaticallyImplyLeading: pub_title == 'Your Inbox' ? false : true,
+        //automaticallyImplyLeading: false,
         title: Text(pub_title), // Set your desired app bar title
       ),
       body: Padding(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'article_list.dart';
+import 'token_operations.dart';
 
 const String query = """
 query fetchAllEntries {
@@ -17,6 +18,24 @@ query fetchAllEntries {
     }
   }
 }
+""";
+
+const String personalQuery = """
+query fetchPersonalEntries(\$token: String!) {
+  personal_entries(token: \$token) {
+    success
+    errors
+    entries {
+      title
+      text
+      pub_name
+      pub_url
+      url
+      author
+    }
+  }
+}
+
 """;
 
 final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
@@ -36,15 +55,36 @@ class ArticlesWidget extends StatefulWidget {
 }
 
 class _ArticlesWidgetState extends State<ArticlesWidget> {
+  String? token;
   TextEditingController newTaskController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    _fetchToken();
+  }
+
+  Future<void> _fetchToken() async {
+    try {
+      token = await getToken();
+    } catch (e) {
+      print("Error fetching token: $e");
+      // Handle error appropriately, like showing an error message
+    }
+    setState(() {}); // Trigger a rebuild after token is fetched
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (token == null) {
+      // If token is not fetched yet, you can show a loading indicator or some other widget
+      return CircularProgressIndicator();
+    }
     return Query(
         options: QueryOptions(
-            document: gql(query),
+            document: gql(personalQuery),
             pollInterval: const Duration(seconds: 40),
-            variables: const <String, dynamic>{"variableName": "value"}),
+            variables: <String, dynamic>{"token": token}),
         builder: (result, {fetchMore, refetch}) {
           if (result.hasException) {
             print(result.exception.toString());
@@ -57,7 +97,9 @@ class _ArticlesWidgetState extends State<ArticlesWidget> {
               child: Text("No data received!"),
             );
           }
-          final entries = result.data!["entries"]["entries"];
+          final entries = result.data!["personal_entries"]["entries"];
+          //print(entries);
+          //print(result.data);
           return Article_List(entries: entries, pub_title: "Your Inbox");
         });
   }

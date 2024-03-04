@@ -1,9 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'token_operations.dart';
 
 const String newEntry = """
+mutation newEntry(\$url: String!, \$token: String!) {
+  createPersonalEntry(url: \$url, token: \$token) {
+    success
+    errors
+    entries {
+        url
+        title
+    }
+  }
+}
+""";
+
+const String oldnewEntry = """
 mutation newEntry(\$url: String!) {
-  createBlogEntry(url: \$url) {
+  createPersonalEntry(url: \$url) {
     success
     errors
     entries {
@@ -24,6 +38,7 @@ class AddFeedScreen extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(
           centerTitle: true,
+          automaticallyImplyLeading: false,
           title: Text("Add a Feed"), // Set your desired app bar title
         ),
         body: NewFeedForm());
@@ -76,26 +91,54 @@ class NewFeedFormState extends State<NewFeedForm> {
               //   return value;
               // },
               decoration: InputDecoration(
-                border: InputBorder.none,
+                border: OutlineInputBorder(
+                  // Solid border
+                  borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                ),
                 hintText: 'Enter RSS Feed URL',
               ),
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 25.0),
             ),
+            // TextField(
+            //   // The validator receives the text that the user has entered.
+            //   controller: UrlValue,
+            //   // validator: (value) {
+            //   //   if (value == null || value.isEmpty) {
+            //   //     return 'Please enter some text';
+            //   //   }
+            //   //   return value;
+            //   // },
+            //   decoration: InputDecoration(
+            //     border: OutlineInputBorder(
+            //       // Solid border
+            //       borderRadius: BorderRadius.circular(8.0), // Rounded corners
+            //     ),
+            //     hintText: 'Batch Input',
+            //   ),
+            // ),
+            // Padding(
+            //   padding: const EdgeInsets.only(bottom: 25.0),
+            // ),
             // Add TextFormFields and ElevatedButton here.
             Mutation(
               options: MutationOptions(document: gql(newEntry)),
               builder: (runMutation, result) {
                 return ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     // Validate returns true if the form is valid, or false otherwise.
                     if (_formKey.currentState!.validate()) {
+                      final token = await getToken();
                       // If the form is valid, display a snackbar. In the real world,
                       // you'd often call a server or save the information in a database.
-                      runMutation({'url': UrlValue.text});
+                      runMutation({'url': UrlValue.text, 'token': token});
+                      UrlValue.clear();
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Processing Data')),
+                        const SnackBar(
+                          content: Text('Processing Data'),
+                          duration: Duration(seconds: 2), // Adjust as needed
+                        ),
                       );
                     }
                   },

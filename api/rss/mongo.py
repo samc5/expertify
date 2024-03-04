@@ -1,17 +1,18 @@
 from pymongo.mongo_client import MongoClient
 from datetime import datetime
+import bcrypt
+from dotenv import load_dotenv
+import os
+from bson import ObjectId
 # set a string equal to the contents of mongodbpassword.txt
-
+load_dotenv()
+password = os.getenv("MONGO_PASSWORD")
 
 
 
 
 def add_feed(map):
-    with open("mongodbpassword.txt", "r") as file:
-        password = file.read()
     uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
-
-
     client = MongoClient(uri)
     db = client["bb-app"]
     collection = db["feeds"]
@@ -24,8 +25,6 @@ def add_feed(map):
         print(e)
 
 def add_feeds(maps):
-    with open("mongodbpassword.txt", "r") as file:
-        password = file.read()
     uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
     client = MongoClient(uri)
     db = client["bb-app"]
@@ -40,12 +39,111 @@ def add_feeds(maps):
     except Exception as e:
         print(e)
 
+def check_user(user):
+    """
+    Returns the info about a user, given a dictionary with user['email'] and user['password']
+    """
+    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    client = MongoClient(uri)
+    db = client["bb-app"]
+    collection = db["Users"]
+    try:
+        usr = collection.find_one({"email": user['email'], "password": user['password']})
+        return usr
+    except Exception as e:
+        print(e)
+
+
+def check_email(email):
+    """
+    Returns True if the entered email is already in the Users database, False otherwise
+    """
+    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    client = MongoClient(uri)
+    db = client["bb-app"]
+    collection = db["Users"]
+    try:
+        usr = collection.find_one({"email": email})
+        if usr:
+            return True
+        return False
+    except Exception as e:
+        print(e)
+
+def check_login(email, pw):
+    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    client = MongoClient(uri)
+    db = client["bb-app"]
+    collection = db["Users"]
+    try:
+        usr = collection.find_one({"email": email})
+        if usr:
+            if bcrypt.checkpw(pw.encode('utf-8'),usr['password']):
+                return usr['_id']
+            else:
+                return "No Match"
+    except Exception as e:
+        print(e)
+
+
+
+def hash(password):
+    """
+    Salts and hashes a given password with bcrypt
+    """
+    bytes = password.encode('utf-8') 
+    salt = bcrypt.gensalt() 
+    hash = bcrypt.hashpw(bytes, salt) 
+    return hash
+
+def signUp(email, hash):
+    if check_email(email):
+        return None
+    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    client = MongoClient(uri)
+    db = client["bb-app"]
+    collection = db["Users"]
+    try:
+        res = collection.insert_one({"email": email, "password": hash})
+        return res.inserted_id
+    except Exception as e:
+        print(e)
+
+def add_user_link(user_id, blog):
+    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    client = MongoClient(uri)
+    db = client["bb-app"]
+    collection = db["UserData"]  
+    try:
+        collection.update_one({"user_id": ObjectId(user_id)}, {"$addToSet": {"feeds": blog['url']}}, upsert=True)
+        collection = db["feeds"]
+        collection.replace_one({'url': blog['url']}, blog, upsert=True)
+    except Exception as e:
+        print(e)
+
+def get_user_feeds(user_id):
+    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    client = MongoClient(uri)
+    db = client["bb-app"]
+    collection = db["UserData"]
+    try:
+        user = collection.find_one({"user_id": ObjectId(user_id)})
+        #print(user)
+        return user['feeds']
+    except Exception as e:
+        print(e)
+
+
 
 def fetch_all_feeds():
-    with open("mongodbpassword.txt", "r") as file:
-        password = file.read()
     uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
-
+    client = MongoClient(uri)
+    db = client["bb-app"]
+    collection = db["Users"]
+    try:
+       pass
+    except Exception as e:
+        print(e)
 
     client = MongoClient(uri)
     db = client["bb-app"]
@@ -56,8 +154,8 @@ def fetch_all_feeds():
     except Exception as e:
         print(e)
 
-def ten_most_recent():
-    feeds = fetch_all_feeds()
+
+
 
     
 # def convert_to_date(date_str):
@@ -132,11 +230,7 @@ pipeline2 = [
 ]
 
 def aggregate(pipeline_input):
-    with open("mongodbpassword.txt", "r") as file:
-        password = file.read()
     uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
-
-
     client = MongoClient(uri)
     db = client["bb-app"]
     collection = db["feeds"]
