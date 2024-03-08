@@ -11,3 +11,9 @@ Future<String?> getToken() async {
   final storage = FlutterSecureStorage();
   return await storage.read(key: 'jwt_token');
 }
+
+Future<void> deleteToken() async {
+  // chatgpt written
+  final storage = FlutterSecureStorage();
+  await storage.delete(key: 'jwt_token');
+}

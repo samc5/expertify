@@ -161,7 +161,8 @@ class SignUpFormState extends State<SignUpForm> {
                                 ),
                               );
                             } else {
-                              storeToken(SignUpResult2);
+                              await deleteToken();
+                              await storeToken(SignUpResult2);
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(

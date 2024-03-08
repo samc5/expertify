@@ -137,7 +137,8 @@ class LoginFormState extends State<LoginForm> {
                               ),
                             );
                           } else {
-                            storeToken(loginResult2);
+                            await deleteToken();
+                            await storeToken(loginResult2);
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(

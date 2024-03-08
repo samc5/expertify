@@ -78,7 +78,7 @@ class _ArticlesWidgetState extends State<ArticlesWidget> {
   Widget build(BuildContext context) {
     if (token == null) {
       // If token is not fetched yet, you can show a loading indicator or some other widget
-      return CircularProgressIndicator();
+      return Center(child: CircularProgressIndicator());
     }
     return Query(
         options: QueryOptions(
@@ -94,7 +94,7 @@ class _ArticlesWidgetState extends State<ArticlesWidget> {
           }
           if (result.data == null) {
             return const Center(
-              child: Text("No data received!"),
+              child: Text("Loading..."),
             );
           }
           final entries = result.data!["personal_entries"]["entries"];

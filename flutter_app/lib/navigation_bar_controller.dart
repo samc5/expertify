@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'articles.dart';
 import 'add_feed_screen.dart';
+import 'settings.dart';
 
 class BottomNavigationBarController extends StatefulWidget {
   @override
@@ -17,6 +18,7 @@ class _BottomNavigationBarControllerState
     AddFeedScreen(
       key: PageStorageKey('Page2'),
     ),
+    SettingsScreen(key: PageStorageKey('Page 3'))
   ];
 
   final PageStorageBucket bucket = PageStorageBucket();
@@ -29,6 +31,7 @@ class _BottomNavigationBarControllerState
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.inbox), label: 'Inbox'),
           BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Add Feed'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings')
         ],
       );
 
