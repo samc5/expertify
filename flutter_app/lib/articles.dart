@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'article_list.dart';
 import 'token_operations.dart';
+import 'dart:io' show Platform;
 
 const String query = """
 query fetchAllEntries {
@@ -39,8 +40,9 @@ query fetchPersonalEntries(\$token: String!) {
 """;
 
 final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
+final HttpLink androidLink = HttpLink("http://10.0.2.2:5000/graphql");
 
-final ValueNotifier<GraphQLClient> client = ValueNotifier<GraphQLClient>(
+ValueNotifier<GraphQLClient> client = ValueNotifier<GraphQLClient>(
   GraphQLClient(
     link: httpLink,
     cache: GraphQLCache(),
@@ -76,10 +78,20 @@ class _ArticlesWidgetState extends State<ArticlesWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (Platform.isAndroid) {
+      print("ANDROID");
+      client = ValueNotifier<GraphQLClient>(
+        GraphQLClient(
+          link: androidLink,
+          cache: GraphQLCache(),
+        ),
+      );
+    }
     if (token == null) {
       // If token is not fetched yet, you can show a loading indicator or some other widget
       return Center(child: CircularProgressIndicator());
     }
+    print("token is not null");
     return Query(
         options: QueryOptions(
             document: gql(personalQuery),
@@ -88,6 +100,9 @@ class _ArticlesWidgetState extends State<ArticlesWidget> {
         builder: (result, {fetchMore, refetch}) {
           if (result.hasException) {
             print(result.exception.toString());
+            print("TOKEN\n\n\n");
+            print(token);
+            print("TOKEN\n\n\n");
             return const Center(
               child: Text("Error occurred while fetching data!"),
             );

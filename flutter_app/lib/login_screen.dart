@@ -5,6 +5,7 @@ import 'dart:convert'; // for JSON decoding
 import 'signup_screen.dart';
 import 'form_field.dart';
 import 'token_operations.dart';
+import 'dart:io' show Platform;
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -58,8 +59,12 @@ class LoginFormState extends State<LoginForm> {
     String password = passwordValue.text;
 
     // Example POST request
-    var url = Uri.parse(
-        'http://localhost:5000/login'); // Replace with your API endpoint
+    var url = Uri.parse('http://localhost:5000/signup');
+    // Example POST request
+    if (Platform.isAndroid) {
+      url = Uri.parse(
+          'http://10.0.2.2:5000/signup'); // Replace with your API endpoint
+    }
     var response = await http.post(
       url,
       body: {
@@ -67,7 +72,7 @@ class LoginFormState extends State<LoginForm> {
         'password': password,
       },
     );
-
+    print(password);
     // Handle response
     if (response.statusCode == 200) {
       // Request successful, do something

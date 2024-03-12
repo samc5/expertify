@@ -5,6 +5,7 @@ import 'dart:convert'; // for JSON decoding
 import 'login_screen.dart';
 import 'form_field.dart';
 import 'token_operations.dart';
+import 'dart:io' show Platform;
 
 class SignUpScreen extends StatelessWidget {
   const SignUpScreen({Key? key}) : super(key: key);
@@ -54,12 +55,15 @@ class SignUpFormState extends State<SignUpForm> {
 
   Future<String> submitForm(BuildContext context) async {
     // Extracting email and password from text controllers
+    print("submit form opens");
     String email = emailValue.text;
     String password = passwordValue.text;
-
+    var url = Uri.parse('http://localhost:5000/signup');
     // Example POST request
-    var url = Uri.parse(
-        'http://localhost:5000/signup'); // Replace with your API endpoint
+    if (Platform.isAndroid) {
+      url = Uri.parse(
+          'http://10.0.2.2:5000/signup'); // Replace with your API endpoint
+    }
     var response = await http.post(
       url,
       body: {
@@ -69,6 +73,7 @@ class SignUpFormState extends State<SignUpForm> {
     );
 
     // Handle response
+    print("response asked for");
     if (response.statusCode == 200) {
       // Request successful, do something
       Map<String, dynamic> jsonResponse = json.decode(response.body);
@@ -126,6 +131,7 @@ class SignUpFormState extends State<SignUpForm> {
                     height: 50,
                     child: ElevatedButton(
                       onPressed: () async {
+                        print("pressed sign up");
                         if (_formKey.currentState!.validate()) {
                           // Process form data
                           final emailRegex =
@@ -140,9 +146,11 @@ class SignUpFormState extends State<SignUpForm> {
                               ),
                             );
                           } else {
+                            print("passed regex validation");
                             final Future<String> SignUpResult =
                                 submitForm(context);
                             String SignUpResult2 = await SignUpResult;
+                            print("signupresult came in");
                             if (SignUpResult2 == "Failure") {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
