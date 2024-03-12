@@ -3,7 +3,7 @@ import 'articles.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'navigation_bar_controller.dart';
 import 'login_screen.dart';
-import 'dart:io';
+import 'dart:io' show Platform;
 
 const String query = """
 query fetchAllTodos {
@@ -20,7 +20,7 @@ query fetchAllTodos {
 """;
 
 final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
-
+final HttpLink androidLink = HttpLink("http://10.0.2.2:5000/graphql");
 // bool _certificateCheck(X509Certificate cert, String host, int port) =>
 //     host == 'local.domain.ext'; // <- change
 
@@ -30,7 +30,7 @@ final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
 // Create a HttpClient with the trusted certificate
 // HttpClient client = HttpClient(context: securityContext);
 
-final ValueNotifier<GraphQLClient> client = ValueNotifier<GraphQLClient>(
+ValueNotifier<GraphQLClient> client = ValueNotifier<GraphQLClient>(
   GraphQLClient(
     link: httpLink,
     cache: GraphQLCache(),
@@ -46,6 +46,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (Platform.isAndroid) {
+      print("ANDROID");
+      client = ValueNotifier<GraphQLClient>(
+        GraphQLClient(
+          link: androidLink,
+          cache: GraphQLCache(),
+        ),
+      );
+    }
     return GraphQLProvider(
         client: client,
         child: MaterialApp(

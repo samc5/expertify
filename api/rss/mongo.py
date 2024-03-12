@@ -98,6 +98,7 @@ def hash(password):
 
 def signUp(email, hash):
     if check_email(email):
+        print("check email foudn ttue")
         return None
     uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
     client = MongoClient(uri)

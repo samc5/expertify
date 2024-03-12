@@ -417,10 +417,12 @@ def login():
 
 @app.route("/signup", methods=["POST"])
 def signup():
+    print('uhh')
     email = request.form['email']
     try:
         pw_hash = mongo.hash(request.form['password'])
         result = mongo.signUp(email,pw_hash)
+        print(result)
         if result:
             user_id = str(result)
             payload = {
