@@ -6,6 +6,7 @@ import 'login_screen.dart';
 import 'form_field.dart';
 import 'token_operations.dart';
 import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class SignUpScreen extends StatelessWidget {
   const SignUpScreen({Key? key}) : super(key: key);
@@ -57,14 +58,17 @@ class SignUpFormState extends State<SignUpForm> {
     // Extracting email and password from text controllers
     String email = emailValue.text;
     String password = passwordValue.text;
-
-    // Example POST request
-    var url = Uri.parse('http://localhost:5000/signup');
-    // Example POST request
-    if (Platform.isAndroid) {
-      url = Uri.parse(
-          'http://10.0.2.2:5000/signup'); // Replace with your API endpoint
-    } // Replace with your API endpoint
+    var url;
+    if (kIsWeb) {
+      url = Uri.parse('http://localhost:5000/signup'); // URL for web
+    } else {
+      if (Platform.isAndroid) {
+        url = Uri.parse(
+            'http://10.0.2.2:5000/signup'); // URL for Android emulator
+      } else if (Platform.isWindows) {
+        url = Uri.parse('http://localhost:5000/signup'); // URL for Windows app
+      }
+    }
     var response = await http.post(
       url,
       body: {
@@ -104,11 +108,11 @@ class SignUpFormState extends State<SignUpForm> {
         child: Container(
           width: 1000,
           padding: EdgeInsets.all(20),
-          decoration: BoxDecoration(
-              border: Border.all(
-            color: Colors.black, // Add your desired border color here
-            width: 2.0,
-          )),
+          // decoration: BoxDecoration(
+          //     border: Border.all(
+          //   color: Colors.black, // Add your desired border color here
+          //   width: 2.0,
+          // )),
           child: Center(
             child: Form(
               key: _formKey,

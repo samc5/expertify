@@ -2,6 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'token_operations.dart';
 
+const String newerEntry = """
+mutation newEntry(\$url: String!, \$token: String!, \$category: String!){
+  createCategoryEntry(url: \$url, token: \$token, category: \$category) {
+    success
+    errors
+    entries {
+        url
+        title
+    }
+  }
+}
+""";
+
 const String newEntry = """
 mutation newEntry(\$url: String!, \$token: String!) {
   createPersonalEntry(url: \$url, token: \$token) {
@@ -64,6 +77,8 @@ class NewFeedFormState extends State<NewFeedForm> {
   // not a GlobalKey<NewFeedFormState>.
   final _formKey = GlobalKey<FormState>();
   final UrlValue = TextEditingController();
+  final TextEditingController categoryValue = TextEditingController();
+  String? categorySelected;
 
   @override
   void dispose() {
@@ -101,29 +116,40 @@ class NewFeedFormState extends State<NewFeedForm> {
             Padding(
               padding: const EdgeInsets.only(bottom: 25.0),
             ),
-            // TextField(
-            //   // The validator receives the text that the user has entered.
-            //   controller: UrlValue,
-            //   // validator: (value) {
-            //   //   if (value == null || value.isEmpty) {
-            //   //     return 'Please enter some text';
-            //   //   }
-            //   //   return value;
-            //   // },
-            //   decoration: InputDecoration(
-            //     border: OutlineInputBorder(
-            //       // Solid border
-            //       borderRadius: BorderRadius.circular(8.0), // Rounded corners
-            //     ),
-            //     hintText: 'Batch Input',
-            //   ),
-            // ),
-            // Padding(
-            //   padding: const EdgeInsets.only(bottom: 25.0),
-            // ),
-            // Add TextFormFields and ElevatedButton here.
+            DropdownMenu<String>(
+              width: 200,
+              controller: categoryValue,
+              enableFilter: true,
+              requestFocusOnTap: true,
+              leadingIcon: const Icon(Icons.search),
+              label: const Text('Category'),
+              inputDecorationTheme: const InputDecorationTheme(
+                filled: true,
+                contentPadding: EdgeInsets.symmetric(vertical: 5.0),
+              ),
+              onSelected: (String? category) {
+                setState(() {
+                  categorySelected = category;
+                });
+              },
+              dropdownMenuEntries: [
+                DropdownMenuEntry<String>(
+                  value: 'Panopticon',
+                  label: 'Panopticon',
+                ),
+                DropdownMenuEntry<String>(
+                  value: 'Substacks',
+                  label: 'Substacks',
+                ),
+                DropdownMenuEntry<String>(
+                  value: 'Sports',
+                  label: 'Sports',
+                )
+              ],
+            ),
+            Padding(padding: EdgeInsets.only(bottom: 20)),
             Mutation(
-              options: MutationOptions(document: gql(newEntry)),
+              options: MutationOptions(document: gql(newerEntry)),
               builder: (runMutation, result) {
                 return ElevatedButton(
                   onPressed: () async {
@@ -132,12 +158,16 @@ class NewFeedFormState extends State<NewFeedForm> {
                       final token = await getToken();
                       // If the form is valid, display a snackbar. In the real world,
                       // you'd often call a server or save the information in a database.
-                      runMutation({'url': UrlValue.text, 'token': token});
+                      runMutation({
+                        'url': UrlValue.text,
+                        'token': token,
+                        'category': categoryValue.text
+                      });
                       UrlValue.clear();
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Processing Data'),
-                          duration: Duration(seconds: 2), // Adjust as needed
+                          content: Text('Submitted'),
+                          duration: Duration(seconds: 1), // Adjust as needed
                         ),
                       );
                     }
@@ -147,6 +177,104 @@ class NewFeedFormState extends State<NewFeedForm> {
               },
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// DropdownMenuEntry labels and values for the first dropdown menu.
+
+// DropdownMenuEntry labels and values for the second dropdown menu.
+enum IconLabel {
+  smile('Smile', Icons.sentiment_satisfied_outlined),
+  cloud(
+    'Cloud',
+    Icons.cloud_outlined,
+  ),
+  brush('Brush', Icons.brush_outlined),
+  heart('Heart', Icons.favorite);
+
+  const IconLabel(this.label, this.icon);
+  final String label;
+  final IconData icon;
+}
+
+class DropdownMenuExample extends StatefulWidget {
+  const DropdownMenuExample({super.key});
+
+  @override
+  State<DropdownMenuExample> createState() => _DropdownMenuExampleState();
+}
+
+class _DropdownMenuExampleState extends State<DropdownMenuExample> {
+  final TextEditingController iconController = TextEditingController();
+  IconLabel? selectedIcon;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: Colors.green,
+      ),
+      home: Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    const SizedBox(width: 24),
+                    DropdownMenu<IconLabel>(
+                      controller: iconController,
+                      enableFilter: true,
+                      requestFocusOnTap: true,
+                      leadingIcon: const Icon(Icons.search),
+                      label: const Text('Icon'),
+                      inputDecorationTheme: const InputDecorationTheme(
+                        filled: true,
+                        contentPadding: EdgeInsets.symmetric(vertical: 5.0),
+                      ),
+                      onSelected: (IconLabel? icon) {
+                        setState(() {
+                          selectedIcon = icon;
+                        });
+                      },
+                      dropdownMenuEntries:
+                          IconLabel.values.map<DropdownMenuEntry<IconLabel>>(
+                        (IconLabel icon) {
+                          return DropdownMenuEntry<IconLabel>(
+                            value: icon,
+                            label: icon.label,
+                            leadingIcon: Icon(icon.icon),
+                          );
+                        },
+                      ).toList(),
+                    ),
+                  ],
+                ),
+              ),
+              if (selectedIcon != null)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text('You selected a ${selectedIcon?.label}'),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                      child: Icon(
+                        selectedIcon?.icon,
+                        color: Colors.blueGrey,
+                      ),
+                    )
+                  ],
+                )
+              else
+                const Text('Please select a color and an icon.')
+            ],
+          ),
         ),
       ),
     );

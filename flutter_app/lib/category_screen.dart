@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'article_list.dart';
+import 'token_operations.dart';
 
-const String pub_query = """
-query fetchPubEntries(\$url: String!) {
-  pub_entries(url: \$url) {
+const String category_query = """
+query fetchCategoryEntries(\$category: String!, \$token: String!){
+  category_entries(category: \$category, token: \$token) {
     success
     errors
     entries {
@@ -17,41 +18,48 @@ query fetchPubEntries(\$url: String!) {
     }
   }
 }
-
 """;
 
-final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
-
-final ValueNotifier<GraphQLClient> client = ValueNotifier<GraphQLClient>(
-  GraphQLClient(
-    link: httpLink,
-    cache: GraphQLCache(),
-  ),
-);
-
-class PubArticlesWidget extends StatefulWidget {
-  final String url;
-  final String pub_name;
-  const PubArticlesWidget({Key? key, required this.url, required this.pub_name})
+class CategoryArticlesWidget extends StatefulWidget {
+  final String category;
+  const CategoryArticlesWidget({Key? key, required this.category})
       : super(key: key);
 
   @override
-  State<PubArticlesWidget> createState() => _PubArticlesWidgetState();
+  State<CategoryArticlesWidget> createState() => _CategoryArticlesWidgetState();
 }
 
-class _PubArticlesWidgetState extends State<PubArticlesWidget> {
+class _CategoryArticlesWidgetState extends State<CategoryArticlesWidget> {
   TextEditingController newTaskController = TextEditingController();
+  String? token;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchToken();
+  }
+
+  Future<void> _fetchToken() async {
+    try {
+      token = await getToken();
+    } catch (e) {
+      print("Error fetching token: $e");
+      // Handle error appropriately, like showing an error message
+    }
+    setState(() {}); // Trigger a rebuild after token is fetched
+  }
 
   @override
   Widget build(BuildContext context) {
-    final String url = widget.url;
-    print(url);
     return Scaffold(
       body: Query(
           options: QueryOptions(
-              document: gql(pub_query),
+              document: gql(category_query),
               pollInterval: const Duration(seconds: 120),
-              variables: <String, dynamic>{"url": widget.url}),
+              variables: <String, dynamic>{
+                "token": token,
+                "category": widget.category
+              }),
           builder: (result, {fetchMore, refetch}) {
             if (result.hasException) {
               print(result.exception.toString());
@@ -66,9 +74,9 @@ class _PubArticlesWidgetState extends State<PubArticlesWidget> {
                 appBar: AppBar(
                     surfaceTintColor: Colors.transparent,
                     centerTitle: true,
-                    automaticallyImplyLeading: true,
+                    automaticallyImplyLeading: false,
                     title:
-                        Text(widget.pub_name) // Set your desired app bar title
+                        Text(widget.category) // Set your desired app bar title
                     ),
                 body: Center(
                   child: Text("Loading...",
@@ -82,9 +90,8 @@ class _PubArticlesWidgetState extends State<PubArticlesWidget> {
             //         style: TextStyle(fontSize: 20), textAlign: TextAlign.center),
             //   );
             // }
-            final entries = result.data!["pub_entries"]["entries"];
-            return Article_List(
-                entries: entries, pub_title: entries[0]['pub_name']);
+            final entries = result.data!["category_entries"]["entries"];
+            return Article_List(entries: entries, pub_title: widget.category);
           }),
     );
   }

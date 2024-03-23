@@ -1,23 +1,8 @@
 import 'package:flutter/material.dart';
-import 'articles.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'navigation_bar_controller.dart';
 import 'login_screen.dart';
 import 'dart:io' show Platform;
-
-const String query = """
-query fetchAllTodos {
-  todos {
-    success
-    errors
-    todos {
-      name
-      is_executed
-      id
-    }
-  }
-}
-""";
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
 final HttpLink androidLink = HttpLink("http://10.0.2.2:5000/graphql");
@@ -46,7 +31,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (Platform.isAndroid) {
+    if (kIsWeb) {
+      client = ValueNotifier<GraphQLClient>(
+        GraphQLClient(
+          link: httpLink,
+          cache: GraphQLCache(),
+        ),
+      );
+    } else if (Platform.isAndroid) {
       print("ANDROID");
       client = ValueNotifier<GraphQLClient>(
         GraphQLClient(

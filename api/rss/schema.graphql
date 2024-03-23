@@ -39,6 +39,13 @@ type UserResult {
     user: User
  }
 
+type Categories {
+    success: Boolean!
+    errors: [String]
+    categories: [String!]
+}
+
+
 type SignInResponse {
     token: String
     errors: [String]
@@ -55,6 +62,8 @@ type Query {
     pub_entries(url: String!): BlogEntriesResult
     personal_entries(token: String!): BlogEntriesResult
     blogEntry(entryId: ID!): BlogEntryResult!
+    fetch_categories(token: String!): Categories!
+    category_entries(token: String!, category: String): BlogEntriesResult
     user(email: String!, password: String!): UserResult
     users: [User]
 }
@@ -67,6 +76,7 @@ type DeleteEntryResult {
 type Mutation {
     createBlogEntry(url: String!): BlogEntryResult!
     createPersonalEntry(url: String!, token: String!): BlogEntryResult!
+    createCategoryEntry(url: String!, token: String!, category: String!): BlogEntryResult!
     deleteBlogEntry(entryId: ID!): DeleteEntryResult!
     signUp(email: String!, password: String!): SignUpResponse
     signIn(email: String!, password: String!): SignInResponse

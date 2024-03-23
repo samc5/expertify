@@ -201,11 +201,15 @@ def resolve_entries(obj, info):
     return payload
 
 def resolve_personal_entries(obj, info, token):
+    print("resolving personal entries")
     try:
         received = jwt.decode(token, secret_key, algorithms=["HS256"])
         user_id = received['id']
+        print("id computed")
         urls = mongo.get_user_feeds(user_id)
+        print(urls)
         entries = mongo.aggregate(personal_pipeline(urls))
+        print("entries acquired")
         real_entries = []
         for i in entries:
             entry = {
@@ -224,12 +228,14 @@ def resolve_personal_entries(obj, info, token):
             "success": True,
             "entries": real_entries
         }
+        print("payload loaded success")
     except Exception as e:
         print(e)
         payload = {
             "success": False,
             "errors": [str(e)]
         }
+        print("payload loaded as a failure")
     return payload
 
 def resolve_pub_entries(obj, info, url):
@@ -261,6 +267,55 @@ def resolve_pub_entries(obj, info, url):
         }
     return payload
 
+def resolve_category_entries(obj, info, token, category):
+    try:
+        received = jwt.decode(token, secret_key, algorithms=["HS256"])
+        user_id = received['id']
+        urls = mongo.get_user_category_links(user_id, category)
+        entries = mongo.aggregate(personal_pipeline(list(urls)))
+        real_entries = []
+        for i in entries:
+            entry = {
+                "id": i["_id"],
+                "pub_name": i['publication_name'],
+                "title": i["title"],
+                "is_content": False,
+                "pub_date": i['date'],
+                "text": i['value'],
+                "url": i['link'],
+                "pub_url": i['url'],
+                "author": i['author']
+            }
+            real_entries.append(entry)
+        payload = {
+            "success": True,
+            "entries": real_entries
+        }
+    except Exception as error:
+        payload = {
+            "success": False,
+            "errors": [str(error)]
+        }
+    return payload
+
+def resolve_categories_request(obj, info, token):
+    try:
+        received = jwt.decode(token, secret_key, algorithms=["HS256"])
+        user_id = received['id']
+        categories = mongo.get_user_categories(user_id)
+       # print(categories)
+        payload = {
+            "success": True,
+            "categories": categories
+            }
+    except Exception as error:
+        payload = {
+            "success": False,
+            "errors": [str(error)]
+        }
+    return payload
+
+
 @convert_kwargs_to_snake_case
 def resolve_create_entry(obj, info, url):
     try:
@@ -284,6 +339,26 @@ def resolve_create_personal_entry(obj, info, url, token):
         received = jwt.decode(token, secret_key, algorithms=["HS256"])
         user_id = received['id']
         mongo.add_user_link(user_id, blog)
+        payload = {
+            "success": True,
+            "entries": blog
+        }
+    except:
+        payload = {
+            "success": False,
+            "errors": "Unknown error"
+        }
+    return payload
+
+def resolve_create_category_entry(obj, info, url, token, category):
+    try:
+        blog = parser.construct_feed_dict(url)
+        received = jwt.decode(token, secret_key, algorithms=["HS256"])
+        user_id = received['id']
+        if category is None or category == "":
+            mongo.add_user_link(user_id, blog)
+        else:
+            mongo.add_user_category_link(user_id, blog, category)
         payload = {
             "success": True,
             "entries": blog
@@ -363,11 +438,15 @@ query = ObjectType("Query")
 query.set_field("entries", resolve_entries)
 query.set_field("pub_entries", resolve_pub_entries)
 query.set_field("personal_entries", resolve_personal_entries)
+query.set_field("category_entries", resolve_category_entries)
 query.set_field("user", resolve_user_query)
+query.set_field("fetch_categories", resolve_categories_request)
 mutation = ObjectType("Mutation")
 
 mutation.set_field("createBlogEntry", resolve_create_entry)
 mutation.set_field("createPersonalEntry", resolve_create_personal_entry)
+mutation.set_field("createCategoryEntry", resolve_create_category_entry)
+
 mutation.set_field("signUp", resolve_sign_up)
 
 type_defs = load_schema_from_path("schema.graphql")
@@ -387,7 +466,7 @@ def graphql_server():
         context_value=request,
         debug=app.debug
     )
-    print(success,result)# doesn't seem to be the thing printing
+    print(success) # ABSOLUTELY IS THE THING PRINTING
     status_code = 200 if success else 400
     return jsonify(result), status_code
 

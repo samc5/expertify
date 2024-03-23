@@ -122,6 +122,46 @@ def add_user_link(user_id, blog):
     except Exception as e:
         print(e)
 
+def add_user_category_link(user_id, blog, category):
+    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    client = MongoClient(uri)
+    db = client["bb-app"]
+    collection = db["UserData"]
+    try:
+        collection.update_one({"user_id": ObjectId(user_id)}, {"$addToSet": {f"Categories.{category}": blog['url']}}, upsert=True)
+        collection.update_one({"user_id": ObjectId(user_id)}, {"$addToSet": {"feeds": blog['url']}}, upsert=True)
+        collection = db["feeds"]
+        collection.replace_one({'url': blog['url']}, blog, upsert=True)
+    except Exception as e:
+        print(e)
+
+def get_user_categories(user_id):
+    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    client = MongoClient(uri)
+    db = client["bb-app"]
+    collection = db["UserData"]
+    try:
+        user = collection.find_one({"user_id": ObjectId(user_id)})
+        category_names = list(user.get("Categories", {}).keys())
+        return category_names
+    except Exception as e:
+        print(e)
+
+def get_user_category_links(user_id, category):
+    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    client = MongoClient(uri)
+    db = client["bb-app"]
+    collection = db["UserData"]
+    try:
+         user = collection.find_one({"user_id": ObjectId(user_id)})
+        #  print(user)
+        #  print(category)
+         links = user['Categories'][category]
+         return links
+    except Exception as e:
+        print(f'Exception: {e}')
+
+
 def get_user_feeds(user_id):
     uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
     client = MongoClient(uri)
@@ -133,7 +173,6 @@ def get_user_feeds(user_id):
         return user['feeds']
     except Exception as e:
         print(e)
-
 
 
 def fetch_all_feeds():

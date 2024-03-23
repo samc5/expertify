@@ -2,24 +2,85 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'article_screen.dart';
 import 'blog_screen.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'token_operations.dart';
+import 'category_screen.dart';
+import 'navigation_bar_controller.dart';
 
-class Article_List extends StatelessWidget {
+String categoryQuery = """
+query fetch_categories(\$token: String!) {
+  fetch_categories(token: \$token) {
+    success
+    errors
+    categories
+  }
+}
+""";
+
+class Article_List extends StatefulWidget {
   const Article_List(
       {super.key, required this.entries, required this.pub_title});
 
   final entries;
   final String pub_title;
+  // String? token;
+  @override
+  _ArticleListState createState() => _ArticleListState();
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _fetchToken();
+//   }
+
+// Future<void> _fetchToken() async {
+//     try {
+//       token = await getToken();
+//     } catch (e) {
+//       print("Error fetching token: $e");
+//       // Handle error appropriately, like showing an error message
+//     }
+//     setState(() {}); // Trigger a rebuild after token is fetched
+//   }
+}
+
+class _ArticleListState extends State<Article_List> {
+  String? token;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchToken();
+  }
+
+  Future<void> _fetchToken() async {
+    try {
+      token = await getToken();
+    } catch (e) {
+      print("Error fetching token: $e");
+      // Handle error appropriately, like showing an error message
+    }
+    setState(() {}); // Trigger a rebuild after token is fetched
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (entries == null) {
+    if (token == null) {
+      // If token is not fetched yet, you can show a loading indicator or some other widget
+      return Center(child: CircularProgressIndicator());
+    }
+
+    if (widget.entries == null) {
       return Scaffold(
           appBar: AppBar(
             surfaceTintColor: Colors.transparent,
             centerTitle: true,
-            automaticallyImplyLeading: pub_title == 'Your Inbox' ? false : true,
-            //automaticallyImplyLeading: false,
-            title: Text(pub_title), // Set your desired app bar title
+            automaticallyImplyLeading:
+                widget.pub_title == 'Your Inbox' ? false : true,
+            leading: widget.pub_title == 'Your Inbox'
+                ? BackButton(color: Colors.black)
+                : null,
+            title: Text(widget.pub_title), // Set your desired app bar title
           ),
           body: Padding(
               padding: const EdgeInsets.only(left: 30, right: 30),
@@ -31,16 +92,78 @@ class Article_List extends StatelessWidget {
       appBar: AppBar(
         surfaceTintColor: Colors.transparent,
         centerTitle: true,
-        automaticallyImplyLeading: pub_title == 'Your Inbox' ? false : true,
-        //automaticallyImplyLeading: false,
-        title: Text(pub_title), // Set your desired app bar title
+        automaticallyImplyLeading: false,
+        leading: widget.pub_title == 'Your Inbox'
+            ? null
+            : BackButton(color: Colors.black),
+        actions: <Widget>[
+          Builder(
+            builder: (BuildContext context) {
+              return IconButton(
+                icon: Icon(Icons.menu),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+              );
+            },
+          )
+        ],
+        title: Text(widget.pub_title), // Set your desired app bar title
       ),
+      drawer: Query(
+          options: QueryOptions(
+              document: gql(categoryQuery),
+              variables: <String, dynamic>{"token": token}),
+          builder: (result, {fetchMore, refetch}) {
+            if (result.data == null) {
+              return Drawer(
+                  // Drawer content goes here
+                  child: Center(
+                child: Text("Loading..."),
+              ));
+            }
+            final categories = result.data!["fetch_categories"]["categories"];
+            print(categories);
+            return Drawer(
+              // Drawer content goes here
+              child: ListView.builder(
+                itemCount: categories.length + 1,
+                padding: EdgeInsets.zero,
+                itemBuilder: (BuildContext context, int index) {
+                  if (index == 0) {
+                    return ListTile(
+                        title: Text('All Feeds'),
+                        onTap: () {
+                          Scaffold.of(context).closeDrawer();
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      BottomNavigationBarController()));
+                        });
+                  } else {
+                    final categoryIndex = index - 1;
+                    return ListTile(
+                        title: Text(categories[categoryIndex]),
+                        onTap: () {
+                          Scaffold.of(context).closeDrawer();
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => CategoryArticlesWidget(
+                                      category: categories[categoryIndex])));
+                        });
+                  }
+                },
+              ),
+            );
+          }),
       body: Padding(
         padding: const EdgeInsets.only(top: 15),
         child: Container(
             //height: MediaQuery.of(context).size.height * 0.6,
             child: ListView.builder(
-                itemCount: entries.length,
+                itemCount: widget.entries.length,
                 itemBuilder: (ctx, i) => Padding(
                       padding: const EdgeInsets.only(bottom: 10.0),
                       child: Padding(
@@ -52,23 +175,25 @@ class Article_List extends StatelessWidget {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => ArticleScreen(
-                                        pub_url: entries[i]['pub_url'],
-                                        title: entries[i]['title'],
-                                        articleText: entries[i]['text'],
-                                        pubName: entries[i]['pub_name'],
-                                        author: entries[i]['author']))),
+                                        pub_url: widget.entries[i]['pub_url'],
+                                        title: widget.entries[i]['title'],
+                                        articleText: widget.entries[i]['text'],
+                                        pubName: widget.entries[i]['pub_name'],
+                                        author: widget.entries[i]['author']))),
                             subtitle: InkWell(
                                 onTap: () => Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => PubArticlesWidget(
-                                            pub_name: entries[i]['pub_name'],
-                                            url: entries[i]['pub_url']))),
+                                            pub_name: widget.entries[i]
+                                                ['pub_name'],
+                                            url: widget.entries[i]
+                                                ['pub_url']))),
                                 child: Text(
-                                  entries[i]['pub_name'],
+                                  widget.entries[i]['pub_name'],
                                 )),
 
-                            title: Text(entries[i]['title']),
+                            title: Text(widget.entries[i]['title']),
 
                             // child: Text(entries[i]['title']),
                             // onTap: () =>
@@ -80,7 +205,8 @@ class Article_List extends StatelessWidget {
                                       size: 30),
                                   padding: const EdgeInsets.only(right: 15),
                                   onPressed: () {
-                                    launchUrl(Uri.parse(entries[i]['url']));
+                                    launchUrl(
+                                        Uri.parse(widget.entries[i]['url']));
                                   }),
                             ),
                           ),

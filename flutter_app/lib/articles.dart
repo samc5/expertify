@@ -3,6 +3,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'article_list.dart';
 import 'token_operations.dart';
 import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 const String query = """
 query fetchAllEntries {
@@ -78,7 +79,14 @@ class _ArticlesWidgetState extends State<ArticlesWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (Platform.isAndroid) {
+    if (kIsWeb) {
+      client = ValueNotifier<GraphQLClient>(
+        GraphQLClient(
+          link: httpLink,
+          cache: GraphQLCache(),
+        ),
+      );
+    } else if (Platform.isAndroid) {
       print("ANDROID");
       client = ValueNotifier<GraphQLClient>(
         GraphQLClient(
@@ -99,8 +107,9 @@ class _ArticlesWidgetState extends State<ArticlesWidget> {
         builder: (result, {fetchMore, refetch}) {
           if (result.hasException) {
             print(result.exception.toString());
-            return const Center(
-              child: Text("Error occurred while fetching data!"),
+            final excep = result.exception.toString();
+            return Center(
+              child: Text(excep),
             );
           }
           if (result.data == null) {
