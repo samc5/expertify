@@ -194,7 +194,7 @@ class LoginFormState extends State<LoginForm> {
                           ),
                         ),
                       ),
-                      child: Text('Sign Up instead',
+                      child: Text('Sign Up Instead',
                           style: TextStyle(color: Colors.white)),
                     ),
                   ),

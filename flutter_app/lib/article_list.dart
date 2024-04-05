@@ -6,6 +6,8 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'token_operations.dart';
 import 'category_screen.dart';
 import 'navigation_bar_controller.dart';
+import 'token_operations.dart';
+import 'login_screen.dart';
 
 String categoryQuery = """
 query fetch_categories(\$token: String!) {
@@ -86,7 +88,7 @@ class _ArticleListState extends State<Article_List> {
               padding: const EdgeInsets.only(left: 30, right: 30),
               child: Center(
                   child: Text(
-                      "You don't have any feeds yet! Add an RSS feed and it'll show up here"))));
+                      "You don't have any feeds yet! Add an RSS feed and it'll show up here."))));
     }
     return Scaffold(
       appBar: AppBar(
@@ -125,9 +127,10 @@ class _ArticleListState extends State<Article_List> {
             final categories = result.data!["fetch_categories"]["categories"];
             print(categories);
             return Drawer(
+              backgroundColor: Colors.white,
               // Drawer content goes here
               child: ListView.builder(
-                itemCount: categories.length + 1,
+                itemCount: categories.length + 2,
                 padding: EdgeInsets.zero,
                 itemBuilder: (BuildContext context, int index) {
                   if (index == 0) {
@@ -141,6 +144,20 @@ class _ArticleListState extends State<Article_List> {
                                   builder: (context) =>
                                       BottomNavigationBarController()));
                         });
+                  } else if (index > categories.length) {
+                    return Padding(
+                      padding: const EdgeInsets.only(left: 80.0, right: 80.0),
+                      child: ElevatedButton(
+                          child: Text('Log Out'),
+                          //tileColor: const Color.fromARGB(255, 184, 205, 215),
+                          onPressed: () {
+                            deleteToken();
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LoginScreen()));
+                          }),
+                    );
                   } else {
                     final categoryIndex = index - 1;
                     return ListTile(
@@ -169,45 +186,57 @@ class _ArticleListState extends State<Article_List> {
                       child: Padding(
                         padding: const EdgeInsets.only(left: 12.0, right: 12.0),
                         child: InkWell(
-                          child: ListTile(
-                            tileColor: Colors.black12,
-                            onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => ArticleScreen(
-                                        pub_url: widget.entries[i]['pub_url'],
-                                        title: widget.entries[i]['title'],
-                                        articleText: widget.entries[i]['text'],
-                                        pubName: widget.entries[i]['pub_name'],
-                                        author: widget.entries[i]['author']))),
-                            subtitle: InkWell(
-                                onTap: () => Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => PubArticlesWidget(
-                                            pub_name: widget.entries[i]
-                                                ['pub_name'],
-                                            url: widget.entries[i]
-                                                ['pub_url']))),
-                                child: Text(
-                                  widget.entries[i]['pub_name'],
-                                )),
+                          child: Container(
+                            decoration: BoxDecoration(
+                                border: Border(
+                                    bottom: BorderSide(
+                                        color: Color.fromARGB(
+                                            157, 150, 150, 150)))),
+                            child: ListTile(
+                              tileColor: Color.fromARGB(255, 255, 255, 255),
+                              onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ArticleScreen(
+                                          pub_url: widget.entries[i]['pub_url'],
+                                          title: widget.entries[i]['title'],
+                                          articleText: widget.entries[i]
+                                              ['text'],
+                                          pubName: widget.entries[i]
+                                              ['pub_name'],
+                                          author: widget.entries[i]
+                                              ['author']))),
+                              subtitle: InkWell(
+                                  onTap: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              PubArticlesWidget(
+                                                  pub_name: widget.entries[i]
+                                                      ['pub_name'],
+                                                  url: widget.entries[i]
+                                                      ['pub_url']))),
+                                  child: Text(widget.entries[i]['pub_name'],
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 2)),
 
-                            title: Text(widget.entries[i]['title']),
+                              title: Text(widget.entries[i]['title'],
+                                  overflow: TextOverflow.ellipsis, maxLines: 2),
 
-                            // child: Text(entries[i]['title']),
-                            // onTap: () =>
-                            //     launchUrl(Uri.parse(entries[i]['url']))),
-                            trailing: InkWell(
-                              child: IconButton(
-                                  icon: Icon(Icons.link,
-                                      color: Color.fromARGB(255, 111, 55, 2),
-                                      size: 30),
-                                  padding: const EdgeInsets.only(right: 15),
-                                  onPressed: () {
-                                    launchUrl(
-                                        Uri.parse(widget.entries[i]['url']));
-                                  }),
+                              // child: Text(entries[i]['title']),
+                              // onTap: () =>
+                              //     launchUrl(Uri.parse(entries[i]['url']))),
+                              trailing: InkWell(
+                                child: IconButton(
+                                    icon: Icon(Icons.link,
+                                        color: Color.fromARGB(255, 111, 55, 2),
+                                        size: 30),
+                                    //padding: const EdgeInsets.only(right: 15),
+                                    onPressed: () {
+                                      launchUrl(
+                                          Uri.parse(widget.entries[i]['url']));
+                                    }),
+                              ),
                             ),
                           ),
                         ),
