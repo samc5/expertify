@@ -168,6 +168,17 @@ def personal_pipeline(url_list):
     {"$limit": 25}
 ]
 
+feed_and_url_pipeline = [
+    {
+        "$project": {
+            "_id": 0,
+            "title": 1,
+            "url": 1
+        }
+    }
+]
+
+
 def resolve_entries(obj, info):
     # urls = mongo.aggregate(url_pipeline)
     # feed_dicts = [parser.construct_feed_dict(i['url']) for i in urls]
@@ -315,6 +326,15 @@ def resolve_categories_request(obj, info, token):
         }
     return payload
 
+def resolve_all_feeds(obj, info):
+    try:
+        feeds = mongo.aggregate(feed_and_url_pipeline)
+        return feeds
+        #print(feeds)
+        
+
+    except Exception as error:
+        print(str(error))
 
 @convert_kwargs_to_snake_case
 def resolve_create_entry(obj, info, url):
@@ -441,6 +461,8 @@ query.set_field("personal_entries", resolve_personal_entries)
 query.set_field("category_entries", resolve_category_entries)
 query.set_field("user", resolve_user_query)
 query.set_field("fetch_categories", resolve_categories_request)
+query.set_field("allFeeds", resolve_all_feeds)
+
 mutation = ObjectType("Mutation")
 
 mutation.set_field("createBlogEntry", resolve_create_entry)

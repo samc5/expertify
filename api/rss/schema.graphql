@@ -56,6 +56,11 @@ type SignUpResponse {
     errors: [String]
 }
 
+type SimpleFeed {
+    title: String!
+    url: String!
+}
+
 
 type Query {
     entries: BlogEntriesResult
@@ -66,6 +71,7 @@ type Query {
     category_entries(token: String!, category: String): BlogEntriesResult
     user(email: String!, password: String!): UserResult
     users: [User]
+    allFeeds: [SimpleFeed]
 }
 
 type DeleteEntryResult {

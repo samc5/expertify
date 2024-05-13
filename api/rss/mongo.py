@@ -4,6 +4,7 @@ import bcrypt
 from dotenv import load_dotenv
 import os
 from bson import ObjectId
+import dateutil.parser
 # set a string equal to the contents of mongodbpassword.txt
 load_dotenv()
 password = os.getenv("MONGO_PASSWORD")
@@ -196,22 +197,19 @@ def fetch_all_feeds():
 
 
 
-
-    
-# def convert_to_date(date_str):
-#     #2024-01-25 03:59:03
-#     date_str = date_str[:date_str.rindex(' ')]
-#     try:
-#         datetime_object = datetime.strptime(date_str, '%a, %d %b %Y %H:%M:%S')
-#     except:
-#         datetime_object = datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
-#     return datetime_object
-
-
 def convert_to_date(date_str):
-    formats = ['%a, %d %b %Y %H:%M:%S', '%Y-%m-%d %H:%M:%S']
+    formats = ['%a, %d %b %Y %H:%M:%S', '%Y-%m-%d %H:%M:%S', '%Y-%m-%dT%H:%M:%S.%fZ']
+    # try:
+    #     datetime_object = dateutil.parser.parse(date_string)
+    #     return datetime_object
+    # except:
+    #     print(date_str)
+    #     return datetime.utcfromtimestamp(0)
     if date_str:
-        date_str = date_str[:date_str.rindex(' ')]
+        if ' ' in date_str:
+            date_str = date_str[:date_str.rindex(' ')]
+        else:
+            print(date_str)
     for date_format in formats:
         try:
             datetime_object = datetime.strptime(date_str, date_format)
@@ -220,7 +218,7 @@ def convert_to_date(date_str):
             pass
     
     # If none of the formats match, return datetime from the beginning of Unix time
-    return datetime.utcfromtimestamp(0)
+    
 
 # pipeline = [
     
@@ -232,42 +230,42 @@ def convert_to_date(date_str):
 
 
 
-pipeline2 = [
+# pipeline2 = [
     
-    {
-        "$project": {
-            "_id": 1,
-            "title": 1,
-            "titles": 1,
-            "values": 1,
-            "dates": 1,
-            "article": {
-                "$zip": {
-                    "inputs": ["$titles", "$values", "$dates"],
-                }
-            }
-        }
-    },
-    {"$unwind": "$article"},
+#     {
+#         "$project": {
+#             "_id": 1,
+#             "title": 1,
+#             "titles": 1,
+#             "values": 1,
+#             "dates": 1,
+#             "article": {
+#                 "$zip": {
+#                     "inputs": ["$titles", "$values", "$dates"],
+#                 }
+#             }
+#         }
+#     },
+#     {"$unwind": "$article"},
 
-    {
-        "$project": {
-            "_id": 1,
-            "publication_name": "$title",
-            "title": {
-                "$arrayElemAt": ["$article", 0]
-            },
-            "value": {
-                "$arrayElemAt": ["$article", 1]
-            },
-            "date": {
-                "$arrayElemAt": ["$article", 2]
-            }
-        }
-    },
-    {"$sort": {"date": -1}},
-    {"$limit": 25}
-]
+#     {
+#         "$project": {
+#             "_id": 1,
+#             "publication_name": "$title",
+#             "title": {
+#                 "$arrayElemAt": ["$article", 0]
+#             },
+#             "value": {
+#                 "$arrayElemAt": ["$article", 1]
+#             },
+#             "date": {
+#                 "$arrayElemAt": ["$article", 2]
+#             }
+#         }
+#     },
+#     {"$sort": {"date": -1}},
+#     {"$limit": 25}
+# ]
 
 def aggregate(pipeline_input):
     uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"

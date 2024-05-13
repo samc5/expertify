@@ -85,11 +85,6 @@ class _CategoryArticlesWidgetState extends State<CategoryArticlesWidget> {
                 ),
               );
             }
-            //   return const Center(
-            //     child: Text("NO data received",
-            //         style: TextStyle(fontSize: 20), textAlign: TextAlign.center),
-            //   );
-            // }
             final entries = result.data!["category_entries"]["entries"];
             return Article_List(entries: entries, pub_title: widget.category);
           }),
