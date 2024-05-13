@@ -120,7 +120,11 @@ class _ArticlesWidgetState extends State<ArticlesWidget> {
           final entries = result.data!["personal_entries"]["entries"];
           //print(entries);
           //print(result.data);
-          return Article_List(entries: entries, pub_title: "Your Inbox");
+          return Article_List(
+            entries: entries,
+            pub_title: "Your Inbox",
+            showAppBar: true,
+          );
         });
   }
 }

@@ -21,10 +21,15 @@ query fetch_categories(\$token: String!) {
 
 class Article_List extends StatefulWidget {
   const Article_List(
-      {super.key, required this.entries, required this.pub_title});
+      {super.key,
+      required this.entries,
+      required this.pub_title,
+      required this.showAppBar});
 
   final entries;
   final String pub_title;
+  final bool showAppBar;
+
   // String? token;
   @override
   _ArticleListState createState() => _ArticleListState();
@@ -74,16 +79,18 @@ class _ArticleListState extends State<Article_List> {
 
     if (widget.entries == null) {
       return Scaffold(
-          appBar: AppBar(
-            surfaceTintColor: Colors.transparent,
-            centerTitle: true,
-            automaticallyImplyLeading:
-                widget.pub_title == 'Your Inbox' ? false : true,
-            leading: widget.pub_title == 'Your Inbox'
-                ? BackButton(color: Colors.black)
-                : null,
-            title: Text(widget.pub_title), // Set your desired app bar title
-          ),
+          appBar: widget.showAppBar
+              ? AppBar(
+                  surfaceTintColor: Colors.transparent,
+                  centerTitle: true,
+                  automaticallyImplyLeading:
+                      widget.pub_title == 'Your Inbox' ? false : true,
+                  leading: widget.pub_title == 'Your Inbox'
+                      ? BackButton(color: Colors.black)
+                      : null,
+                  title: Text(widget.pub_title),
+                )
+              : null,
           body: Padding(
               padding: const EdgeInsets.only(left: 30, right: 30),
               child: Center(
@@ -91,27 +98,29 @@ class _ArticleListState extends State<Article_List> {
                       "You don't have any feeds yet! Add an RSS feed and it'll show up here."))));
     }
     return Scaffold(
-      appBar: AppBar(
-        surfaceTintColor: Colors.transparent,
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-        leading: widget.pub_title == 'Your Inbox'
-            ? null
-            : BackButton(color: Colors.black),
-        actions: <Widget>[
-          Builder(
-            builder: (BuildContext context) {
-              return IconButton(
-                icon: Icon(Icons.menu),
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
-              );
-            },
-          )
-        ],
-        title: Text(widget.pub_title), // Set your desired app bar title
-      ),
+      appBar: widget.showAppBar
+          ? AppBar(
+              surfaceTintColor: Colors.transparent,
+              centerTitle: true,
+              automaticallyImplyLeading: false,
+              leading: widget.pub_title == 'Your Inbox'
+                  ? null
+                  : BackButton(color: Colors.black),
+              actions: <Widget>[
+                Builder(
+                  builder: (BuildContext context) {
+                    return IconButton(
+                      icon: Icon(Icons.menu),
+                      onPressed: () {
+                        Scaffold.of(context).openDrawer();
+                      },
+                    );
+                  },
+                )
+              ],
+              title: Text(widget.pub_title),
+            )
+          : null,
       drawer: Query(
           options: QueryOptions(
               document: gql(categoryQuery),

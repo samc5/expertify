@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'blog_screen.dart';
 
 const String feeds_query = """
 query fetchAllFeeds {
@@ -21,7 +22,7 @@ class DiscoveryScreen extends StatelessWidget {
         appBar: AppBar(
           centerTitle: true,
           automaticallyImplyLeading: false,
-          title: Text("Add a Feed"), // Set your desired app bar title
+          title: Text("Discover New Sources"), // Set your desired app bar title
         ),
         body: DiscoveryForm());
   }
@@ -64,7 +65,24 @@ class DiscoveryFormState extends State<DiscoveryForm> {
           child: Query(
             options: QueryOptions(document: gql(feeds_query)),
             builder: (result, {fetchMore, refetch}) {
+              if (result.hasException) {
+                print(result.exception.toString());
+                return const Center(
+                  child: Text("Error occurred while fetching data!"),
+                );
+              }
+              if (result.data == null) {
+                return Center(child: Text("loading"));
+              }
+              final feeds = result.data!['allFeeds'];
+
+              ///print(feeds);
               return SearchAnchor(
+                isFullScreen: false,
+                viewConstraints: BoxConstraints(
+                  minHeight: kToolbarHeight,
+                  maxHeight: kToolbarHeight * 5,
+                ),
                 builder: (BuildContext context, SearchController controller) {
                   return SearchBar(
                     controller: controller,
@@ -81,10 +99,27 @@ class DiscoveryFormState extends State<DiscoveryForm> {
                 },
                 suggestionsBuilder:
                     (BuildContext context, SearchController controller) {
+                  int count = 0;
+                  List<Map<String, dynamic>> filteredFeeds = [];
+                  for (int i = 0; i < feeds.length; i++) {
+                    if (feeds[i]['title']
+                        .toLowerCase()
+                        .contains(controller.value.text.toLowerCase())) {
+                      filteredFeeds.add(feeds[i]);
+                    }
+                  }
+                  print(filteredFeeds);
+                  // final List<Map<String, dynamic>> filteredFeeds = feeds
+                  //     .where((feed) => (feed['title'] as String)
+                  //         .toLowerCase()
+                  //         .contains(controller.value.text.toLowerCase()))
+                  //     .toList();
+
+                  // print(filteredFeeds);
                   return List<ListTile>.generate(
-                    5,
+                    filteredFeeds.length,
                     (int index) {
-                      final String item = 'item $index';
+                      final String item = filteredFeeds[index]['title'];
                       return ListTile(
                         title: Text(item),
                         trailing: Container(
@@ -102,7 +137,13 @@ class DiscoveryFormState extends State<DiscoveryForm> {
                                   color: Colors
                                       .white), // Ensure the icon color contrasts well with the background
                               onPressed: () {
-                                // Add your onPressed logic here
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => PubArticlesWidget(
+                                            url: filteredFeeds[index]['url'],
+                                            pub_name: filteredFeeds[index]
+                                                ['title'])));
                               },
                             ),
                           ),

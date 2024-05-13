@@ -83,8 +83,54 @@ class _PubArticlesWidgetState extends State<PubArticlesWidget> {
             //   );
             // }
             final entries = result.data!["pub_entries"]["entries"];
-            return Article_List(
-                entries: entries, pub_title: entries[0]['pub_name']);
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                AppBar(
+                  surfaceTintColor: Colors.transparent,
+                  centerTitle: true,
+                  automaticallyImplyLeading: true,
+                  title: Text(widget.pub_name),
+                ),
+                FractionallySizedBox(
+                  widthFactor: 0.25,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      // Handle subscribe button tap
+                    },
+                    style: ButtonStyle(
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                              Radius.circular(4)), // Square edges
+                        ),
+                      ),
+                      padding: MaterialStateProperty.all(
+                        EdgeInsets.symmetric(
+                            vertical: 8.0,
+                            horizontal: 12.0), // Customize padding
+                      ),
+                      textStyle: MaterialStateProperty.all(
+                        TextStyle(
+                            fontSize: 14.0,
+                            fontWeight:
+                                FontWeight.bold), // Change text font size
+                      ),
+                    ),
+                    child: Text('Subscribe'),
+                  ),
+                ),
+                Expanded(
+                  child: Article_List(
+                    entries: entries,
+                    pub_title: entries[0]['pub_name'],
+                    showAppBar: false,
+                  ),
+                ),
+              ],
+            );
+            // return Article_List(
+            //     entries: entries, pub_title: entries[0]['pub_name']);
           }),
     );
   }
