@@ -61,6 +61,11 @@ type SimpleFeed {
     url: String!
 }
 
+type checkFeedResult {
+    result: Boolean!
+    success: Boolean!
+    errors: [String]
+}
 
 type Query {
     entries: BlogEntriesResult
@@ -72,6 +77,7 @@ type Query {
     user(email: String!, password: String!): UserResult
     users: [User]
     allFeeds: [SimpleFeed]
+    checkForFeed(url: String!, token: String!): checkFeedResult!
 }
 
 type DeleteEntryResult {
@@ -83,7 +89,7 @@ type Mutation {
     createBlogEntry(url: String!): BlogEntryResult!
     createPersonalEntry(url: String!, token: String!): BlogEntryResult!
     createCategoryEntry(url: String!, token: String!, category: String!): BlogEntryResult!
-    deleteBlogEntry(entryId: ID!): DeleteEntryResult!
+    deleteBlogEntry(url: String!, token: String!): DeleteEntryResult!
     signUp(email: String!, password: String!): SignUpResponse
     signIn(email: String!, password: String!): SignInResponse
 }

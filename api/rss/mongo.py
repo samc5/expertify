@@ -136,6 +136,24 @@ def add_user_category_link(user_id, blog, category):
     except Exception as e:
         print(e)
 
+def delete_user_link(user_id, url):
+    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    client = MongoClient(uri)
+    db = client["bb-app"]
+    collection = db["UserData"]
+    try:
+        user_data = collection.find_one({"user_id": ObjectId(user_id)})
+        categories = user_data.get("Categories", {})
+        update_query = {"$pull": {"feeds": url}}
+        for category_name, _ in categories.items():
+            update_query["$pull"][f"Categories.{category_name}"] = url
+        collection.update_one({"user_id": ObjectId(user_id)}, update_query)
+
+
+        
+    except Exception as e:
+        print(e)        
+
 def get_user_categories(user_id):
     uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
     client = MongoClient(uri)
@@ -155,8 +173,6 @@ def get_user_category_links(user_id, category):
     collection = db["UserData"]
     try:
          user = collection.find_one({"user_id": ObjectId(user_id)})
-        #  print(user)
-        #  print(category)
          links = user['Categories'][category]
          return links
     except Exception as e:
@@ -170,11 +186,20 @@ def get_user_feeds(user_id):
     collection = db["UserData"]
     try:
         user = collection.find_one({"user_id": ObjectId(user_id)})
-        #print(user)
         return user['feeds']
     except Exception as e:
         print(e)
 
+def check_user_feed(user_id, url):
+    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    client = MongoClient(uri)
+    db = client["bb-app"]
+    collection = db["UserData"]
+    try:
+        user = collection.find_one({"user_id": ObjectId(user_id)})
+        return url in user['feeds']
+    except Exception as e:
+        print(e)
 
 def fetch_all_feeds():
     uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
@@ -185,7 +210,6 @@ def fetch_all_feeds():
        pass
     except Exception as e:
         print(e)
-
     client = MongoClient(uri)
     db = client["bb-app"]
     collection = db["feeds"]
@@ -199,12 +223,6 @@ def fetch_all_feeds():
 
 def convert_to_date(date_str):
     formats = ['%a, %d %b %Y %H:%M:%S', '%Y-%m-%d %H:%M:%S', '%Y-%m-%dT%H:%M:%S.%fZ']
-    # try:
-    #     datetime_object = dateutil.parser.parse(date_string)
-    #     return datetime_object
-    # except:
-    #     print(date_str)
-    #     return datetime.utcfromtimestamp(0)
     if date_str:
         if ' ' in date_str:
             date_str = date_str[:date_str.rindex(' ')]

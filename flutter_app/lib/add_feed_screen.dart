@@ -156,8 +156,7 @@ class NewFeedFormState extends State<NewFeedForm> {
                     // Validate returns true if the form is valid, or false otherwise.
                     if (_formKey.currentState!.validate()) {
                       final token = await getToken();
-                      // If the form is valid, display a snackbar. In the real world,
-                      // you'd often call a server or save the information in a database.
+                      // If the form is valid, display a snackbar
                       runMutation({
                         'url': UrlValue.text,
                         'token': token,

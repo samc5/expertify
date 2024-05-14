@@ -3,6 +3,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'login_screen.dart';
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:google_fonts/google_fonts.dart';
 
 final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
 final HttpLink androidLink = HttpLink("http://10.0.2.2:5000/graphql");
@@ -56,7 +57,15 @@ class MyApp extends StatelessWidget {
             primarySwatch: Colors.cyan,
             scaffoldBackgroundColor: Colors.white,
             textTheme: TextTheme(
-              bodySmall: TextStyle(fontSize: 11, fontFamily: "Arial"),
+              //bodySmall: GoogleFonts.sourceSerif4(fontSize: 11),
+              bodyMedium: GoogleFonts.sourceSerif4(fontSize: 14),
+              bodyLarge: GoogleFonts.sourceSerif4(fontSize: 16),
+              displayLarge: GoogleFonts.sourceSerif4(fontSize: 16),
+              displayMedium: GoogleFonts.sourceSerif4(fontSize: 11),
+              displaySmall: GoogleFonts.sourceSerif4(fontSize: 11),
+              titleLarge: GoogleFonts.sourceSerif4(fontSize: 24),
+              titleMedium: GoogleFonts.sourceSerif4(fontSize: 16),
+              titleSmall: GoogleFonts.sourceSerif4(fontSize: 16),
             ),
           ),
           initialRoute: '/',

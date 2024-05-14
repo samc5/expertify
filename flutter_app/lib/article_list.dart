@@ -228,13 +228,8 @@ class _ArticleListState extends State<Article_List> {
                                   child: Text(widget.entries[i]['pub_name'],
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 2)),
-
                               title: Text(widget.entries[i]['title'],
                                   overflow: TextOverflow.ellipsis, maxLines: 2),
-
-                              // child: Text(entries[i]['title']),
-                              // onTap: () =>
-                              //     launchUrl(Uri.parse(entries[i]['url']))),
                               trailing: InkWell(
                                 child: IconButton(
                                     icon: Icon(Icons.link,

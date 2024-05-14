@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'article_list.dart';
+import 'token_operations.dart';
 
 const String pub_query = """
 query fetchPubEntries(\$url: String!) {
@@ -15,6 +16,39 @@ query fetchPubEntries(\$url: String!) {
       url
       author
     }
+  }
+}
+
+""";
+
+const String newerEntry = """
+mutation newEntry(\$url: String!, \$token: String!, \$category: String!){
+  createCategoryEntry(url: \$url, token: \$token, category: \$category) {
+    success
+    errors
+    entries {
+        url
+        title
+    }
+  }
+}
+""";
+
+const String deleteEntry = """
+mutation DeleteBlogEntry(\$url: String!, \$token: String!) {
+  deleteBlogEntry(url: \$url, token: \$token) {
+    success
+    errors
+  }
+}
+""";
+
+const String checkFeed = """
+query CheckForFeed(\$url: String!, \$token: String!) {
+  checkForFeed(url: \$url, token: \$token) {
+    result
+    success
+    errors
   }
 }
 
@@ -41,6 +75,24 @@ class PubArticlesWidget extends StatefulWidget {
 
 class _PubArticlesWidgetState extends State<PubArticlesWidget> {
   TextEditingController newTaskController = TextEditingController();
+  bool isSubscribed = false;
+  String? token;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchToken();
+  }
+
+  Future<void> _fetchToken() async {
+    try {
+      token = await getToken();
+    } catch (e) {
+      print("Error fetching token: $e");
+      // Handle error appropriately, like showing an error message
+    }
+    setState(() {}); // Trigger a rebuild after token is fetched
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,12 +129,8 @@ class _PubArticlesWidgetState extends State<PubArticlesWidget> {
                 ),
               );
             }
-            //   return const Center(
-            //     child: Text("NO data received",
-            //         style: TextStyle(fontSize: 20), textAlign: TextAlign.center),
-            //   );
-            // }
             final entries = result.data!["pub_entries"]["entries"];
+            //final token = await getToken();
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -92,33 +140,112 @@ class _PubArticlesWidgetState extends State<PubArticlesWidget> {
                   automaticallyImplyLeading: true,
                   title: Text(widget.pub_name),
                 ),
-                FractionallySizedBox(
-                  widthFactor: 0.25,
-                  child: OutlinedButton(
-                    onPressed: () {
-                      // Handle subscribe button tap
-                    },
-                    style: ButtonStyle(
-                      shape: MaterialStateProperty.all(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(4)), // Square edges
-                        ),
-                      ),
-                      padding: MaterialStateProperty.all(
-                        EdgeInsets.symmetric(
-                            vertical: 8.0,
-                            horizontal: 12.0), // Customize padding
-                      ),
-                      textStyle: MaterialStateProperty.all(
-                        TextStyle(
-                            fontSize: 14.0,
-                            fontWeight:
-                                FontWeight.bold), // Change text font size
-                      ),
-                    ),
-                    child: Text('Subscribe'),
-                  ),
+                SingleChildScrollView(
+                  child: Query(
+                      options: QueryOptions(
+                          document: gql(checkFeed),
+                          variables: <String, dynamic>{
+                            "url": widget.url,
+                            "token": token
+                          }),
+                      builder: (result2, {fetchMore, refetch}) {
+                        if (result2.data == null) {
+                          return Center(
+                            child: Text("Loading...",
+                                style: TextStyle(fontSize: 25),
+                                textAlign: TextAlign.center),
+                          );
+                        }
+                        isSubscribed = result2.data!["checkForFeed"]["result"];
+                        return FractionallySizedBox(
+                          widthFactor: 0.25,
+                          child: Mutation(
+                            options: MutationOptions(
+                                document: gql(
+                                    isSubscribed ? deleteEntry : newerEntry)),
+                            builder: (runMutation, result) {
+                              return OutlinedButton(
+                                  onPressed: () async {
+                                    print(token);
+                                    print(widget.url);
+                                    runMutation(isSubscribed
+                                        ? {
+                                            'url': widget.url,
+                                            'token': token,
+                                          }
+                                        : {
+                                            'url': widget.url,
+                                            'token': token,
+                                            'category': ""
+                                          });
+
+                                    isSubscribed = !isSubscribed;
+                                    // ScaffoldMessenger.of(context).showSnackBar(
+                                    //   const SnackBar(
+                                    //     content: Text('Subscribed!'),
+                                    //     duration:
+                                    //         Duration(seconds: 1), // Adjust as needed
+                                    //   ),
+                                    // );
+                                    print(isSubscribed);
+                                  },
+                                  style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateColor.resolveWith(
+                                      (states) {
+                                        if (states
+                                            .contains(MaterialState.disabled)) {
+                                          return Colors.grey.withOpacity(
+                                              0.5); // Light color when disabled
+                                        }
+                                        return isSubscribed
+                                            ? Colors.white
+                                            : Color(
+                                                0xFF511730); // Dark or light color based on subscription
+                                      },
+                                    ),
+                                    foregroundColor: MaterialStateProperty
+                                        .resolveWith<Color>(
+                                      (Set<MaterialState> states) {
+                                        // Set colors based on subscription state
+                                        if (states
+                                            .contains(MaterialState.disabled)) {
+                                          // Button is disabled
+                                          return Colors.white; // Light color
+                                        }
+                                        // Button is enabled
+                                        return isSubscribed
+                                            ? Colors.black
+                                            : Colors
+                                                .white; // Dark or light color
+                                      },
+                                    ),
+                                    shape: MaterialStateProperty.all(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(4)), // Square edges
+                                      ),
+                                    ),
+                                    padding: MaterialStateProperty.all(
+                                      EdgeInsets.symmetric(
+                                          vertical: 8.0,
+                                          horizontal:
+                                              12.0), // Customize padding
+                                    ),
+                                    textStyle: MaterialStateProperty.all(
+                                      TextStyle(
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight
+                                              .bold), // Change text font size
+                                    ),
+                                  ),
+                                  child: Text(isSubscribed
+                                      ? 'Subscribed'
+                                      : 'Subscribe'));
+                            },
+                          ),
+                        );
+                      }),
                 ),
                 Expanded(
                   child: Article_List(

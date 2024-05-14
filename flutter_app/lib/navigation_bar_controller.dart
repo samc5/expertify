@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'articles.dart';
 import 'add_feed_screen.dart';
-import 'settings.dart';
 import 'discovery_screen.dart';
 
 class BottomNavigationBarController extends StatefulWidget {
@@ -16,10 +15,10 @@ class _BottomNavigationBarControllerState
     ArticlesWidget(
       key: PageStorageKey('Page1'),
     ),
+    DiscoveryScreen(key: PageStorageKey('Page2')),
     AddFeedScreen(
-      key: PageStorageKey('Page2'),
+      key: PageStorageKey('Page3'),
     ),
-    DiscoveryScreen(key: PageStorageKey('Page 3'))
   ];
 
   final PageStorageBucket bucket = PageStorageBucket();
@@ -31,8 +30,8 @@ class _BottomNavigationBarControllerState
         currentIndex: selectedIndex,
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.inbox), label: 'Inbox'),
-          BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Add Feed'),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Discover'),
+          BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Add Feed'),
         ],
       );
 

@@ -14,7 +14,7 @@ query fetchAllFeeds {
 class DiscoveryScreen extends StatelessWidget {
   const DiscoveryScreen({Key? key}) : super(key: key);
 
-  static const routeName = '/add_feed';
+  static const routeName = '/discovery';
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +99,6 @@ class DiscoveryFormState extends State<DiscoveryForm> {
                 },
                 suggestionsBuilder:
                     (BuildContext context, SearchController controller) {
-                  int count = 0;
                   List<Map<String, dynamic>> filteredFeeds = [];
                   for (int i = 0; i < feeds.length; i++) {
                     if (feeds[i]['title']
@@ -108,14 +107,6 @@ class DiscoveryFormState extends State<DiscoveryForm> {
                       filteredFeeds.add(feeds[i]);
                     }
                   }
-                  print(filteredFeeds);
-                  // final List<Map<String, dynamic>> filteredFeeds = feeds
-                  //     .where((feed) => (feed['title'] as String)
-                  //         .toLowerCase()
-                  //         .contains(controller.value.text.toLowerCase()))
-                  //     .toList();
-
-                  // print(filteredFeeds);
                   return List<ListTile>.generate(
                     filteredFeeds.length,
                     (int index) {
