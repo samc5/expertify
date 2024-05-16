@@ -89,6 +89,7 @@ type Mutation {
     createBlogEntry(url: String!): BlogEntryResult!
     createPersonalEntry(url: String!, token: String!): BlogEntryResult!
     createCategoryEntry(url: String!, token: String!, category: String!): BlogEntryResult!
+    createCategoriesEntry(url: String!, token: String!, categories: [String]!): BlogEntryResult!
     deleteBlogEntry(url: String!, token: String!): DeleteEntryResult!
     signUp(email: String!, password: String!): SignUpResponse
     signIn(email: String!, password: String!): SignInResponse

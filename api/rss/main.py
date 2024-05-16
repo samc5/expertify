@@ -406,6 +406,27 @@ def resolve_create_category_entry(obj, info, url, token, category):
             "errors": "Unknown error"
         }
     return payload
+    
+def resolve_create_categories_entry(obj, info, url, token, categories):
+    try:
+        print(f"creating categories entry for {url}")
+        blog = parser.construct_feed_dict(url)  
+        received = jwt.decode(token, secret_key, algorithms=["HS256"])
+        user_id = received['id']
+        if len(categories) == 0:
+            mongo.add_user_link(user_id, blog)
+        else:
+            mongo.add_user_categories_link(user_id, blog, categories)
+        payload = {
+            "success": True,
+            "entries": blog
+        }
+    except:
+        payload = {
+            "success": False,
+            "errors": "Unknown error"
+        }
+    return payload
 
 def resolve_delete_entry(obj, info, url, token):
     try: 
@@ -485,6 +506,7 @@ mutation = ObjectType("Mutation")
 mutation.set_field("createBlogEntry", resolve_create_entry)
 mutation.set_field("createPersonalEntry", resolve_create_personal_entry)
 mutation.set_field("createCategoryEntry", resolve_create_category_entry)
+mutation.set_field("createCategoriesEntry", resolve_create_categories_entry)
 mutation.set_field("deleteBlogEntry", resolve_delete_entry)
 
 mutation.set_field("signUp", resolve_sign_up)

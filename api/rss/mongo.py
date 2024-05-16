@@ -136,6 +136,20 @@ def add_user_category_link(user_id, blog, category):
     except Exception as e:
         print(e)
 
+def add_user_categories_link(user_id, blog, categories):
+    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    client = MongoClient(uri)
+    db = client["bb-app"]
+    collection = db["UserData"]
+    try:
+        for category in categories:
+            collection.update_one({"user_id": ObjectId(user_id)}, {"$addToSet": {f"Categories.{category}": blog['url']}}, upsert=True)
+        collection.update_one({"user_id": ObjectId(user_id)}, {"$addToSet": {"feeds": blog['url']}}, upsert=True)
+        collection = db["feeds"]
+        collection.replace_one({'url': blog['url']}, blog, upsert=True)
+    except Exception as e:
+        print(e)
+
 def delete_user_link(user_id, url):
     uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
     client = MongoClient(uri)
