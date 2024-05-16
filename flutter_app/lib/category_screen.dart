@@ -13,6 +13,7 @@ query fetchCategoryEntries(\$category: String!, \$token: String!){
       text
       pub_name
       pub_url
+      pub_date
       url
       author
     }

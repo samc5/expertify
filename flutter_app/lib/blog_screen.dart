@@ -14,6 +14,7 @@ query fetchPubEntries(\$url: String!) {
       text
       pub_name
       pub_url
+      pub_date
       url
       author
     }

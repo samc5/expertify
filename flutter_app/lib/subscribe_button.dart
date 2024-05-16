@@ -190,7 +190,7 @@ class _SubscribeButtonState extends State<SubscribeButton> {
           }
           isSubscribed = result2.data!["checkForFeed"]["result"];
           return FractionallySizedBox(
-            widthFactor: 0.25,
+            widthFactor: 0.3,
             child: Mutation(
               options: MutationOptions(document: gql(deleteEntry)),
               builder: (runMutation, result, {fetchMore, refetch}) {
@@ -276,7 +276,7 @@ class _SubscribeButtonState extends State<SubscribeButton> {
                             padding: MaterialStateProperty.all(
                               EdgeInsets.symmetric(
                                   vertical: 8.0,
-                                  horizontal: 12.0), // Customize padding
+                                  horizontal: 10.0), // Customize padding
                             ),
                             textStyle: MaterialStateProperty.all(
                               TextStyle(

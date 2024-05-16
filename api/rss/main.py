@@ -67,7 +67,7 @@ pipeline2 = [
         }
     },
     {"$sort": {"date": -1}},
-    {"$limit": 25}
+    {"$limit": 100}
 ]
 
 url_pipeline = [
@@ -121,7 +121,7 @@ def pub_pipeline(url):
         }
     },
     {"$sort": {"date": -1}},
-    {"$limit": 25}
+    {"$limit": 100}
 ]
 
 
@@ -165,7 +165,7 @@ def personal_pipeline(url_list):
         }
     },
     {"$sort": {"date": -1}},
-    {"$limit": 25}
+    {"$limit": 100}
 ]
 
 feed_and_url_pipeline = [
@@ -228,7 +228,7 @@ def resolve_personal_entries(obj, info, token):
                 "pub_name": i['publication_name'],
                 "title": i["title"],
                 "is_content": False,
-                "pub_date": i['date'],
+                "pub_date": humanize_date(i['date']),
                 "text": i['value'],
                 "url": i['link'],
                 "pub_url": i['url'],
@@ -259,7 +259,7 @@ def resolve_pub_entries(obj, info, url):
                 "pub_name": i['publication_name'],
                 "title": i["title"],
                 "is_content": False,
-                "pub_date": i['date'],
+                "pub_date": humanize_date(i['date']),
                 "text": i['value'],
                 "url": i['link'],
                 "pub_url": i['url'],
@@ -278,6 +278,25 @@ def resolve_pub_entries(obj, info, url):
         }
     return payload
 
+def humanize_date(date_str):
+    #2024-05-13 13:12:56
+    date_format = "%Y-%m-%d %H:%M:%S"
+    try:
+        datetime_object = datetime.datetime.strptime(str(date_str), date_format)
+        now = datetime.datetime.now()
+        if datetime_object.date() == now.date():
+            formatted_date = datetime_object.strftime('%I:%M %p')
+        elif datetime_object.year < now.year:
+            formatted_date = datetime_object.strftime('%m/%d/%y')
+        else:
+            formatted_date = datetime_object.strftime('%b %d')
+
+        return formatted_date
+    except Exception as error:
+        print(error)
+        return "Unknown Date"
+
+
 def resolve_category_entries(obj, info, token, category):
     try:
         received = jwt.decode(token, secret_key, algorithms=["HS256"])
@@ -286,12 +305,13 @@ def resolve_category_entries(obj, info, token, category):
         entries = mongo.aggregate(personal_pipeline(list(urls)))
         real_entries = []
         for i in entries:
+            print(i['date'])
             entry = {
                 "id": i["_id"],
                 "pub_name": i['publication_name'],
                 "title": i["title"],
                 "is_content": False,
-                "pub_date": i['date'],
+                "pub_date": humanize_date(i['date']),
                 "text": i['value'],
                 "url": i['link'],
                 "pub_url": i['url'],
