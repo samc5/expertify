@@ -11,6 +11,19 @@ query fetchAllFeeds {
 }
 """;
 
+const String leaderboard_query = """
+query fetchLeaderboard{
+  fetchLeaderboard {
+    success
+    errors
+    feeds {
+      title
+      url
+    }
+  }
+}
+""";
+
 class DiscoveryScreen extends StatelessWidget {
   const DiscoveryScreen({Key? key}) : super(key: key);
 
@@ -60,9 +73,10 @@ class DiscoveryFormState extends State<DiscoveryForm> {
   Widget build(BuildContext context) {
     // Build a Form widget using the _formKey created above.
     return Padding(
-        padding: const EdgeInsets.all(18.0),
-        child: Center(
-          child: Query(
+      padding: const EdgeInsets.all(18.0),
+      child: Column(
+        children: [
+          Query(
             options: QueryOptions(document: gql(feeds_query)),
             builder: (result, {fetchMore, refetch}) {
               if (result.hasException) {
@@ -151,6 +165,80 @@ class DiscoveryFormState extends State<DiscoveryForm> {
               );
             },
           ),
-        ));
+          Padding(padding: EdgeInsets.symmetric(vertical: 20)),
+          Center(
+            child: Text(
+              "Most Popular Feeds",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Query(
+              options: QueryOptions(document: gql(leaderboard_query)),
+              builder: (result2, {fetchMore, refetch}) {
+                if (result2.hasException) {
+                  return Center(child: Text(result2.exception.toString()));
+                }
+
+                if (result2.isLoading) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                final List feeds =
+                    result2.data?['fetchLeaderboard']['feeds'] ?? [];
+
+                return feeds.isEmpty
+                    ? Center(child: Text('No feeds available'))
+                    : Expanded(
+                        child: Center(
+                          child: ListView.builder(
+                            itemCount: feeds.length,
+                            itemBuilder: (context, index) {
+                              final feed = feeds[index];
+                              return Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 8),
+                                child: InkWell(
+                                  onTap: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              PubArticlesWidget(
+                                                  pub_name: feed['title'],
+                                                  url: feed['url']))),
+                                  child: Container(
+                                    width:
+                                        double.infinity, // Expand to full width
+                                    decoration: BoxDecoration(
+                                      color: Color(
+                                          0xFF511730), // Change color as needed
+                                      borderRadius: BorderRadius.circular(
+                                          8), // Add rounded corners
+                                    ),
+                                    child: Padding(
+                                      padding: EdgeInsets.all(8),
+                                      child: Text(
+                                        feed['title'],
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: Colors
+                                              .white, // Change text color as needed
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      );
+              }),
+        ],
+      ),
+    );
   }
 }

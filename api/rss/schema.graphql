@@ -67,6 +67,13 @@ type checkFeedResult {
     errors: [String]
 }
 
+type leaderboardResult {
+    success: Boolean!
+    errors: [String]
+    feeds: [SimpleFeed]
+}
+
+
 type Query {
     entries: BlogEntriesResult
     pub_entries(url: String!): BlogEntriesResult
@@ -78,6 +85,7 @@ type Query {
     users: [User]
     allFeeds: [SimpleFeed]
     checkForFeed(url: String!, token: String!): checkFeedResult!
+    fetchLeaderboard: leaderboardResult
 }
 
 type DeleteEntryResult {

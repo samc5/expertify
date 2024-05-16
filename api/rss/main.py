@@ -178,6 +178,16 @@ feed_and_url_pipeline = [
     }
 ]
 
+leaderboard_pipeline = [
+    {"$sort": {"subscribers_count": -1}},  # Sort by subscribers_count in descending order
+    {"$limit": 5},  # Limit to top 5
+    {"$project": {
+        "_id": 0,
+        "title": 1,
+        "url": 1
+    }
+    }
+]
 
 def resolve_entries(obj, info):
     # urls = mongo.aggregate(url_pipeline)
@@ -371,6 +381,19 @@ def resolve_check_feed(obj, info, url, token):
         }
     return payload
 
+def resolve_fetch_leaderboard(obj, info):
+    try:
+        feeds = mongo.aggregate(leaderboard_pipeline)
+        payload = {
+            "success": True,
+            "feeds": feeds
+        }
+    except Exception as error:
+        payload = {
+            "success": False,
+            "errors": [str(Error)]
+        }
+    return payload
 @convert_kwargs_to_snake_case
 def resolve_create_entry(obj, info, url):
     try:
@@ -520,6 +543,7 @@ query.set_field("user", resolve_user_query)
 query.set_field("fetch_categories", resolve_categories_request)
 query.set_field("allFeeds", resolve_all_feeds)
 query.set_field("checkForFeed", resolve_check_feed)
+query.set_field("fetchLeaderboard", resolve_fetch_leaderboard)
 
 mutation = ObjectType("Mutation")
 
