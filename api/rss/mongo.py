@@ -30,12 +30,12 @@ def add_feeds(maps):
     client = MongoClient(uri)
     db = client["bb-app"]
     collection = db["feeds"]
-    #print(maps)
     try:
         for map in maps:
-            #print("start")
-            #print(map)
-            collection.replace_one({'url': map['url']}, map, upsert=True)    #print("Pinged your deployment. You successfully connected to MongoDB!")
+            existing_doc = collection.find_one({'url': map['url']})
+            map['subscribers_count'] = existing_doc.get('subscribers_count', 0)
+            updated_doc = {**existing_doc, **map}
+            collection.replace_one({'url': map['url']}, updated_doc, upsert=True)    #print("Pinged your deployment. You successfully connected to MongoDB!")
             print("upserted")
     except Exception as e:
         print(e)
@@ -120,6 +120,14 @@ def add_user_link(user_id, blog):
         collection.update_one({"user_id": ObjectId(user_id)}, {"$addToSet": {"feeds": blog['url']}}, upsert=True)
         collection = db["feeds"]
         collection.replace_one({'url': blog['url']}, blog, upsert=True)
+        collection.update_one(
+        {'url': blog['url']},
+        {
+            '$setOnInsert': {'subscribers_count': 0},  # Initialize count if document is new
+            '$inc': {'subscribers_count': 1}  # Increment the subscribers count
+        },
+    upsert=True
+)
     except Exception as e:
         print(e)
 
@@ -147,8 +155,25 @@ def add_user_categories_link(user_id, blog, categories):
         collection.update_one({"user_id": ObjectId(user_id)}, {"$addToSet": {"feeds": blog['url']}}, upsert=True)
         collection = db["feeds"]
         collection.replace_one({'url': blog['url']}, blog, upsert=True)
+        collection.update_one(
+        {'url': blog['url']},
+        { # Initialize count if document is new
+            '$inc': {'subscribers_count': 1}  # Increment the subscribers count
+        },
+    upsert=True
+)
     except Exception as e:
         print(e)
+
+def one_time():
+    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    client = MongoClient(uri)
+    db = client["bb-app"]
+    collection = db["feeds"]
+    collection.update_many(
+    {'subscribers_count': {'$exists': False}},  # Condition to find documents without subscribers_count
+    {'$set': {'subscribers_count': 0}}          # Initialize subscribers_count to 0
+)
 
 def delete_user_link(user_id, url):
     uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
@@ -162,9 +187,11 @@ def delete_user_link(user_id, url):
         for category_name, _ in categories.items():
             update_query["$pull"][f"Categories.{category_name}"] = url
         collection.update_one({"user_id": ObjectId(user_id)}, update_query)
-
-
-        
+        collection = db["feeds"]
+        collection.update_one(
+        {'url': url},
+        {   '$inc': {'subscribers_count': -1}}
+        )
     except Exception as e:
         print(e)        
 
@@ -251,55 +278,6 @@ def convert_to_date(date_str):
         except ValueError:
             pass
     
-    # If none of the formats match, return datetime from the beginning of Unix time
-    
-
-# pipeline = [
-    
-#     {"$unwind": "$dates"},
-#     {"$sort": {"dates": -1}},
-#     {"$limit": 5},
-        
-# ]
-
-
-
-# pipeline2 = [
-    
-#     {
-#         "$project": {
-#             "_id": 1,
-#             "title": 1,
-#             "titles": 1,
-#             "values": 1,
-#             "dates": 1,
-#             "article": {
-#                 "$zip": {
-#                     "inputs": ["$titles", "$values", "$dates"],
-#                 }
-#             }
-#         }
-#     },
-#     {"$unwind": "$article"},
-
-#     {
-#         "$project": {
-#             "_id": 1,
-#             "publication_name": "$title",
-#             "title": {
-#                 "$arrayElemAt": ["$article", 0]
-#             },
-#             "value": {
-#                 "$arrayElemAt": ["$article", 1]
-#             },
-#             "date": {
-#                 "$arrayElemAt": ["$article", 2]
-#             }
-#         }
-#     },
-#     {"$sort": {"date": -1}},
-#     {"$limit": 25}
-# ]
 
 def aggregate(pipeline_input):
     uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
@@ -308,15 +286,3 @@ def aggregate(pipeline_input):
     collection = db["feeds"]
     x = list(collection.aggregate(pipeline_input))
     return x
-
-
-# for i in aggregate(pipeline2):
-#     print("\n")
-#     #print(i)
-#     print(i['publication_name'])
-#     print(i['title'])
-#     print(i['date'])
-#     #print(i['title'])
-#     #print(i['dates'])
-    #print(i['titles'])
-    #print(i['value'])
