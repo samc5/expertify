@@ -211,6 +211,8 @@ def check_user_feed(user_id, url):
     collection = db["UserData"]
     try:
         user = collection.find_one({"user_id": ObjectId(user_id)})
+        if user is None:
+            return False
         return url in user['feeds']
     except Exception as e:
         print(e)
