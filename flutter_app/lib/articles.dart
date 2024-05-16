@@ -5,22 +5,22 @@ import 'token_operations.dart';
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 
-const String query = """
-query fetchAllEntries {
-  entries {
-    success
-    errors
-    entries {
-      title
-      text
-      pub_name
-      pub_url
-      url
-      author
-    }
-  }
-}
-""";
+// const String query = """
+// query fetchAllEntries {
+//   entries {
+//     success
+//     errors
+//     entries {
+//       title
+//       text
+//       pub_name
+//       pub_url
+//       url
+//       author
+//     }
+//   }
+// }
+// """;
 
 const String personalQuery = """
 query fetchPersonalEntries(\$token: String!) {
@@ -32,6 +32,7 @@ query fetchPersonalEntries(\$token: String!) {
       text
       pub_name
       pub_url
+      pub_date
       url
       author
     }

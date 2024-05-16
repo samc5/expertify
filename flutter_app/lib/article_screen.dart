@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'blog_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ArticleScreen extends StatelessWidget {
   final String title;
@@ -9,14 +10,15 @@ class ArticleScreen extends StatelessWidget {
   final String pubName;
   final String author;
   final String pub_url;
-
+  final String url;
   const ArticleScreen(
       {Key? key,
       required this.title,
       required this.articleText,
       required this.pubName,
       required this.author,
-      required this.pub_url})
+      required this.pub_url,
+      required this.url})
       : super(key: key);
 
   static const routeName = '/article';
@@ -56,6 +58,20 @@ class ArticleScreen extends StatelessWidget {
                           style: TextStyle(fontSize: 20),
                           textAlign: TextAlign.center),
                 ),
+                InkWell(
+                    child: const Text(
+                      "Read Online",
+                      style: TextStyle(
+                        fontSize: 16, // Make the text bigger
+                        color: Colors.blue, // Link color
+                        decoration:
+                            TextDecoration.underline, // Underline the text
+                      ),
+                    ),
+                    //padding: const EdgeInsets.only(right: 15),
+                    onTap: () {
+                      launchUrl(Uri.parse(url));
+                    }),
                 SizedBox(height: 10),
                 Divider(),
                 SizedBox(

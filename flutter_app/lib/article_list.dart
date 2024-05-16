@@ -213,8 +213,8 @@ class _ArticleListState extends State<Article_List> {
                                               ['text'],
                                           pubName: widget.entries[i]
                                               ['pub_name'],
-                                          author: widget.entries[i]
-                                              ['author']))),
+                                          author: widget.entries[i]['author'],
+                                          url: widget.entries[i]['url']))),
                               subtitle: InkWell(
                                   onTap: () => Navigator.push(
                                       context,
@@ -230,17 +230,13 @@ class _ArticleListState extends State<Article_List> {
                                       maxLines: 2)),
                               title: Text(widget.entries[i]['title'],
                                   overflow: TextOverflow.ellipsis, maxLines: 2),
-                              trailing: InkWell(
-                                child: IconButton(
-                                    icon: Icon(Icons.link,
-                                        color: Color.fromARGB(255, 111, 55, 2),
-                                        size: 30),
-                                    //padding: const EdgeInsets.only(right: 15),
-                                    onPressed: () {
-                                      launchUrl(
-                                          Uri.parse(widget.entries[i]['url']));
-                                    }),
-                              ),
+                              // // leading: Column(
+                              // //   children: [
+                              // //     Text(widget.entries[i]['pub_date']),
+                              // //     FlutterLogo(size: 24.0),
+                              // //   ],
+                              // ),
+                              trailing: Text(widget.entries[i]['pub_date']),
                             ),
                           ),
                         ),
