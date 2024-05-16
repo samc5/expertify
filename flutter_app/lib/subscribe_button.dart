@@ -35,6 +35,16 @@ query CheckForFeed(\$url: String!, \$token: String!) {
 
 """;
 
+String categoryQuery = """
+query fetch_categories(\$token: String!) {
+  fetch_categories(token: \$token) {
+    success
+    errors
+    categories
+  }
+}
+""";
+
 class MultiSelect extends StatefulWidget {
   final List<String> categories;
   final bool isSubscribed;
@@ -53,6 +63,8 @@ class MultiSelect extends StatefulWidget {
 
 class _MultiSelectState extends State<MultiSelect> {
   final List<String> _selectedCategories = [];
+  final TextEditingController categoryValue = TextEditingController();
+
   void _itemChange(String itemValue, bool isSelected) {
     setState(() {
       if (isSelected) {
@@ -71,7 +83,23 @@ class _MultiSelectState extends State<MultiSelect> {
 // this function is called when the Submit button is tapped
   List<String> _submit() {
     Navigator.pop(context, _selectedCategories);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Subscribed!'),
+        duration: Duration(seconds: 1), // Adjust as needed
+      ),
+    );
     return _selectedCategories;
+  }
+
+  void _addCategory() {
+    final String newCategory = categoryValue.text;
+    if (newCategory.isNotEmpty && !widget.categories.contains(newCategory)) {
+      setState(() {
+        widget.categories.add(newCategory);
+        categoryValue.clear();
+      });
+    }
   }
 
   @override
@@ -79,17 +107,28 @@ class _MultiSelectState extends State<MultiSelect> {
     return AlertDialog(
       title: const Text('Select Topics'),
       content: SingleChildScrollView(
-        child: ListBody(
-          children: widget.categories
-              .map((item) => CheckboxListTile(
-                    value: _selectedCategories.contains(item),
-                    title: Text(item),
-                    controlAffinity: ListTileControlAffinity.leading,
-                    onChanged: (isChecked) => _itemChange(item, isChecked!),
-                  ))
-              .toList(),
+          child: ListBody(children: [
+        ...widget.categories.map((item) {
+          return CheckboxListTile(
+            value: _selectedCategories.contains(item),
+            title: Text(item),
+            controlAffinity: ListTileControlAffinity.leading,
+            onChanged: (isChecked) => _itemChange(item, isChecked!),
+          );
+        }).toList(),
+        ListTile(
+          title: TextField(
+            controller: categoryValue,
+            decoration: InputDecoration(
+              labelText: 'Add Category',
+            ),
+          ),
+          trailing: IconButton(
+            icon: Icon(Icons.add),
+            onPressed: _addCategory,
+          ),
         ),
-      ),
+      ])),
       actions: [
         TextButton(
           onPressed: _cancel,
@@ -100,7 +139,6 @@ class _MultiSelectState extends State<MultiSelect> {
             builder: (runMutation, result, {fetchMore, refetch}) {
               return ElevatedButton(
                 onPressed: () {
-                  print("it gets up hera bove the mutation");
                   runMutation({
                     'url': widget.url,
                     'token': widget.token,
@@ -156,87 +194,100 @@ class _SubscribeButtonState extends State<SubscribeButton> {
             child: Mutation(
               options: MutationOptions(document: gql(deleteEntry)),
               builder: (runMutation, result, {fetchMore, refetch}) {
-                return OutlinedButton(
-                    onPressed: () async {
-                      print("pree-state");
-                      print(isSubscribed);
-                      final List<String> categories = [
-                        'Sports',
-                        'Susbtack',
-                        'Panopticon'
-                      ];
-                      isSubscribed = !isSubscribed;
-                      print("post-state");
-                      print(isSubscribed);
-                      if (isSubscribed) {
-                        List<String>? results = await showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return MultiSelect(
-                                  categories: categories,
-                                  isSubscribed: isSubscribed,
-                                  url: widget.widget.url,
-                                  token: widget.token);
-                            });
-                      } else {
-                        runMutation({
-                          'url': widget.widget.url,
-                          'token': widget.token,
-                        });
+                return Query(
+                    options: QueryOptions(
+                        document: gql(categoryQuery),
+                        variables: <String, dynamic>{"token": widget.token}),
+                    builder: (categoriesResult, {fetchMore, refetch}) {
+                      if (categoriesResult.data == null) {
+                        return Center(
+                          child: Text("",
+                              style: TextStyle(fontSize: 25),
+                              textAlign: TextAlign.center),
+                        );
                       }
-                      // ScaffoldMessenger.of(context).showSnackBar(
-                      //   const SnackBar(
-                      //     content: Text('Subscribed!'),
-                      //     duration:
-                      //         Duration(seconds: 1), // Adjust as needed
-                      //   ),
-                      // );
-                    },
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateColor.resolveWith(
-                        (states) {
-                          if (states.contains(MaterialState.disabled)) {
-                            return Colors.grey
-                                .withOpacity(0.5); // Light color when disabled
-                          }
-                          return isSubscribed
-                              ? Colors.white
-                              : Color(
-                                  0xFF511730); // Dark or light color based on subscription
-                        },
-                      ),
-                      foregroundColor: MaterialStateProperty.resolveWith<Color>(
-                        (Set<MaterialState> states) {
-                          // Set colors based on subscription state
-                          if (states.contains(MaterialState.disabled)) {
-                            // Button is disabled
-                            return Colors.white; // Light color
-                          }
-                          // Button is enabled
-                          return isSubscribed
-                              ? Colors.black
-                              : Colors.white; // Dark or light color
-                        },
-                      ),
-                      shape: MaterialStateProperty.all(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(4)), // Square edges
-                        ),
-                      ),
-                      padding: MaterialStateProperty.all(
-                        EdgeInsets.symmetric(
-                            vertical: 8.0,
-                            horizontal: 12.0), // Customize padding
-                      ),
-                      textStyle: MaterialStateProperty.all(
-                        TextStyle(
-                            fontSize: 14.0,
-                            fontWeight:
-                                FontWeight.bold), // Change text font size
-                      ),
-                    ),
-                    child: Text(isSubscribed ? 'Subscribed' : 'Subscribe'));
+                      List<dynamic> categories = categoriesResult
+                              .data?['fetch_categories']['categories'] ??
+                          [];
+                      List<String> categoryList =
+                          categories.whereType<String>().toList();
+                      return OutlinedButton(
+                          onPressed: () async {
+                            isSubscribed = !isSubscribed;
+                            // print("post-state");
+                            // print(isSubscribed);
+                            if (isSubscribed) {
+                              List<String>? results = await showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return MultiSelect(
+                                        categories: categoryList,
+                                        isSubscribed: isSubscribed,
+                                        url: widget.widget.url,
+                                        token: widget.token);
+                                  });
+                            } else {
+                              runMutation({
+                                'url': widget.widget.url,
+                                'token': widget.token,
+                              });
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Unsubscribed!'),
+                                  duration:
+                                      Duration(seconds: 1), // Adjust as needed
+                                ),
+                              );
+                            }
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateColor.resolveWith(
+                              (states) {
+                                if (states.contains(MaterialState.disabled)) {
+                                  return Colors.grey.withOpacity(
+                                      0.5); // Light color when disabled
+                                }
+                                return isSubscribed
+                                    ? Colors.white
+                                    : Color(
+                                        0xFF511730); // Dark or light color based on subscription
+                              },
+                            ),
+                            foregroundColor:
+                                MaterialStateProperty.resolveWith<Color>(
+                              (Set<MaterialState> states) {
+                                // Set colors based on subscription state
+                                if (states.contains(MaterialState.disabled)) {
+                                  // Button is disabled
+                                  return Colors.white; // Light color
+                                }
+                                // Button is enabled
+                                return isSubscribed
+                                    ? Colors.black
+                                    : Colors.white; // Dark or light color
+                              },
+                            ),
+                            shape: MaterialStateProperty.all(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(
+                                    Radius.circular(4)), // Square edges
+                              ),
+                            ),
+                            padding: MaterialStateProperty.all(
+                              EdgeInsets.symmetric(
+                                  vertical: 8.0,
+                                  horizontal: 12.0), // Customize padding
+                            ),
+                            textStyle: MaterialStateProperty.all(
+                              TextStyle(
+                                  fontSize: 14.0,
+                                  fontWeight:
+                                      FontWeight.bold), // Change text font size
+                            ),
+                          ),
+                          child:
+                              Text(isSubscribed ? 'Subscribed' : 'Subscribe'));
+                    });
               },
             ),
           );
