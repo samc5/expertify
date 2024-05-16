@@ -1,26 +1,12 @@
 import 'package:flutter/material.dart';
-import 'articles.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'navigation_bar_controller.dart';
 import 'login_screen.dart';
-import 'dart:io';
-
-const String query = """
-query fetchAllTodos {
-  todos {
-    success
-    errors
-    todos {
-      name
-      is_executed
-      id
-    }
-  }
-}
-""";
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:google_fonts/google_fonts.dart';
 
 final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
-
+final HttpLink androidLink = HttpLink("http://10.0.2.2:5000/graphql");
 // bool _certificateCheck(X509Certificate cert, String host, int port) =>
 //     host == 'local.domain.ext'; // <- change
 
@@ -30,7 +16,7 @@ final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
 // Create a HttpClient with the trusted certificate
 // HttpClient client = HttpClient(context: securityContext);
 
-final ValueNotifier<GraphQLClient> client = ValueNotifier<GraphQLClient>(
+ValueNotifier<GraphQLClient> client = ValueNotifier<GraphQLClient>(
   GraphQLClient(
     link: httpLink,
     cache: GraphQLCache(),
@@ -46,15 +32,40 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (kIsWeb) {
+      client = ValueNotifier<GraphQLClient>(
+        GraphQLClient(
+          link: httpLink,
+          cache: GraphQLCache(),
+        ),
+      );
+    } else if (Platform.isAndroid) {
+      print("ANDROID");
+      client = ValueNotifier<GraphQLClient>(
+        GraphQLClient(
+          link: androidLink,
+          cache: GraphQLCache(),
+        ),
+      );
+    }
     return GraphQLProvider(
         client: client,
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'Flutter Demo',
           theme: ThemeData(
-            primarySwatch: Colors.purple,
+            primarySwatch: Colors.cyan,
+            scaffoldBackgroundColor: Colors.white,
             textTheme: TextTheme(
-              bodySmall: TextStyle(fontSize: 11, fontFamily: "Arial"),
+              //bodySmall: GoogleFonts.sourceSerif4(fontSize: 11),
+              bodyMedium: GoogleFonts.sourceSerif4(fontSize: 14),
+              bodyLarge: GoogleFonts.sourceSerif4(fontSize: 16),
+              displayLarge: GoogleFonts.sourceSerif4(fontSize: 16),
+              displayMedium: GoogleFonts.sourceSerif4(fontSize: 11),
+              displaySmall: GoogleFonts.sourceSerif4(fontSize: 11),
+              titleLarge: GoogleFonts.sourceSerif4(fontSize: 24),
+              titleMedium: GoogleFonts.sourceSerif4(fontSize: 16),
+              titleSmall: GoogleFonts.sourceSerif4(fontSize: 16),
             ),
           ),
           initialRoute: '/',

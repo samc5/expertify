@@ -168,6 +168,17 @@ def personal_pipeline(url_list):
     {"$limit": 25}
 ]
 
+feed_and_url_pipeline = [
+    {
+        "$project": {
+            "_id": 0,
+            "title": 1,
+            "url": 1
+        }
+    }
+]
+
+
 def resolve_entries(obj, info):
     # urls = mongo.aggregate(url_pipeline)
     # feed_dicts = [parser.construct_feed_dict(i['url']) for i in urls]
@@ -201,11 +212,15 @@ def resolve_entries(obj, info):
     return payload
 
 def resolve_personal_entries(obj, info, token):
+    print("resolving personal entries")
     try:
         received = jwt.decode(token, secret_key, algorithms=["HS256"])
         user_id = received['id']
+        print("id computed")
         urls = mongo.get_user_feeds(user_id)
+        print(urls)
         entries = mongo.aggregate(personal_pipeline(urls))
+        print("entries acquired")
         real_entries = []
         for i in entries:
             entry = {
@@ -224,12 +239,14 @@ def resolve_personal_entries(obj, info, token):
             "success": True,
             "entries": real_entries
         }
+        print("payload loaded success")
     except Exception as e:
         print(e)
         payload = {
             "success": False,
             "errors": [str(e)]
         }
+        print("payload loaded as a failure")
     return payload
 
 def resolve_pub_entries(obj, info, url):
@@ -256,6 +273,79 @@ def resolve_pub_entries(obj, info, url):
         }
     except Exception as error:
         payload = {
+            "success": False,
+            "errors": [str(error)]
+        }
+    return payload
+
+def resolve_category_entries(obj, info, token, category):
+    try:
+        received = jwt.decode(token, secret_key, algorithms=["HS256"])
+        user_id = received['id']
+        urls = mongo.get_user_category_links(user_id, category)
+        entries = mongo.aggregate(personal_pipeline(list(urls)))
+        real_entries = []
+        for i in entries:
+            entry = {
+                "id": i["_id"],
+                "pub_name": i['publication_name'],
+                "title": i["title"],
+                "is_content": False,
+                "pub_date": i['date'],
+                "text": i['value'],
+                "url": i['link'],
+                "pub_url": i['url'],
+                "author": i['author']
+            }
+            real_entries.append(entry)
+        payload = {
+            "success": True,
+            "entries": real_entries
+        }
+    except Exception as error:
+        payload = {
+            "success": False,
+            "errors": [str(error)]
+        }
+    return payload
+
+def resolve_categories_request(obj, info, token):
+    try:
+        received = jwt.decode(token, secret_key, algorithms=["HS256"])
+        user_id = received['id']
+        categories = mongo.get_user_categories(user_id)
+       # print(categories)
+        payload = {
+            "success": True,
+            "categories": categories
+            }
+    except Exception as error:
+        payload = {
+            "success": False,
+            "errors": [str(error)]
+        }
+    return payload
+
+def resolve_all_feeds(obj, info):
+    try:
+        feeds = mongo.aggregate(feed_and_url_pipeline)
+        return feeds
+        
+    except Exception as error:
+        print(str(error))
+
+def resolve_check_feed(obj, info, url, token):
+    try:
+        received = jwt.decode(token, secret_key, algorithms=["HS256"])
+        user_id = received['id']
+        result = mongo.check_user_feed(user_id, url)
+        payload = {
+            "result": result,
+            "success": True,
+        }
+    except Exception as error:
+        payload = {
+            "result": False,
             "success": False,
             "errors": [str(error)]
         }
@@ -295,6 +385,63 @@ def resolve_create_personal_entry(obj, info, url, token):
         }
     return payload
 
+def resolve_create_category_entry(obj, info, url, token, category):
+    try:
+        print("resolving create cateogy rnetyr")
+        print(f'category: {category}')
+        blog = parser.construct_feed_dict(url)
+        received = jwt.decode(token, secret_key, algorithms=["HS256"])
+        user_id = received['id']
+        if category is None or category == "":
+            mongo.add_user_link(user_id, blog)
+        else:
+            mongo.add_user_category_link(user_id, blog, category)
+        payload = {
+            "success": True,
+            "entries": blog
+        }
+    except:
+        payload = {
+            "success": False,
+            "errors": "Unknown error"
+        }
+    return payload
+    
+def resolve_create_categories_entry(obj, info, url, token, categories):
+    try:
+        print(f"creating categories entry for {url}")
+        blog = parser.construct_feed_dict(url)  
+        received = jwt.decode(token, secret_key, algorithms=["HS256"])
+        user_id = received['id']
+        if len(categories) == 0:
+            mongo.add_user_link(user_id, blog)
+        else:
+            mongo.add_user_categories_link(user_id, blog, categories)
+        payload = {
+            "success": True,
+            "entries": blog
+        }
+    except:
+        payload = {
+            "success": False,
+            "errors": "Unknown error"
+        }
+    return payload
+
+def resolve_delete_entry(obj, info, url, token):
+    try: 
+        received = jwt.decode(token, secret_key, algorithms=["HS256"])
+        user_id = received['id']
+        mongo.delete_user_link(user_id, url)
+        payload = {
+            "success": True,
+        }
+    except:
+        payload = {
+            "success": False,
+            "errors": "deleting entry failure"
+        }
+    return payload
 
 def resolve_user_query(obj, info, email, password):
     try:
@@ -341,33 +488,27 @@ def resolve_sign_up(obj, info, email, password):
             "errors": "unknown errors"
         }
 
-# @convert_kwargs_to_snake_case
-# def resolve_entry(obj, info, todo_id):
-#     try:
-#         todo = TodoItem.query.get(todo_id)
-#         payload = {
-#             "success": True,
-#             "todo": todo.to_dict()
-#         }
 
-#     except AttributeError:  # todo not found
-#         payload = {
-#             "success": False,
-#             "errors": [f"Todo item matching id {todo_id} not found"]
-#         }
-
-#     return payload
 
 query = ObjectType("Query")
 
 query.set_field("entries", resolve_entries)
 query.set_field("pub_entries", resolve_pub_entries)
 query.set_field("personal_entries", resolve_personal_entries)
+query.set_field("category_entries", resolve_category_entries)
 query.set_field("user", resolve_user_query)
+query.set_field("fetch_categories", resolve_categories_request)
+query.set_field("allFeeds", resolve_all_feeds)
+query.set_field("checkForFeed", resolve_check_feed)
+
 mutation = ObjectType("Mutation")
 
 mutation.set_field("createBlogEntry", resolve_create_entry)
 mutation.set_field("createPersonalEntry", resolve_create_personal_entry)
+mutation.set_field("createCategoryEntry", resolve_create_category_entry)
+mutation.set_field("createCategoriesEntry", resolve_create_categories_entry)
+mutation.set_field("deleteBlogEntry", resolve_delete_entry)
+
 mutation.set_field("signUp", resolve_sign_up)
 
 type_defs = load_schema_from_path("schema.graphql")
@@ -387,7 +528,7 @@ def graphql_server():
         context_value=request,
         debug=app.debug
     )
-    print(success,result)# doesn't seem to be the thing printing
+    print(success) # ABSOLUTELY IS THE THING PRINTING
     status_code = 200 if success else 400
     return jsonify(result), status_code
 
@@ -417,10 +558,12 @@ def login():
 
 @app.route("/signup", methods=["POST"])
 def signup():
+    #print('uhh')
     email = request.form['email']
     try:
         pw_hash = mongo.hash(request.form['password'])
         result = mongo.signUp(email,pw_hash)
+        print(result)
         if result:
             user_id = str(result)
             payload = {

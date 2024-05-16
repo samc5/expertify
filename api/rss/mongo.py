@@ -4,6 +4,7 @@ import bcrypt
 from dotenv import load_dotenv
 import os
 from bson import ObjectId
+import dateutil.parser
 # set a string equal to the contents of mongodbpassword.txt
 load_dotenv()
 password = os.getenv("MONGO_PASSWORD")
@@ -98,6 +99,7 @@ def hash(password):
 
 def signUp(email, hash):
     if check_email(email):
+        print("check email foudn ttue")
         return None
     uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
     client = MongoClient(uri)
@@ -121,6 +123,76 @@ def add_user_link(user_id, blog):
     except Exception as e:
         print(e)
 
+def add_user_category_link(user_id, blog, category):
+    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    client = MongoClient(uri)
+    db = client["bb-app"]
+    collection = db["UserData"]
+    try:
+        collection.update_one({"user_id": ObjectId(user_id)}, {"$addToSet": {f"Categories.{category}": blog['url']}}, upsert=True)
+        collection.update_one({"user_id": ObjectId(user_id)}, {"$addToSet": {"feeds": blog['url']}}, upsert=True)
+        collection = db["feeds"]
+        collection.replace_one({'url': blog['url']}, blog, upsert=True)
+    except Exception as e:
+        print(e)
+
+def add_user_categories_link(user_id, blog, categories):
+    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    client = MongoClient(uri)
+    db = client["bb-app"]
+    collection = db["UserData"]
+    try:
+        for category in categories:
+            collection.update_one({"user_id": ObjectId(user_id)}, {"$addToSet": {f"Categories.{category}": blog['url']}}, upsert=True)
+        collection.update_one({"user_id": ObjectId(user_id)}, {"$addToSet": {"feeds": blog['url']}}, upsert=True)
+        collection = db["feeds"]
+        collection.replace_one({'url': blog['url']}, blog, upsert=True)
+    except Exception as e:
+        print(e)
+
+def delete_user_link(user_id, url):
+    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    client = MongoClient(uri)
+    db = client["bb-app"]
+    collection = db["UserData"]
+    try:
+        user_data = collection.find_one({"user_id": ObjectId(user_id)})
+        categories = user_data.get("Categories", {})
+        update_query = {"$pull": {"feeds": url}}
+        for category_name, _ in categories.items():
+            update_query["$pull"][f"Categories.{category_name}"] = url
+        collection.update_one({"user_id": ObjectId(user_id)}, update_query)
+
+
+        
+    except Exception as e:
+        print(e)        
+
+def get_user_categories(user_id):
+    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    client = MongoClient(uri)
+    db = client["bb-app"]
+    collection = db["UserData"]
+    try:
+        user = collection.find_one({"user_id": ObjectId(user_id)})
+        category_names = list(user.get("Categories", {}).keys())
+        return category_names
+    except Exception as e:
+        print(e)
+
+def get_user_category_links(user_id, category):
+    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    client = MongoClient(uri)
+    db = client["bb-app"]
+    collection = db["UserData"]
+    try:
+         user = collection.find_one({"user_id": ObjectId(user_id)})
+         links = user['Categories'][category]
+         return links
+    except Exception as e:
+        print(f'Exception: {e}')
+
+
 def get_user_feeds(user_id):
     uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
     client = MongoClient(uri)
@@ -128,12 +200,22 @@ def get_user_feeds(user_id):
     collection = db["UserData"]
     try:
         user = collection.find_one({"user_id": ObjectId(user_id)})
-        #print(user)
         return user['feeds']
     except Exception as e:
         print(e)
 
-
+def check_user_feed(user_id, url):
+    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    client = MongoClient(uri)
+    db = client["bb-app"]
+    collection = db["UserData"]
+    try:
+        user = collection.find_one({"user_id": ObjectId(user_id)})
+        if user is None:
+            return False
+        return url in user['feeds']
+    except Exception as e:
+        print(e)
 
 def fetch_all_feeds():
     uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
@@ -144,7 +226,6 @@ def fetch_all_feeds():
        pass
     except Exception as e:
         print(e)
-
     client = MongoClient(uri)
     db = client["bb-app"]
     collection = db["feeds"]
@@ -156,22 +237,13 @@ def fetch_all_feeds():
 
 
 
-
-    
-# def convert_to_date(date_str):
-#     #2024-01-25 03:59:03
-#     date_str = date_str[:date_str.rindex(' ')]
-#     try:
-#         datetime_object = datetime.strptime(date_str, '%a, %d %b %Y %H:%M:%S')
-#     except:
-#         datetime_object = datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
-#     return datetime_object
-
-
 def convert_to_date(date_str):
-    formats = ['%a, %d %b %Y %H:%M:%S', '%Y-%m-%d %H:%M:%S']
+    formats = ['%a, %d %b %Y %H:%M:%S', '%Y-%m-%d %H:%M:%S', '%Y-%m-%dT%H:%M:%S.%fZ']
     if date_str:
-        date_str = date_str[:date_str.rindex(' ')]
+        if ' ' in date_str:
+            date_str = date_str[:date_str.rindex(' ')]
+        else:
+            print(date_str)
     for date_format in formats:
         try:
             datetime_object = datetime.strptime(date_str, date_format)
@@ -180,7 +252,7 @@ def convert_to_date(date_str):
             pass
     
     # If none of the formats match, return datetime from the beginning of Unix time
-    return datetime.utcfromtimestamp(0)
+    
 
 # pipeline = [
     
@@ -192,42 +264,42 @@ def convert_to_date(date_str):
 
 
 
-pipeline2 = [
+# pipeline2 = [
     
-    {
-        "$project": {
-            "_id": 1,
-            "title": 1,
-            "titles": 1,
-            "values": 1,
-            "dates": 1,
-            "article": {
-                "$zip": {
-                    "inputs": ["$titles", "$values", "$dates"],
-                }
-            }
-        }
-    },
-    {"$unwind": "$article"},
+#     {
+#         "$project": {
+#             "_id": 1,
+#             "title": 1,
+#             "titles": 1,
+#             "values": 1,
+#             "dates": 1,
+#             "article": {
+#                 "$zip": {
+#                     "inputs": ["$titles", "$values", "$dates"],
+#                 }
+#             }
+#         }
+#     },
+#     {"$unwind": "$article"},
 
-    {
-        "$project": {
-            "_id": 1,
-            "publication_name": "$title",
-            "title": {
-                "$arrayElemAt": ["$article", 0]
-            },
-            "value": {
-                "$arrayElemAt": ["$article", 1]
-            },
-            "date": {
-                "$arrayElemAt": ["$article", 2]
-            }
-        }
-    },
-    {"$sort": {"date": -1}},
-    {"$limit": 25}
-]
+#     {
+#         "$project": {
+#             "_id": 1,
+#             "publication_name": "$title",
+#             "title": {
+#                 "$arrayElemAt": ["$article", 0]
+#             },
+#             "value": {
+#                 "$arrayElemAt": ["$article", 1]
+#             },
+#             "date": {
+#                 "$arrayElemAt": ["$article", 2]
+#             }
+#         }
+#     },
+#     {"$sort": {"date": -1}},
+#     {"$limit": 25}
+# ]
 
 def aggregate(pipeline_input):
     uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'article_list.dart';
 import 'token_operations.dart';
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 const String query = """
 query fetchAllEntries {
@@ -39,8 +41,9 @@ query fetchPersonalEntries(\$token: String!) {
 """;
 
 final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
+final HttpLink androidLink = HttpLink("http://10.0.2.2:5000/graphql");
 
-final ValueNotifier<GraphQLClient> client = ValueNotifier<GraphQLClient>(
+ValueNotifier<GraphQLClient> client = ValueNotifier<GraphQLClient>(
   GraphQLClient(
     link: httpLink,
     cache: GraphQLCache(),
@@ -76,6 +79,22 @@ class _ArticlesWidgetState extends State<ArticlesWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (kIsWeb) {
+      client = ValueNotifier<GraphQLClient>(
+        GraphQLClient(
+          link: httpLink,
+          cache: GraphQLCache(),
+        ),
+      );
+    } else if (Platform.isAndroid) {
+      print("ANDROID");
+      client = ValueNotifier<GraphQLClient>(
+        GraphQLClient(
+          link: androidLink,
+          cache: GraphQLCache(),
+        ),
+      );
+    }
     if (token == null) {
       // If token is not fetched yet, you can show a loading indicator or some other widget
       return Center(child: CircularProgressIndicator());
@@ -88,8 +107,9 @@ class _ArticlesWidgetState extends State<ArticlesWidget> {
         builder: (result, {fetchMore, refetch}) {
           if (result.hasException) {
             print(result.exception.toString());
-            return const Center(
-              child: Text("Error occurred while fetching data!"),
+            final excep = result.exception.toString();
+            return Center(
+              child: Text(excep),
             );
           }
           if (result.data == null) {
@@ -100,7 +120,11 @@ class _ArticlesWidgetState extends State<ArticlesWidget> {
           final entries = result.data!["personal_entries"]["entries"];
           //print(entries);
           //print(result.data);
-          return Article_List(entries: entries, pub_title: "Your Inbox");
+          return Article_List(
+            entries: entries,
+            pub_title: "Your Inbox",
+            showAppBar: true,
+          );
         });
   }
 }

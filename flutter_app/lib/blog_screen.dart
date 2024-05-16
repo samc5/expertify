@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'article_list.dart';
+import 'token_operations.dart';
+import 'subscribe_button.dart';
 
 const String pub_query = """
 query fetchPubEntries(\$url: String!) {
@@ -41,11 +43,28 @@ class PubArticlesWidget extends StatefulWidget {
 
 class _PubArticlesWidgetState extends State<PubArticlesWidget> {
   TextEditingController newTaskController = TextEditingController();
+  String? token;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchToken();
+  }
+
+  Future<void> _fetchToken() async {
+    try {
+      token = await getToken();
+    } catch (e) {
+      print("Error fetching token: $e");
+      // Handle error appropriately, like showing an error message
+    }
+    setState(() {}); // Trigger a rebuild after token is fetched
+  }
 
   @override
   Widget build(BuildContext context) {
     final String url = widget.url;
-    print(url);
+    //print(url);
     return Scaffold(
       body: Query(
           options: QueryOptions(
@@ -66,6 +85,7 @@ class _PubArticlesWidgetState extends State<PubArticlesWidget> {
                 appBar: AppBar(
                     surfaceTintColor: Colors.transparent,
                     centerTitle: true,
+                    automaticallyImplyLeading: true,
                     title:
                         Text(widget.pub_name) // Set your desired app bar title
                     ),
@@ -76,14 +96,31 @@ class _PubArticlesWidgetState extends State<PubArticlesWidget> {
                 ),
               );
             }
-            //   return const Center(
-            //     child: Text("NO data received",
-            //         style: TextStyle(fontSize: 20), textAlign: TextAlign.center),
-            //   );
-            // }
             final entries = result.data!["pub_entries"]["entries"];
-            return Article_List(
-                entries: entries, pub_title: entries[0]['pub_name']);
+            //final token = await getToken();
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                AppBar(
+                  surfaceTintColor: Colors.transparent,
+                  centerTitle: true,
+                  automaticallyImplyLeading: true,
+                  title: Text(widget.pub_name),
+                ),
+                SingleChildScrollView(
+                  child: SubscribeButton(widget: widget, token: token),
+                ),
+                Expanded(
+                  child: Article_List(
+                    entries: entries,
+                    pub_title: entries[0]['pub_name'],
+                    showAppBar: false,
+                  ),
+                ),
+              ],
+            );
+            // return Article_List(
+            //     entries: entries, pub_title: entries[0]['pub_name']);
           }),
     );
   }
