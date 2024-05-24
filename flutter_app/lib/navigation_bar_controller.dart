@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/bookmarks_screen.dart';
 import 'articles.dart';
 import 'add_feed_screen.dart';
 import 'discovery_screen.dart';
+import 'bookmarks_screen.dart';
+import 'token_operations.dart';
 
 class BottomNavigationBarController extends StatefulWidget {
   @override
@@ -16,7 +19,7 @@ class _BottomNavigationBarControllerState
       key: PageStorageKey('Page1'),
     ),
     DiscoveryScreen(key: PageStorageKey('Page2')),
-    AddFeedScreen(
+    BookmarksWidget(
       key: PageStorageKey('Page3'),
     ),
   ];
@@ -31,7 +34,8 @@ class _BottomNavigationBarControllerState
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.inbox), label: 'Inbox'),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Discover'),
-          BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Add Feed'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.collections_bookmark), label: 'Bookmarks'),
         ],
       );
 

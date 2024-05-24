@@ -259,6 +259,23 @@ def resolve_personal_entries(obj, info, token):
         print("payload loaded as a failure")
     return payload
 
+def resolve_saved_entries(obj, info, token):
+    try:
+        received = jwt.decode(token, secret_key, algorithms=["HS256"])
+        user_id = received['id']
+        bookmarked = mongo.fetch_user_bookmarks(user_id)
+        payload = {
+            "success": True,
+            "entries": bookmarked
+        }
+    except Exception as e:
+        payload = {
+            "success": False,
+            "errors": [str(e)]
+        }
+    return payload
+
+
 def resolve_pub_entries(obj, info, url):
     try:
         entries = mongo.aggregate(pub_pipeline(url))
@@ -338,6 +355,7 @@ def resolve_category_entries(obj, info, token, category):
             "errors": [str(error)]
         }
     return payload
+   
 
 def resolve_categories_request(obj, info, token):
     try:
@@ -486,6 +504,28 @@ def resolve_delete_entry(obj, info, url, token):
         }
     return payload
 
+def resolve_bulk_entry(obj, info, bulkString):
+    try: 
+        feed_dicts = [parser.construct_feed_dict(i) for i in bulkString.split('\n')]
+        mongo.add_feeds(feed_dicts)
+        real_entries = []
+        for feed in feed_dicts:
+            real_entries.append({
+                    "url": feed['url'],
+                    "title": feed['title']
+                })
+        payload = {
+             "entries": real_entries,
+            "success": True
+            }
+    except Exception as error:
+        payload = {
+            "success": False,
+            "errors": [str(error)]
+        }
+
+    return payload
+
 def resolve_user_query(obj, info, email, password):
     try:
         user = mongo.check_user({"email": email, "password": password})
@@ -509,6 +549,22 @@ def resolve_user_query(obj, info, email, password):
         payload = {
             "success": False,
             "errors": "Unknown Error"
+        }
+    return payload
+
+def resolve_save_article(obj, info, article, token):
+    try:
+        received = jwt.decode(token, secret_key, algorithms=["HS256"])
+        user_id = received['id']
+        mongo.save_personal(article, user_id)
+        payload = {
+            "success": True,
+            "url": article['url']
+        }
+    except Exception as error:
+        payload = {
+            "success": False,
+            "errors": [str(error)],
         }
     return payload
 
@@ -544,6 +600,7 @@ query.set_field("fetch_categories", resolve_categories_request)
 query.set_field("allFeeds", resolve_all_feeds)
 query.set_field("checkForFeed", resolve_check_feed)
 query.set_field("fetchLeaderboard", resolve_fetch_leaderboard)
+query.set_field("saved_entries", resolve_saved_entries)
 
 mutation = ObjectType("Mutation")
 
@@ -552,6 +609,8 @@ mutation.set_field("createPersonalEntry", resolve_create_personal_entry)
 mutation.set_field("createCategoryEntry", resolve_create_category_entry)
 mutation.set_field("createCategoriesEntry", resolve_create_categories_entry)
 mutation.set_field("deleteBlogEntry", resolve_delete_entry)
+mutation.set_field("createBulkEntry", resolve_bulk_entry)
+mutation.set_field("saveArticle", resolve_save_article)
 
 mutation.set_field("signUp", resolve_sign_up)
 

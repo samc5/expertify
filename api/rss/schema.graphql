@@ -15,6 +15,17 @@ type BlogEntry {
     author: String!
 }
 
+input BlogEntryInput {
+    id: ID
+    pub_name: String!
+    pub_url: String
+    title: String!
+    pub_date: String!
+    text: String!
+    url: String!
+    author: String!
+}
+
 type BlogEntryResult {
     success: Boolean!
     errors: [String]
@@ -25,6 +36,12 @@ type BlogEntriesResult {
     success: Boolean!
     errors: [String]
     entries: [BlogEntry]
+}
+
+type SimpleFeedsResult {
+    success: Boolean!
+    errors: [String]
+    entries: [SimpleFeed]
 }
 
 type User {
@@ -73,7 +90,6 @@ type leaderboardResult {
     feeds: [SimpleFeed]
 }
 
-
 type Query {
     entries: BlogEntriesResult
     pub_entries(url: String!): BlogEntriesResult
@@ -81,6 +97,7 @@ type Query {
     blogEntry(entryId: ID!): BlogEntryResult!
     fetch_categories(token: String!): Categories!
     category_entries(token: String!, category: String): BlogEntriesResult
+    saved_entries(token: String!): BlogEntriesResult
     user(email: String!, password: String!): UserResult
     users: [User]
     allFeeds: [SimpleFeed]
@@ -93,12 +110,20 @@ type DeleteEntryResult {
     errors: [String]
 }
 
+type saveResult {
+    success: Boolean!
+    errors: [String]
+    url: String
+}
+
 type Mutation {
     createBlogEntry(url: String!): BlogEntryResult!
+    createBulkEntry(bulkString: String!): SimpleFeedsResult!
     createPersonalEntry(url: String!, token: String!): BlogEntryResult!
     createCategoryEntry(url: String!, token: String!, category: String!): BlogEntryResult!
     createCategoriesEntry(url: String!, token: String!, categories: [String]!): BlogEntryResult!
     deleteBlogEntry(url: String!, token: String!): DeleteEntryResult!
+    saveArticle(article: BlogEntryInput!, token: String!): saveResult!
     signUp(email: String!, password: String!): SignUpResponse
     signIn(email: String!, password: String!): SignInResponse
 }
