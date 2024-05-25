@@ -332,7 +332,6 @@ def resolve_category_entries(obj, info, token, category):
         entries = mongo.aggregate(personal_pipeline(list(urls)))
         real_entries = []
         for i in entries:
-            print(i['date'])
             entry = {
                 "id": i["_id"],
                 "pub_name": i['publication_name'],

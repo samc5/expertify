@@ -12,7 +12,6 @@ class SettingsScreen extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          automaticallyImplyLeading: false,
           title: Text("Settings"), // Set your desired app bar title
         ),
         body: SettingsForm());

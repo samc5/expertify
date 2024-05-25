@@ -8,6 +8,7 @@ import 'category_screen.dart';
 import 'navigation_bar_controller.dart';
 import 'login_screen.dart';
 import 'package:flutter_swipe_action_cell/flutter_swipe_action_cell.dart';
+import 'settings.dart';
 
 String categoryQuery = """
 query fetch_categories(\$token: String!) {
@@ -126,17 +127,20 @@ class _ArticleListState extends State<Article_List> {
                     return Row(
                       children: [
                         IconButton(
-                            icon: Icon(Icons.add),
+                            icon: Icon(Icons.settings),
                             onPressed: () {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => AddFeedScreen()));
+                                      builder: (context) => SettingsScreen()));
                             }),
                         IconButton(
-                          icon: Icon(Icons.menu),
+                          icon: Icon(Icons.add),
                           onPressed: () {
-                            Scaffold.of(context).openDrawer();
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => SettingsScreen()));
                           },
                         ),
                       ],
