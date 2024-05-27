@@ -86,7 +86,6 @@ class _ArticlesWidgetState extends State<ArticlesWidget> {
     return Query(
         options: QueryOptions(
             document: gql(personalQuery),
-            pollInterval: const Duration(seconds: 40),
             variables: <String, dynamic>{"token": token}),
         builder: (result, {fetchMore, refetch}) {
           if (result.hasException) {

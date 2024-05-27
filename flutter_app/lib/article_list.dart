@@ -9,6 +9,8 @@ import 'navigation_bar_controller.dart';
 import 'login_screen.dart';
 import 'package:flutter_swipe_action_cell/flutter_swipe_action_cell.dart';
 import 'settings.dart';
+import 'dart:io';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 String categoryQuery = """
 query fetch_categories(\$token: String!) {
@@ -69,6 +71,7 @@ class _ArticleListState extends State<Article_List> {
   int? _value;
   String? selectedCategory;
   List<dynamic>? catResults;
+  List<dynamic>? categoriesList;
   bool? nullColor;
 
   @override
@@ -85,6 +88,25 @@ class _ArticleListState extends State<Article_List> {
       // Handle error appropriately, like showing an error message
     }
     setState(() {}); // Trigger a rebuild after token is fetched
+  }
+
+  Future<void> _fetchCategoryEntries() async {
+    final client = GraphQLProvider.of(context).value;
+    final QueryOptions options = QueryOptions(
+      document: gql(categoryEntries),
+      variables: {
+        'token': token,
+        'category': selectedCategory,
+      },
+    );
+    final QueryResult result = await client.query(options);
+    if (!result.hasException) {
+      setState(() {
+        catResults = result.data!['category_entries']['entries'];
+      });
+    } else {
+      print("Error fetching category entries: ${result.exception.toString()}");
+    }
   }
 
   @override
@@ -153,69 +175,6 @@ class _ArticleListState extends State<Article_List> {
               title: Text(widget.pub_title),
             )
           : null,
-      // // drawer: Query(
-      // //     options: QueryOptions(
-      // //         document: gql(categoryQuery),
-      // //         variables: <String, dynamic>{"token": token}),
-      // //     builder: (result, {fetchMore, refetch}) {
-      // //       if (result.data == null) {
-      // //         return Drawer(
-      // //             // Drawer content goes here
-      // //             child: Center(
-      // //           child: Text("Loading..."),
-      // //         ));
-      // //       }
-      // //       final categories = result.data!["fetch_categories"]["categories"];
-      // //       print(categories);
-      // //       return Drawer(
-      // //         backgroundColor: Colors.white,
-      // //         // Drawer content goes here
-      // //         child: ListView.builder(
-      // //           itemCount: categories.length + 2,
-      // //           padding: EdgeInsets.zero,
-      // //           itemBuilder: (BuildContext context, int index) {
-      // //             if (index == 0) {
-      // //               return ListTile(
-      // //                   title: Text('All Feeds'),
-      // //                   onTap: () {
-      // //                     Scaffold.of(context).closeDrawer();
-      // //                     Navigator.push(
-      // //                         context,
-      // //                         MaterialPageRoute(
-      // //                             builder: (context) =>
-      // //                                 BottomNavigationBarController()));
-      // //                   });
-      // //             } else if (index > categories.length) {
-      // //               return Padding(
-      // //                 padding: const EdgeInsets.only(left: 80.0, right: 80.0),
-      // //                 child: ElevatedButton(
-      // //                     child: Text('Log Out'),
-      // //                     //tileColor: const Color.fromARGB(255, 184, 205, 215),
-      // //                     onPressed: () {
-      // //                       deleteToken();
-      // //                       Navigator.push(
-      // //                           context,
-      // //                           MaterialPageRoute(
-      // //                               builder: (context) => LoginScreen()));
-      // //                     }),
-      // //               );
-      // //             } else {
-      // //               final categoryIndex = index - 1;
-      // //               return ListTile(
-      // //                   title: Text(categories[categoryIndex]),
-      // //                   onTap: () {
-      // //                     Scaffold.of(context).closeDrawer();
-      // //                     Navigator.push(
-      // //                         context,
-      // //                         MaterialPageRoute(
-      // //                             builder: (context) => CategoryArticlesWidget(
-      // //                                 category: categories[categoryIndex])));
-      // //                   });
-      // //             }
-      // //           },
-      // //         ),
-      // //       );
-      //     }),
       body: Column(
         children: [
           Expanded(
@@ -226,6 +185,12 @@ class _ArticleListState extends State<Article_List> {
                   child: ListView.builder(
                       itemCount: widget.entries.length + 1,
                       itemBuilder: (ctx, i) {
+                        // if (catResults != null) {
+                        //   print("catResults exists for " + i.toString());
+                        // } else {
+                        //   print("NO: catResults does not exist for " +
+                        //       i.toString());
+                        // }
                         if (i == 0) {
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -233,29 +198,77 @@ class _ArticleListState extends State<Article_List> {
                               padding: const EdgeInsets.only(left: 18.0),
                               child: SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
-                                child: Query(
-                                    options: QueryOptions(
-                                        document: gql(categoryQuery),
-                                        variables: <String, dynamic>{
-                                          "token": token
-                                        }),
-                                    builder: (result2, {fetchMore, refetch}) {
-                                      if (result2.data == null) {
-                                        return Center(
-                                          child: Text(""),
-                                        );
-                                      }
-                                      final categories =
-                                          result2.data!["fetch_categories"]
-                                              ["categories"];
-                                      return Wrap(
+                                child: categoriesList == null
+                                    ? Query(
+                                        options: QueryOptions(
+                                            document: gql(categoryQuery),
+                                            variables: <String, dynamic>{
+                                              "token": token
+                                            }),
+                                        builder: (result2,
+                                            {fetchMore, refetch}) {
+                                          if (result2.data == null) {
+                                            return Center(
+                                              child: Text(""),
+                                            );
+                                          }
+                                          final categories =
+                                              result2.data!["fetch_categories"]
+                                                  ["categories"];
+                                          categoriesList = categories;
+                                          return Wrap(
+                                            spacing: 10.0,
+                                            children: List<Widget>.generate(
+                                              categories.length,
+                                              (int index) {
+                                                return ChoiceChip(
+                                                  label: Text(
+                                                    categories[index],
+                                                    style: (_value == index)
+                                                        ? TextStyle(
+                                                            color: Colors.black)
+                                                        : TextStyle(
+                                                            color:
+                                                                Colors.white),
+                                                  ),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            25),
+                                                  ),
+                                                  selected: _value == index,
+                                                  backgroundColor:
+                                                      Color(0xFF507255),
+                                                  onSelected: (bool selected) {
+                                                    setState(() {
+                                                      // print(
+                                                      //     "nulling qith query");
+                                                      catResults = null;
+                                                      _value = selected
+                                                          ? index
+                                                          : null;
+                                                      selectedCategory = (_value !=
+                                                              null)
+                                                          ? categories[_value]
+                                                          : null; // may or may not work
+
+                                                      // print(_value);
+                                                      _fetchCategoryEntries();
+                                                    });
+                                                  },
+                                                );
+                                              },
+                                            ).toList(),
+                                          );
+                                        })
+                                    : Wrap(
                                         spacing: 10.0,
                                         children: List<Widget>.generate(
-                                          categories.length,
+                                          categoriesList!.length,
                                           (int index) {
                                             return ChoiceChip(
                                               label: Text(
-                                                categories[index],
+                                                categoriesList![index],
                                                 style: (_value == index)
                                                     ? TextStyle(
                                                         color: Colors.black)
@@ -271,65 +284,88 @@ class _ArticleListState extends State<Article_List> {
                                                   Color(0xFF507255),
                                               onSelected: (bool selected) {
                                                 setState(() {
-                                                  print("onselected called");
+                                                  // print(
+                                                  //     "nulling withotu query");
                                                   catResults = null;
                                                   _value =
                                                       selected ? index : null;
                                                   selectedCategory = (_value !=
                                                           null)
-                                                      ? categories[_value]
+                                                      ? categoriesList![_value!]
                                                       : null; // may or may not work
-
-                                                  print(_value);
-                                                  if (_value !=
-                                                      null) {} //probably get rid of this
+                                                  _fetchCategoryEntries();
+                                                  // print(_value);
                                                 });
                                               },
                                             );
                                           },
                                         ).toList(),
-                                      );
-                                    }),
+                                      ),
                               ),
                             ),
                           );
                         }
-                        catResults != null ? print("yes cat") : print("no cat");
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 10.0),
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.only(left: 12.0, right: 12.0),
-                            child: InkWell(
-                              child: Container(
+                        final isLoading =
+                            selectedCategory != null && catResults == null;
+                        final isInCatResultsRange = selectedCategory != null &&
+                            catResults != null &&
+                            i - 1 < catResults!.length;
+                        final shouldRenderTile = !isLoading &&
+                            (selectedCategory == null || isInCatResultsRange);
+
+                        if (isLoading) {
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Center(child: SpinKitPulsingGrid(
+                                itemBuilder: (BuildContext context, int index) {
+                              return DecoratedBox(
                                 decoration: BoxDecoration(
-                                    border: Border(
-                                        bottom: BorderSide(
-                                            color: _getBorderColor(i)))),
-                                child: selectedCategory != null &&
-                                        catResults == null
-                                    ? Query(
-                                        options: QueryOptions(
-                                            document: gql(categoryEntries),
-                                            variables: <String, dynamic>{
-                                              "token": token,
-                                              "category": selectedCategory
-                                            }),
-                                        builder: (result,
-                                            {fetchMore, refetch}) {
-                                          // print(
-                                          //     "catResults is null and selected category is not");
-                                          if (result.data == null) {
-                                            nullColor = true;
-                                            return Container();
-                                          }
-                                          print("selected Category is...");
-                                          print(selectedCategory);
-                                          catResults =
-                                              result.data!["category_entries"]
-                                                  ["entries"];
-                                          return ArticleTile(
-                                              entries: catResults,
+                                  color: Colors.black,
+                                ),
+                              );
+                            })),
+                          );
+                        }
+                        // catResults != null ? print("yes cat") : print("no cat");
+                        if (shouldRenderTile) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 10.0),
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 12.0, right: 12.0),
+                              child: InkWell(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      border: Border(
+                                          bottom: BorderSide(
+                                              color: _getBorderColor(i)))),
+                                  child: selectedCategory != null &&
+                                          catResults == null
+                                      ? Container()
+                                      : selectedCategory != null
+                                          ? i < catResults!.length
+                                              ? ArticleTile(
+                                                  entries: catResults,
+                                                  index: i - 1,
+                                                  onDismissed: (direction) {
+                                                    if (direction ==
+                                                        DismissDirection
+                                                            .startToEnd) {
+                                                      // Perform your action here (e.g., save as bookmark)
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
+                                                        SnackBar(
+                                                          content: Text(
+                                                              "Article saved as bookmark"),
+                                                        ),
+                                                      );
+                                                    }
+                                                  },
+                                                  token: token)
+                                              : Container()
+                                          : ArticleTile(
+                                              entries: widget.entries,
                                               index: i - 1,
                                               onDismissed: (direction) {
                                                 if (direction ==
@@ -345,51 +381,14 @@ class _ArticleListState extends State<Article_List> {
                                                   );
                                                 }
                                               },
-                                              token: token);
-                                        })
-                                    : selectedCategory != null
-                                        ? i < catResults!.length
-                                            ? ArticleTile(
-                                                entries: catResults,
-                                                index: i - 1,
-                                                onDismissed: (direction) {
-                                                  if (direction ==
-                                                      DismissDirection
-                                                          .startToEnd) {
-                                                    // Perform your action here (e.g., save as bookmark)
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                            "Article saved as bookmark"),
-                                                      ),
-                                                    );
-                                                  }
-                                                },
-                                                token: token)
-                                            : Text("")
-                                        : ArticleTile(
-                                            entries: widget.entries,
-                                            index: i - 1,
-                                            onDismissed: (direction) {
-                                              if (direction ==
-                                                  DismissDirection.startToEnd) {
-                                                // Perform your action here (e.g., save as bookmark)
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  SnackBar(
-                                                    content: Text(
-                                                        "Article saved as bookmark"),
-                                                  ),
-                                                );
-                                              }
-                                            },
-                                            token: token),
+                                              token: token),
+                                ),
                               ),
                             ),
-                          ),
-                        );
+                          );
+                        } else {
+                          return SizedBox.shrink();
+                        }
                       }),
                 )),
           ),
