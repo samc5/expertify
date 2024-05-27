@@ -68,6 +68,8 @@ class _ArticleListState extends State<Article_List> {
   String? token;
   int? _value;
   String? selectedCategory;
+  List<dynamic>? catResults;
+  bool? nullColor;
 
   @override
   void initState() {
@@ -140,7 +142,7 @@ class _ArticleListState extends State<Article_List> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => SettingsScreen()));
+                                    builder: (context) => AddFeedScreen()));
                           },
                         ),
                       ],
@@ -269,13 +271,15 @@ class _ArticleListState extends State<Article_List> {
                                                   Color(0xFF507255),
                                               onSelected: (bool selected) {
                                                 setState(() {
-                                                  print(_value);
+                                                  print("onselected called");
+                                                  catResults = null;
                                                   _value =
                                                       selected ? index : null;
                                                   selectedCategory = (_value !=
                                                           null)
                                                       ? categories[_value]
                                                       : null; // may or may not work
+
                                                   print(_value);
                                                   if (_value !=
                                                       null) {} //probably get rid of this
@@ -290,6 +294,7 @@ class _ArticleListState extends State<Article_List> {
                             ),
                           );
                         }
+                        catResults != null ? print("yes cat") : print("no cat");
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 10.0),
                           child: Padding(
@@ -300,9 +305,9 @@ class _ArticleListState extends State<Article_List> {
                                 decoration: BoxDecoration(
                                     border: Border(
                                         bottom: BorderSide(
-                                            color: Color.fromARGB(
-                                                157, 150, 150, 150)))),
-                                child: selectedCategory != null
+                                            color: _getBorderColor(i)))),
+                                child: selectedCategory != null &&
+                                        catResults == null
                                     ? Query(
                                         options: QueryOptions(
                                             document: gql(categoryEntries),
@@ -312,13 +317,19 @@ class _ArticleListState extends State<Article_List> {
                                             }),
                                         builder: (result,
                                             {fetchMore, refetch}) {
+                                          // print(
+                                          //     "catResults is null and selected category is not");
                                           if (result.data == null) {
-                                            return Center(child: Text(""));
+                                            nullColor = true;
+                                            return Container();
                                           }
+                                          print("selected Category is...");
+                                          print(selectedCategory);
+                                          catResults =
+                                              result.data!["category_entries"]
+                                                  ["entries"];
                                           return ArticleTile(
-                                              entries: result
-                                                      .data!["category_entries"]
-                                                  ["entries"],
+                                              entries: catResults,
                                               index: i - 1,
                                               onDismissed: (direction) {
                                                 if (direction ==
@@ -336,23 +347,45 @@ class _ArticleListState extends State<Article_List> {
                                               },
                                               token: token);
                                         })
-                                    : ArticleTile(
-                                        entries: widget.entries,
-                                        index: i - 1,
-                                        onDismissed: (direction) {
-                                          if (direction ==
-                                              DismissDirection.startToEnd) {
-                                            // Perform your action here (e.g., save as bookmark)
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                    "Article saved as bookmark"),
-                                              ),
-                                            );
-                                          }
-                                        },
-                                        token: token),
+                                    : selectedCategory != null
+                                        ? i < catResults!.length
+                                            ? ArticleTile(
+                                                entries: catResults,
+                                                index: i - 1,
+                                                onDismissed: (direction) {
+                                                  if (direction ==
+                                                      DismissDirection
+                                                          .startToEnd) {
+                                                    // Perform your action here (e.g., save as bookmark)
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                      SnackBar(
+                                                        content: Text(
+                                                            "Article saved as bookmark"),
+                                                      ),
+                                                    );
+                                                  }
+                                                },
+                                                token: token)
+                                            : Text("")
+                                        : ArticleTile(
+                                            entries: widget.entries,
+                                            index: i - 1,
+                                            onDismissed: (direction) {
+                                              if (direction ==
+                                                  DismissDirection.startToEnd) {
+                                                // Perform your action here (e.g., save as bookmark)
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                        "Article saved as bookmark"),
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                            token: token),
                               ),
                             ),
                           ),
@@ -364,6 +397,16 @@ class _ArticleListState extends State<Article_List> {
       ),
     );
   }
+
+  Color _getBorderColor(i) {
+    if (selectedCategory != null && catResults == null) {
+      return Color.fromARGB(157, 150, 150, 150); // Grey color
+    } else if (selectedCategory != null && i >= catResults!.length) {
+      return Colors.white; // White color when index is out of bounds
+    } else {
+      return Color.fromARGB(157, 150, 150, 150); // Default grey color
+    }
+  }
 }
 
 class ArticleTile extends StatefulWidget {
@@ -374,7 +417,7 @@ class ArticleTile extends StatefulWidget {
       required this.entries,
       required this.index,
       required this.token});
-  final List<dynamic> entries;
+  final List<dynamic>? entries;
   final int index;
   final DismissDirectionCallback onDismissed;
   final String? token;
@@ -412,10 +455,10 @@ class TileState extends State<ArticleTile> {
 
                     await handler(false);
                     setState(() {
-                      widget.entries[widget.index].remove('__typename');
-                      print(widget.entries[widget.index]);
+                      widget.entries![widget.index].remove('__typename');
+                      print(widget.entries![widget.index]);
                       runMutation({
-                        "article": widget.entries[widget.index],
+                        "article": widget.entries![widget.index],
                         "token": widget.token
                       });
                     });
@@ -428,25 +471,25 @@ class TileState extends State<ArticleTile> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => ArticleScreen(
-                          pub_url: widget.entries[widget.index]['pub_url'],
-                          title: widget.entries[widget.index]['title'],
-                          articleText: widget.entries[widget.index]['text'],
-                          pubName: widget.entries[widget.index]['pub_name'],
-                          author: widget.entries[widget.index]['author'],
-                          url: widget.entries[widget.index]['url']))),
+                          pub_url: widget.entries![widget.index]['pub_url'],
+                          title: widget.entries![widget.index]['title'],
+                          articleText: widget.entries![widget.index]['text'],
+                          pubName: widget.entries![widget.index]['pub_name'],
+                          author: widget.entries![widget.index]['author'],
+                          url: widget.entries![widget.index]['url']))),
               subtitle: InkWell(
                   onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) => PubArticlesWidget(
-                              pub_name: widget.entries[widget.index]
+                              pub_name: widget.entries![widget.index]
                                   ['pub_name'],
-                              url: widget.entries[widget.index]['pub_url']))),
-                  child: Text(widget.entries[widget.index]['pub_name'],
+                              url: widget.entries![widget.index]['pub_url']))),
+                  child: Text(widget.entries![widget.index]['pub_name'],
                       overflow: TextOverflow.ellipsis, maxLines: 2)),
-              title: Text(widget.entries[widget.index]['title'],
+              title: Text(widget.entries![widget.index]['title'],
                   overflow: TextOverflow.ellipsis, maxLines: 2),
-              trailing: Text(widget.entries[widget.index]['pub_date']),
+              trailing: Text(widget.entries![widget.index]['pub_date']),
             ),
           );
         });
