@@ -4,12 +4,8 @@ import 'article_screen.dart';
 import 'blog_screen.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'token_operations.dart';
-import 'category_screen.dart';
-import 'navigation_bar_controller.dart';
-import 'login_screen.dart';
 import 'package:flutter_swipe_action_cell/flutter_swipe_action_cell.dart';
 import 'settings.dart';
-import 'dart:io';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 String categoryQuery = """
@@ -55,11 +51,13 @@ class Article_List extends StatefulWidget {
       {super.key,
       required this.entries,
       required this.pub_title,
-      required this.showAppBar});
+      required this.showAppBar,
+      required this.showCategories});
 
   final entries;
   final String pub_title;
   final bool showAppBar;
+  final bool showCategories;
 
   // String? token;
   @override
@@ -183,15 +181,12 @@ class _ArticleListState extends State<Article_List> {
                 child: Container(
                   //height: MediaQuery.of(context).size.height * 0.6,
                   child: ListView.builder(
-                      itemCount: widget.entries.length + 1,
+                      itemCount: widget.showCategories
+                          ? widget.entries.length + 1
+                          : widget.entries.length,
                       itemBuilder: (ctx, i) {
-                        // if (catResults != null) {
-                        //   print("catResults exists for " + i.toString());
-                        // } else {
-                        //   print("NO: catResults does not exist for " +
-                        //       i.toString());
-                        // }
-                        if (i == 0) {
+                        int updatedIndex = widget.showCategories ? (i - 1) : i;
+                        if (i == 0 && widget.showCategories) {
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Padding(
@@ -241,8 +236,6 @@ class _ArticleListState extends State<Article_List> {
                                                       Color(0xFF507255),
                                                   onSelected: (bool selected) {
                                                     setState(() {
-                                                      // print(
-                                                      //     "nulling qith query");
                                                       catResults = null;
                                                       _value = selected
                                                           ? index
@@ -251,8 +244,6 @@ class _ArticleListState extends State<Article_List> {
                                                               null)
                                                           ? categories[_value]
                                                           : null; // may or may not work
-
-                                                      // print(_value);
                                                       _fetchCategoryEntries();
                                                     });
                                                   },
@@ -284,8 +275,6 @@ class _ArticleListState extends State<Article_List> {
                                                   Color(0xFF507255),
                                               onSelected: (bool selected) {
                                                 setState(() {
-                                                  // print(
-                                                  //     "nulling withotu query");
                                                   catResults = null;
                                                   _value =
                                                       selected ? index : null;
@@ -294,7 +283,6 @@ class _ArticleListState extends State<Article_List> {
                                                       ? categoriesList![_value!]
                                                       : null; // may or may not work
                                                   _fetchCategoryEntries();
-                                                  // print(_value);
                                                 });
                                               },
                                             );
@@ -309,7 +297,7 @@ class _ArticleListState extends State<Article_List> {
                             selectedCategory != null && catResults == null;
                         final isInCatResultsRange = selectedCategory != null &&
                             catResults != null &&
-                            i - 1 < catResults!.length;
+                            i < catResults!.length;
                         final shouldRenderTile = !isLoading &&
                             (selectedCategory == null || isInCatResultsRange);
 
@@ -346,7 +334,7 @@ class _ArticleListState extends State<Article_List> {
                                           ? i < catResults!.length
                                               ? ArticleTile(
                                                   entries: catResults,
-                                                  index: i - 1,
+                                                  index: updatedIndex,
                                                   onDismissed: (direction) {
                                                     if (direction ==
                                                         DismissDirection
@@ -366,7 +354,7 @@ class _ArticleListState extends State<Article_List> {
                                               : Container()
                                           : ArticleTile(
                                               entries: widget.entries,
-                                              index: i - 1,
+                                              index: updatedIndex,
                                               onDismissed: (direction) {
                                                 if (direction ==
                                                     DismissDirection
@@ -455,7 +443,6 @@ class TileState extends State<ArticleTile> {
                     await handler(false);
                     setState(() {
                       widget.entries![widget.index].remove('__typename');
-                      print(widget.entries![widget.index]);
                       runMutation({
                         "article": widget.entries![widget.index],
                         "token": widget.token

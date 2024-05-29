@@ -69,8 +69,6 @@ class _CategoryArticlesWidgetState extends State<CategoryArticlesWidget> {
               );
             }
             if (result.data == null) {
-              //print("here's");
-              //print(url);
               return Scaffold(
                 appBar: AppBar(
                     surfaceTintColor: Colors.transparent,
@@ -91,6 +89,7 @@ class _CategoryArticlesWidgetState extends State<CategoryArticlesWidget> {
               entries: entries,
               pub_title: widget.category,
               showAppBar: true,
+              showCategories: false,
             );
           }),
     );

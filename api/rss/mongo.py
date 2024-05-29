@@ -205,8 +205,10 @@ def get_user_categories(user_id):
     collection = db["UserData"]
     try:
         user = collection.find_one({"user_id": ObjectId(user_id)})
-        category_names = list(user.get("Categories", {}).keys())
-        return category_names
+        if user:
+            category_names = list(user.get("Categories", {}).keys())
+            return category_names
+        return []
     except Exception as e:
         print(e)
 

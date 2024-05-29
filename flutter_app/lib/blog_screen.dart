@@ -65,7 +65,6 @@ class _PubArticlesWidgetState extends State<PubArticlesWidget> {
   @override
   Widget build(BuildContext context) {
     final String url = widget.url;
-    //print(url);
     return Scaffold(
       body: Query(
           options: QueryOptions(
@@ -80,8 +79,6 @@ class _PubArticlesWidgetState extends State<PubArticlesWidget> {
               );
             }
             if (result.data == null) {
-              //print("here's");
-              //print(url);
               return Scaffold(
                 appBar: AppBar(
                     surfaceTintColor: Colors.transparent,
@@ -116,6 +113,7 @@ class _PubArticlesWidgetState extends State<PubArticlesWidget> {
                     entries: entries,
                     pub_title: entries[0]['pub_name'],
                     showAppBar: false,
+                    showCategories: false,
                   ),
                 ),
               ],

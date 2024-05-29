@@ -3,6 +3,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'article_list.dart';
 import 'token_operations.dart';
 import 'subscribe_button.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 const String savedQuery = """
 query fetchSavedEntries (\$token: String!){
@@ -74,21 +75,14 @@ class _BookmarksWidgetState extends State<BookmarksWidget> {
               );
             }
             if (result.data == null) {
-              //print("here's");
-              //print(url);
               return Scaffold(
-                appBar: AppBar(
-                    surfaceTintColor: Colors.transparent,
-                    centerTitle: true,
-                    automaticallyImplyLeading: false,
-                    title: Text("Bookmarks") // Set your desired app bar title
-                    ),
-                body: Center(
-                  child: Text("Loading...",
-                      style: TextStyle(fontSize: 25),
-                      textAlign: TextAlign.center),
-                ),
-              );
+                  appBar: AppBar(
+                      surfaceTintColor: Colors.transparent,
+                      centerTitle: true,
+                      automaticallyImplyLeading: false,
+                      title: Text("Bookmarks") // Set your desired app bar title
+                      ),
+                  body: Container());
             }
             final entries = result.data!["saved_entries"]["entries"];
             //final token = await getToken();
@@ -101,13 +95,20 @@ class _BookmarksWidgetState extends State<BookmarksWidget> {
                   automaticallyImplyLeading: false,
                   title: Text("Bookmarks"),
                 ),
-                Expanded(
-                  child: Article_List(
-                    entries: entries.reversed.toList(),
-                    pub_title: "Bookmarks",
-                    showAppBar: false,
-                  ),
-                ),
+                entries != null
+                    ? Expanded(
+                        child: Article_List(
+                          entries: entries.reversed.toList(),
+                          pub_title: "Bookmarks",
+                          showAppBar: false,
+                          showCategories: false,
+                        ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.only(left: 30, right: 30),
+                        child: Center(
+                            child: const Text(
+                                "You don't have any Bookmarks yet! Swipe left on any article you want to save here and it'll live on this page")))
               ],
             );
             // return Article_List(

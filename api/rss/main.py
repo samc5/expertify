@@ -325,7 +325,7 @@ def humanize_date(date_str):
 
 
 def resolve_category_entries(obj, info, token, category):
-    print("Python resolving category entries")
+ #   print("Python resolving category entries")
     try:
         received = jwt.decode(token, secret_key, algorithms=["HS256"])
         user_id = received['id']
@@ -358,7 +358,7 @@ def resolve_category_entries(obj, info, token, category):
    
 
 def resolve_categories_request(obj, info, token):
-    print("Python resolving user categories request")
+  #  print("Python resolving user categories request")
     try:
         received = jwt.decode(token, secret_key, algorithms=["HS256"])
         user_id = received['id']
@@ -384,6 +384,7 @@ def resolve_all_feeds(obj, info):
         print(str(error))
 
 def resolve_check_feed(obj, info, url, token):
+    print(f"Python resolving check feed with {url} and {token}")
     try:
         received = jwt.decode(token, secret_key, algorithms=["HS256"])
         user_id = received['id']

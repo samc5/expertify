@@ -214,8 +214,6 @@ class _SubscribeButtonState extends State<SubscribeButton> {
                       return OutlinedButton(
                           onPressed: () async {
                             isSubscribed = !isSubscribed;
-                            // print("post-state");
-                            // print(isSubscribed);
                             if (isSubscribed) {
                               List<String>? results = await showDialog(
                                   context: context,

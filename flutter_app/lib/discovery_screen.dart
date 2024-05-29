@@ -89,8 +89,6 @@ class DiscoveryFormState extends State<DiscoveryForm> {
                 return Center(child: Text("loading"));
               }
               final feeds = result.data!['allFeeds'];
-
-              ///print(feeds);
               return SearchAnchor(
                 isFullScreen: false,
                 viewConstraints: BoxConstraints(
@@ -127,35 +125,42 @@ class DiscoveryFormState extends State<DiscoveryForm> {
                       final String item = filteredFeeds[index]['title'];
                       return ListTile(
                         title: Text(item),
-                        trailing: Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Color(
-                                0xFF511730), // Use Color(0xFF511730) for the color #511730
-                          ),
-                          child: Center(
-                            child: IconButton(
-                              iconSize: 20,
-                              icon: Icon(Icons.add,
-                                  color: Colors
-                                      .white), // Ensure the icon color contrasts well with the background
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => PubArticlesWidget(
-                                            url: filteredFeeds[index]['url'],
-                                            pub_name: filteredFeeds[index]
-                                                ['title'])));
-                              },
-                            ),
-                          ),
-                        ),
+                        // trailing: Container(
+                        //   width: 36,
+                        //   height: 36,
+                        //   decoration: BoxDecoration(
+                        //     shape: BoxShape.circle,
+                        //     color: Color(
+                        //         0xFF511730), // Use Color(0xFF511730) for the color #511730
+                        //   ),
+                        //   child: Center(
+                        //     child: IconButton(
+                        //       iconSize: 20,
+                        //       icon: Icon(Icons.add,
+                        //           color: Colors
+                        //               .white), // Ensure the icon color contrasts well with the background
+                        //       onPressed: () {
+                        //         Navigator.push(
+                        //             context,
+                        //             MaterialPageRoute(
+                        //                 builder: (context) => PubArticlesWidget(
+                        //                     url: filteredFeeds[index]['url'],
+                        //                     pub_name: filteredFeeds[index]
+                        //                         ['title'])));
+                        //       },
+                        //     ),
+                        //   ),
+                        // ),
                         onTap: () {
                           setState(() {
-                            controller.closeView(item);
+                            //controller.closeView(item);
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => PubArticlesWidget(
+                                        url: filteredFeeds[index]['url'],
+                                        pub_name: filteredFeeds[index]
+                                            ['title'])));
                           });
                         },
                       );
