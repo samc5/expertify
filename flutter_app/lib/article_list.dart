@@ -7,6 +7,7 @@ import 'token_operations.dart';
 import 'package:flutter_swipe_action_cell/flutter_swipe_action_cell.dart';
 import 'settings.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'subscribe_button.dart';
 
 String categoryQuery = """
 query fetch_categories(\$token: String!) {
@@ -52,13 +53,14 @@ class Article_List extends StatefulWidget {
       required this.entries,
       required this.pub_title,
       required this.showAppBar,
-      required this.showCategories});
+      required this.showCategories,
+      required this.showDescription});
 
   final entries;
   final String pub_title;
   final bool showAppBar;
   final bool showCategories;
-
+  final bool showDescription;
   // String? token;
   @override
   _ArticleListState createState() => _ArticleListState();
@@ -185,7 +187,10 @@ class _ArticleListState extends State<Article_List> {
                           ? widget.entries.length + 1
                           : widget.entries.length,
                       itemBuilder: (ctx, i) {
-                        int updatedIndex = widget.showCategories ? (i - 1) : i;
+                        int updatedIndex =
+                            (widget.showCategories || widget.showDescription)
+                                ? (i - 1)
+                                : i;
                         if (i == 0 && widget.showCategories) {
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -291,6 +296,29 @@ class _ArticleListState extends State<Article_List> {
                                       ),
                               ),
                             ),
+                          );
+                        } else if (widget.showDescription && i == 0) {
+                          return Column(
+                            children: [
+                              SubscribeButton(
+                                  url: widget.entries[0]['pub_url'],
+                                  token: token),
+                              Padding(padding: EdgeInsets.all(8.0)),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    left: 20.0, right: 20.0),
+                                child: Center(
+                                    child: Text(
+                                        widget.entries[0]['description'],
+                                        textAlign: TextAlign.center)),
+                              ),
+                              Padding(padding: EdgeInsets.all(8.0)),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    left: 12.0, right: 12.0),
+                                child: Divider(),
+                              )
+                            ],
                           );
                         }
                         final isLoading =

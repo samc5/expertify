@@ -31,9 +31,13 @@ def construct_feed_dict(url):
     feed = feedparser.parse(url)
     res = {}
     feed_info = feed['feed']
-    feed_name = feed_info.get('title', 'Unknown')
+    feed_name = feed_info.get('title', 'No Title')
+    feed_description = feed_info.get('description', 'No Description') #Adding this
+    if len(feed_description) == 0:
+        feed_description = "No Description"
     res['title'] = feed_name
     res['url'] = url
+    res['description'] = feed_description
     entries = feed['entries']
     res['titles'] = [entry.get('title', 'No Title') for entry in entries]
     res['values'] = [entry.get('content', [{'value': entry.get('summary', '')}])[0]['value'] for entry in entries]

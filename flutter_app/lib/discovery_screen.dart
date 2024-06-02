@@ -7,6 +7,7 @@ query fetchAllFeeds {
   allFeeds {
     title
     url
+    description
   }
 }
 """;
@@ -19,6 +20,7 @@ query fetchLeaderboard{
     feeds {
       title
       url
+      description
     }
   }
 }
@@ -123,8 +125,11 @@ class DiscoveryFormState extends State<DiscoveryForm> {
                     filteredFeeds.length,
                     (int index) {
                       final String item = filteredFeeds[index]['title'];
+                      final String description =
+                          filteredFeeds[index]['description'];
                       return ListTile(
                         title: Text(item),
+                        subtitle: Text(description),
                         // trailing: Container(
                         //   width: 36,
                         //   height: 36,
@@ -224,14 +229,26 @@ class DiscoveryFormState extends State<DiscoveryForm> {
                                     ),
                                     child: Padding(
                                       padding: EdgeInsets.all(8),
-                                      child: Text(
-                                        feed['title'],
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          color: Colors
-                                              .white, // Change text color as needed
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            feed['title'],
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: Colors
+                                                  .white, // Change text color as needed
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Text(
+                                            feed['description'],
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: Colors
+                                                  .white, // Change text color as needed
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),

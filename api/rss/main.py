@@ -35,6 +35,7 @@ pipeline2 = [
             "_id": 1,
             "title": 1,
             "url": 1,
+            "description": 1,
             "article": {
                 "$zip": {
                     "inputs": ["$titles", "$values", "$dates", "$links", "$authors"],
@@ -48,6 +49,7 @@ pipeline2 = [
         "$project": {
             "_id": 1,
             "publication_name": "$title",
+            "description": 1,
             "url": 1,
             "title": {
                 "$arrayElemAt": ["$article", 0]
@@ -90,6 +92,7 @@ def pub_pipeline(url):
             "_id": 1,
             "title": 1,
             "url": 1,
+            "description": 1,
             "article": {
                 "$zip": {
                     "inputs": ["$titles", "$values", "$dates", "$links", "$authors"],
@@ -102,6 +105,7 @@ def pub_pipeline(url):
         "$project": {
             "_id": 1,
             "publication_name": "$title",
+            "description": 1,
             "url": 1,
             "title": {
                 "$arrayElemAt": ["$article", 0]
@@ -133,6 +137,7 @@ def personal_pipeline(url_list):
             "_id": 1,
             "title": 1,
             "url": 1,
+            "description": 1,
             "article": {
                 "$zip": {
                     "inputs": ["$titles", "$values", "$dates", "$links", "$authors"],
@@ -146,6 +151,7 @@ def personal_pipeline(url_list):
         "$project": {
             "_id": 1,
             "publication_name": "$title",
+            "description": 1,
             "url": 1,
             "title": {
                 "$arrayElemAt": ["$article", 0]
@@ -173,7 +179,8 @@ feed_and_url_pipeline = [
         "$project": {
             "_id": 0,
             "title": 1,
-            "url": 1
+            "url": 1,
+            "description": 1
         }
     }
 ]
@@ -183,6 +190,7 @@ leaderboard_pipeline = [
     {"$limit": 5},  # Limit to top 5
     {"$project": {
         "_id": 0,
+        "description": 1,
         "title": 1,
         "url": 1
     }
@@ -201,6 +209,7 @@ def resolve_entries(obj, info):
                 "id": i["_id"],
                 "pub_name": i['publication_name'],
                 "title": i["title"],
+                "description": i['description'],
                 "is_content": False,
                 "pub_date": i['date'],
                 "text": i['value'],
@@ -209,7 +218,6 @@ def resolve_entries(obj, info):
                 "author": i['author']
             }
             real_entries.append(entry)
-        #todos = [todo.to_dict() for todo in TodoItem.query.all()]
         payload = {
             "success": True,
             "entries": real_entries
@@ -237,6 +245,7 @@ def resolve_personal_entries(obj, info, token):
                 "id": i["_id"],
                 "pub_name": i['publication_name'],
                 "title": i["title"],
+                "description": i["description"],
                 "is_content": False,
                 "pub_date": humanize_date(i['date']),
                 "text": i['value'],
@@ -285,6 +294,7 @@ def resolve_pub_entries(obj, info, url):
                 "id": i["_id"],
                 "pub_name": i['publication_name'],
                 "title": i["title"],
+                "description": i["description"],
                 "is_content": False,
                 "pub_date": humanize_date(i['date']),
                 "text": i['value'],
@@ -337,6 +347,7 @@ def resolve_category_entries(obj, info, token, category):
                 "id": i["_id"],
                 "pub_name": i['publication_name'],
                 "title": i["title"],
+                "description": i['description'],
                 "is_content": False,
                 "pub_date": humanize_date(i['date']),
                 "text": i['value'],
@@ -384,7 +395,6 @@ def resolve_all_feeds(obj, info):
         print(str(error))
 
 def resolve_check_feed(obj, info, url, token):
-    print(f"Python resolving check feed with {url} and {token}")
     try:
         received = jwt.decode(token, secret_key, algorithms=["HS256"])
         user_id = received['id']

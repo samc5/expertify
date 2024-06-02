@@ -14,6 +14,7 @@ query fetchPersonalEntries(\$token: String!) {
       title
       text
       pub_name
+      description
       pub_url
       pub_date
       url
@@ -105,7 +106,8 @@ class _ArticlesWidgetState extends State<ArticlesWidget> {
               entries: entries,
               pub_title: "Your Inbox",
               showAppBar: true,
-              showCategories: true);
+              showCategories: true,
+              showDescription: false);
         });
   }
 }

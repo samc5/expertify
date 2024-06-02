@@ -98,11 +98,11 @@ class _BookmarksWidgetState extends State<BookmarksWidget> {
                 entries != null
                     ? Expanded(
                         child: Article_List(
-                          entries: entries.reversed.toList(),
-                          pub_title: "Bookmarks",
-                          showAppBar: false,
-                          showCategories: false,
-                        ),
+                            entries: entries.reversed.toList(),
+                            pub_title: "Bookmarks",
+                            showAppBar: false,
+                            showCategories: false,
+                            showDescription: false),
                       )
                     : Padding(
                         padding: const EdgeInsets.only(left: 30, right: 30),

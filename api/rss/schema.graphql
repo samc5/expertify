@@ -8,6 +8,7 @@ type BlogEntry {
     pub_name: String!
     pub_url: String
     title: String!
+    description: String!
     is_content: Boolean!
     pub_date: String!
     text: String!
@@ -20,6 +21,7 @@ input BlogEntryInput {
     pub_name: String!
     pub_url: String
     title: String!
+    description: String!
     pub_date: String!
     text: String!
     url: String!
@@ -76,6 +78,7 @@ type SignUpResponse {
 type SimpleFeed {
     title: String!
     url: String!
+    description: String!
 }
 
 type checkFeedResult {

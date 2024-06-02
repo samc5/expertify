@@ -86,11 +86,11 @@ class _CategoryArticlesWidgetState extends State<CategoryArticlesWidget> {
             }
             final entries = result.data!["category_entries"]["entries"];
             return Article_List(
-              entries: entries,
-              pub_title: widget.category,
-              showAppBar: true,
-              showCategories: false,
-            );
+                entries: entries,
+                pub_title: widget.category,
+                showAppBar: true,
+                showCategories: false,
+                showDescription: false);
           }),
     );
   }

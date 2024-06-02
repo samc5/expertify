@@ -13,6 +13,7 @@ query fetchPubEntries(\$url: String!) {
       title
       text
       pub_name
+      description
       pub_url
       pub_date
       url
@@ -65,62 +66,52 @@ class _PubArticlesWidgetState extends State<PubArticlesWidget> {
   @override
   Widget build(BuildContext context) {
     final String url = widget.url;
-    return Scaffold(
-      body: Query(
-          options: QueryOptions(
-              document: gql(pub_query),
-              pollInterval: const Duration(seconds: 120),
-              variables: <String, dynamic>{"url": widget.url}),
-          builder: (result, {fetchMore, refetch}) {
-            if (result.hasException) {
-              print(result.exception.toString());
-              return const Center(
-                child: Text("Error occurred while fetching data!"),
-              );
-            }
-            if (result.data == null) {
-              return Scaffold(
-                appBar: AppBar(
-                    surfaceTintColor: Colors.transparent,
-                    centerTitle: true,
-                    automaticallyImplyLeading: true,
-                    title:
-                        Text(widget.pub_name) // Set your desired app bar title
-                    ),
-                body: Center(
-                  child: Text("Loading...",
-                      style: TextStyle(fontSize: 25),
-                      textAlign: TextAlign.center),
-                ),
-              );
-            }
-            final entries = result.data!["pub_entries"]["entries"];
-            //final token = await getToken();
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                AppBar(
+    return Query(
+        options: QueryOptions(
+            document: gql(pub_query),
+            pollInterval: const Duration(seconds: 120),
+            variables: <String, dynamic>{"url": widget.url}),
+        builder: (result, {fetchMore, refetch}) {
+          if (result.hasException) {
+            print(result.exception.toString());
+            return const Center(
+              child: Text("Error occurred while fetching data!"),
+            );
+          }
+          if (result.data == null) {
+            return Scaffold(
+              appBar: AppBar(
                   surfaceTintColor: Colors.transparent,
                   centerTitle: true,
                   automaticallyImplyLeading: true,
-                  title: Text(widget.pub_name),
-                ),
-                SingleChildScrollView(
-                  child: SubscribeButton(widget: widget, token: token),
-                ),
+                  title: Text(widget.pub_name) // Set your desired app bar title
+                  ),
+              body: Center(
+                child: Text("Loading...",
+                    style: TextStyle(fontSize: 25),
+                    textAlign: TextAlign.center),
+              ),
+            );
+          }
+          final entries = result.data!["pub_entries"]["entries"];
+          //final token = await getToken();
+          return Scaffold(
+              appBar: AppBar(
+                surfaceTintColor: Colors.transparent,
+                centerTitle: true,
+                automaticallyImplyLeading: true,
+                title: Text(widget.pub_name),
+              ),
+              body: Column(children: [
                 Expanded(
                   child: Article_List(
-                    entries: entries,
-                    pub_title: entries[0]['pub_name'],
-                    showAppBar: false,
-                    showCategories: false,
-                  ),
+                      entries: entries,
+                      pub_title: entries[0]['pub_name'],
+                      showAppBar: false,
+                      showCategories: false,
+                      showDescription: true),
                 ),
-              ],
-            );
-            // return Article_List(
-            //     entries: entries, pub_title: entries[0]['pub_name']);
-          }),
-    );
+              ]));
+        });
   }
 }

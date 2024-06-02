@@ -83,6 +83,12 @@ class _MultiSelectState extends State<MultiSelect> {
 // this function is called when the Submit button is tapped
   List<String> _submit() {
     Navigator.pop(context, _selectedCategories);
+    if (categoryValue.text.isNotEmpty &&
+        !widget.categories.contains(categoryValue.text)) {
+      setState(() {
+        _selectedCategories.add(categoryValue.text);
+      });
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Subscribed!'),
@@ -105,7 +111,8 @@ class _MultiSelectState extends State<MultiSelect> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Select Topics'),
+      title: const Text(
+          'Select which categories you want to include this feed under'),
       content: SingleChildScrollView(
           child: ListBody(children: [
         ...widget.categories.map((item) {
@@ -156,11 +163,11 @@ class _MultiSelectState extends State<MultiSelect> {
 class SubscribeButton extends StatefulWidget {
   const SubscribeButton({
     super.key,
-    required this.widget,
+    required this.url,
     required this.token,
   });
 
-  final PubArticlesWidget widget;
+  final String url;
   final String? token;
   @override
   _SubscribeButtonState createState() => _SubscribeButtonState();
@@ -171,13 +178,33 @@ class _SubscribeButtonState extends State<SubscribeButton> {
   bool checkboxValue1 = false;
   bool checkboxValue2 = false;
 
+  Future<void> _checkFeed() async {
+    final client = GraphQLProvider.of(context).value;
+    final QueryOptions options = QueryOptions(
+      document: gql(checkFeed),
+      variables: {
+        'token': widget.token,
+        'url': widget.url,
+      },
+    );
+    final QueryResult result = await client.query(options);
+    if (!result.hasException) {
+      setState(() {
+        isSubscribed = result.data!['checkForFeed']['result'];
+      });
+    } else {
+      print(
+          "Error checking if account has the feed: ${result.exception.toString()}");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Query(
         options: QueryOptions(
             document: gql(checkFeed),
             variables: <String, dynamic>{
-              "url": widget.widget.url,
+              "url": widget.url,
               "token": widget.token
             }),
         builder: (result2, {fetchMore, refetch}) {
@@ -190,7 +217,7 @@ class _SubscribeButtonState extends State<SubscribeButton> {
           }
           isSubscribed = result2.data!["checkForFeed"]["result"];
           return FractionallySizedBox(
-            widthFactor: 0.3,
+            widthFactor: 0.23,
             child: Mutation(
               options: MutationOptions(document: gql(deleteEntry)),
               builder: (runMutation, result, {fetchMore, refetch}) {
@@ -221,12 +248,12 @@ class _SubscribeButtonState extends State<SubscribeButton> {
                                     return MultiSelect(
                                         categories: categoryList,
                                         isSubscribed: isSubscribed,
-                                        url: widget.widget.url,
+                                        url: widget.url,
                                         token: widget.token);
                                   });
                             } else {
                               runMutation({
-                                'url': widget.widget.url,
+                                'url': widget.url,
                                 'token': widget.token,
                               });
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -278,7 +305,7 @@ class _SubscribeButtonState extends State<SubscribeButton> {
                             ),
                             textStyle: MaterialStateProperty.all(
                               TextStyle(
-                                  fontSize: 14.0,
+                                  fontSize: 12.0,
                                   fontWeight:
                                       FontWeight.bold), // Change text font size
                             ),
