@@ -82,7 +82,7 @@ type SimpleFeed {
 }
 
 type checkFeedResult {
-    result: Boolean!
+    result: Boolean
     success: Boolean!
     errors: [String]
 }

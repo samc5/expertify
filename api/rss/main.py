@@ -405,7 +405,6 @@ def resolve_check_feed(obj, info, url, token):
         }
     except Exception as error:
         payload = {
-            "result": False,
             "success": False,
             "errors": [str(error)]
         }

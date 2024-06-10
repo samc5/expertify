@@ -19,6 +19,17 @@ query fetch_categories(\$token: String!) {
 }
 """;
 
+const String checkFeed = """
+query CheckForFeed(\$url: String!, \$token: String!) {
+  checkForFeed(url: \$url, token: \$token) {
+    result
+    success
+    errors
+  }
+}
+
+""";
+
 String saveArticle = """
 mutation saveArticle(\$article: BlogEntryInput!, \$token: String!) {
   saveArticle(article: \$article, token: \$token) {
@@ -300,9 +311,23 @@ class _ArticleListState extends State<Article_List> {
                         } else if (widget.showDescription && i == 0) {
                           return Column(
                             children: [
+                              // Query(
+                              //     options: QueryOptions(
+                              //         document: gql(checkFeed),
+                              //         variables: <String, dynamic>{
+                              //           "url": widget.entries[0]['pub_url'],
+                              //           "token": token
+                              //         }),
+                              //     builder: (checkResult, {fetchMore, refetch}) {
+                              //       if (checkResult.data == null) {
+                              //         return Container();
+                              //       }
+                              //       return
                               SubscribeButton(
-                                  url: widget.entries[0]['pub_url'],
-                                  token: token),
+                                url: widget.entries[0]['pub_url'],
+                                token: token,
+                              ),
+
                               Padding(padding: EdgeInsets.all(8.0)),
                               Padding(
                                 padding: const EdgeInsets.only(

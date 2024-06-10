@@ -24,6 +24,7 @@ query fetchSavedEntries (\$token: String!){
 """;
 
 final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
+//final HttpLink httpLink = HttpLink("http://172.191.246.38:5000/graphql");
 
 final ValueNotifier<GraphQLClient> client = ValueNotifier<GraphQLClient>(
   GraphQLClient(

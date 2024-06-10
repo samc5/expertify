@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'blog_screen.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 const String newerEntry = """
 mutation newEntry(\$url: String!, \$token: String!, \$categories: [String]!){
@@ -47,13 +48,11 @@ query fetch_categories(\$token: String!) {
 
 class MultiSelect extends StatefulWidget {
   final List<String> categories;
-  final bool isSubscribed;
   final String url;
   final String? token;
   const MultiSelect(
       {Key? key,
       required this.categories,
-      required this.isSubscribed,
       required this.url,
       required this.token})
       : super(key: key);
@@ -161,22 +160,22 @@ class _MultiSelectState extends State<MultiSelect> {
 }
 
 class SubscribeButton extends StatefulWidget {
-  const SubscribeButton({
-    super.key,
-    required this.url,
-    required this.token,
-  });
+  const SubscribeButton({super.key, required this.url, required this.token});
 
   final String url;
   final String? token;
+  //final bool isSubscribed;
+
   @override
   _SubscribeButtonState createState() => _SubscribeButtonState();
 }
 
 class _SubscribeButtonState extends State<SubscribeButton> {
-  bool isSubscribed = false;
-  bool checkboxValue1 = false;
-  bool checkboxValue2 = false;
+  bool isSubscribed2 = false;
+  bool isLoading = true;
+  bool? changed;
+  bool? old;
+  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
   Future<void> _checkFeed() async {
     final client = GraphQLProvider.of(context).value;
@@ -187,135 +186,171 @@ class _SubscribeButtonState extends State<SubscribeButton> {
         'url': widget.url,
       },
     );
+    setState(() {
+      //isLoading = false;
+    });
+
     final QueryResult result = await client.query(options);
-    if (!result.hasException) {
-      setState(() {
-        isSubscribed = result.data!['checkForFeed']['result'];
-      });
+    setState(() {
+      //isLoading = true;
+      if (result.data != null && !result.hasException) {
+        isSubscribed2 = result.data!['checkForFeed']['result'];
+      }
+    });
+  }
+
+  Future<void> _loadSubscriptionState() async {
+    final storedSubscribed = await _secureStorage.read(key: widget.url);
+
+    if (storedSubscribed == null) {
+      await _checkFeed();
     } else {
-      print(
-          "Error checking if account has the feed: ${result.exception.toString()}");
+      // Info found in secure storage, use it
+      setState(() {
+        isSubscribed2 = storedSubscribed == 'true';
+      });
     }
+    isLoading = false;
+  }
+
+  Future<void> _saveSubscriptionState(bool subscribed) async {
+    await _secureStorage.write(key: widget.url, value: subscribed.toString());
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    isLoading = true;
+    _loadSubscriptionState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Query(
-        options: QueryOptions(
-            document: gql(checkFeed),
-            variables: <String, dynamic>{
-              "url": widget.url,
-              "token": widget.token
-            }),
-        builder: (result2, {fetchMore, refetch}) {
-          bool isSubscribed;
-          if (result2.data == null) {
-            return Center(
-              child: Text("",
-                  style: TextStyle(fontSize: 25), textAlign: TextAlign.center),
-            );
-          }
-          isSubscribed = result2.data!["checkForFeed"]["result"];
-          return FractionallySizedBox(
-            widthFactor: 0.23,
-            child: Mutation(
-              options: MutationOptions(document: gql(deleteEntry)),
-              builder: (runMutation, result, {fetchMore, refetch}) {
-                return Query(
-                    options: QueryOptions(
-                        document: gql(categoryQuery),
-                        variables: <String, dynamic>{"token": widget.token}),
-                    builder: (categoriesResult, {fetchMore, refetch}) {
-                      if (categoriesResult.data == null) {
-                        return Center(
-                          child: Text("",
-                              style: TextStyle(fontSize: 25),
-                              textAlign: TextAlign.center),
+    // _checkFeed();
+    if (isLoading) {
+      return CircularProgressIndicator();
+    }
+    //return
+    // Query(
+    //     options: QueryOptions(
+    //         document: gql(checkFeed),
+    //         variables: <String, dynamic>{
+    //           "url": widget.url,
+    //           "token": widget.token
+    //         }),
+    //     builder: (result2, {fetchMore, refetch}) {
+    //       // print("building with" + isSubscribed2.toString());
+    //       if (result2.data == null) {
+    //         return Center(
+    //           child: Text("",
+    //               style: TextStyle(fontSize: 25), textAlign: TextAlign.center),
+    //         );
+    //       }
+    //       isSubscribed2 = result2.data!["checkForFeed"]["result"];
+    return FractionallySizedBox(
+      widthFactor: 0.23,
+      child: Mutation(
+        options: MutationOptions(document: gql(deleteEntry)),
+        builder: (runMutation, result, {fetchMore, refetch}) {
+          return Query(
+              options: QueryOptions(
+                  document: gql(categoryQuery),
+                  variables: <String, dynamic>{"token": widget.token}),
+              builder: (categoriesResult, {fetchMore, refetch}) {
+                if (categoriesResult.data == null) {
+                  return Center(
+                    child: Text("",
+                        style: TextStyle(fontSize: 25),
+                        textAlign: TextAlign.center),
+                  );
+                }
+                List<dynamic> categories =
+                    categoriesResult.data?['fetch_categories']['categories'] ??
+                        [];
+                List<String> categoryList =
+                    categories.whereType<String>().toList();
+                //if (isSubscribed2) {}
+                return OutlinedButton(
+                    onPressed: () async {
+                      isSubscribed2 = !isSubscribed2;
+                      if (isSubscribed2) {
+                        List<String>? results = await showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return MultiSelect(
+                                  categories: categoryList,
+                                  url: widget.url,
+                                  token: widget.token);
+                            });
+
+                        _saveSubscriptionState(true);
+                      } else {
+                        runMutation({
+                          'url': widget.url,
+                          'token': widget.token,
+                        });
+                        _saveSubscriptionState(false);
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Unsubscribed!'),
+                            duration: Duration(seconds: 1), // Adjust as needed
+                          ),
                         );
                       }
-                      List<dynamic> categories = categoriesResult
-                              .data?['fetch_categories']['categories'] ??
-                          [];
-                      List<String> categoryList =
-                          categories.whereType<String>().toList();
-                      return OutlinedButton(
-                          onPressed: () async {
-                            isSubscribed = !isSubscribed;
-                            if (isSubscribed) {
-                              List<String>? results = await showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return MultiSelect(
-                                        categories: categoryList,
-                                        isSubscribed: isSubscribed,
-                                        url: widget.url,
-                                        token: widget.token);
-                                  });
-                            } else {
-                              runMutation({
-                                'url': widget.url,
-                                'token': widget.token,
-                              });
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Unsubscribed!'),
-                                  duration:
-                                      Duration(seconds: 1), // Adjust as needed
-                                ),
-                              );
-                            }
-                          },
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateColor.resolveWith(
-                              (states) {
-                                if (states.contains(MaterialState.disabled)) {
-                                  return Colors.grey.withOpacity(
-                                      0.5); // Light color when disabled
-                                }
-                                return isSubscribed
-                                    ? Colors.white
-                                    : Color(
-                                        0xFF511730); // Dark or light color based on subscription
-                              },
-                            ),
-                            foregroundColor:
-                                MaterialStateProperty.resolveWith<Color>(
-                              (Set<MaterialState> states) {
-                                // Set colors based on subscription state
-                                if (states.contains(MaterialState.disabled)) {
-                                  // Button is disabled
-                                  return Colors.white; // Light color
-                                }
-                                // Button is enabled
-                                return isSubscribed
-                                    ? Colors.black
-                                    : Colors.white; // Dark or light color
-                              },
-                            ),
-                            shape: MaterialStateProperty.all(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(
-                                    Radius.circular(4)), // Square edges
-                              ),
-                            ),
-                            padding: MaterialStateProperty.all(
-                              EdgeInsets.symmetric(
-                                  vertical: 8.0,
-                                  horizontal: 10.0), // Customize padding
-                            ),
-                            textStyle: MaterialStateProperty.all(
-                              TextStyle(
-                                  fontSize: 12.0,
-                                  fontWeight:
-                                      FontWeight.bold), // Change text font size
-                            ),
-                          ),
-                          child:
-                              Text(isSubscribed ? 'Subscribed' : 'Subscribe'));
-                    });
-              },
-            ),
-          );
-        });
+                      old = isSubscribed2;
+                      // _checkFeed();
+                      print("new issubscribed2: " + isSubscribed2.toString());
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateColor.resolveWith(
+                        (states) {
+                          if (states.contains(MaterialState.disabled)) {
+                            return Colors.grey
+                                .withOpacity(0.5); // Light color when disabled
+                          }
+                          return isSubscribed2
+                              ? Colors.white
+                              : Color(
+                                  0xFF511730); // Dark or light color based on subscription
+                        },
+                      ),
+                      foregroundColor: MaterialStateProperty.resolveWith<Color>(
+                        (Set<MaterialState> states) {
+                          // Set colors based on subscription state
+                          if (states.contains(MaterialState.disabled)) {
+                            // Button is disabled
+                            return Colors.white; // Light color
+                          }
+                          // Button is enabled
+                          return isSubscribed2
+                              ? Colors.black
+                              : Colors.white; // Dark or light color
+                        },
+                      ),
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                              Radius.circular(4)), // Square edges
+                        ),
+                      ),
+                      padding: MaterialStateProperty.all(
+                        EdgeInsets.symmetric(
+                            vertical: 8.0,
+                            horizontal: 10.0), // Customize padding
+                      ),
+                      textStyle: MaterialStateProperty.all(
+                        TextStyle(
+                            fontSize: 12.0,
+                            fontWeight:
+                                FontWeight.bold), // Change text font size
+                      ),
+                    ),
+                    child: Text(isSubscribed2 ? 'Subscribed' : 'Subscribe'));
+              });
+        },
+      ),
+    );
+    //    });
   }
 }

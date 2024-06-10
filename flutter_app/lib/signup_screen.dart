@@ -60,7 +60,7 @@ class SignUpFormState extends State<SignUpForm> {
     String password = passwordValue.text;
     var url;
     if (kIsWeb) {
-      url = Uri.parse('http://localhost:5000/signup'); // URL for web
+      url = Uri.parse('http://172.191.246.38:5000/signup'); // URL for web
     } else {
       if (Platform.isAndroid) {
         url = Uri.parse(

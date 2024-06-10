@@ -24,7 +24,19 @@ query fetchPubEntries(\$url: String!) {
 
 """;
 
+const String checkFeed = """
+query CheckForFeed(\$url: String!, \$token: String!) {
+  checkForFeed(url: \$url, token: \$token) {
+    result
+    success
+    errors
+  }
+}
+
+""";
+
 final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
+//final HttpLink httpLink = HttpLink("http://172.191.246.38:5000/graphql");
 
 final ValueNotifier<GraphQLClient> client = ValueNotifier<GraphQLClient>(
   GraphQLClient(
@@ -46,6 +58,7 @@ class PubArticlesWidget extends StatefulWidget {
 class _PubArticlesWidgetState extends State<PubArticlesWidget> {
   TextEditingController newTaskController = TextEditingController();
   String? token;
+  bool? isSubcribed;
 
   @override
   void initState() {
@@ -95,6 +108,7 @@ class _PubArticlesWidgetState extends State<PubArticlesWidget> {
           }
           final entries = result.data!["pub_entries"]["entries"];
           //final token = await getToken();
+
           return Scaffold(
               appBar: AppBar(
                 surfaceTintColor: Colors.transparent,
