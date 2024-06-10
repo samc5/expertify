@@ -5,8 +5,8 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_fonts/google_fonts.dart';
 
-final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
-//final HttpLink httpLink = HttpLink("http://172.191.246.38:5000/graphql");
+//final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
+final HttpLink httpLink = HttpLink("http://172.191.246.38:5000/graphql");
 final HttpLink androidLink = HttpLink("http://10.0.2.2:5000/graphql");
 // bool _certificateCheck(X509Certificate cert, String host, int port) =>
 //     host == 'local.domain.ext'; // <- change

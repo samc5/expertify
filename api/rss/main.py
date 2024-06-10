@@ -648,11 +648,8 @@ def graphql_server():
 
 @app.route("/login", methods=["POST"])
 def login():
-    print(request.form)
     email = request.form['email']
     try:
-        #pw_hash = mongo.hash(request.form['password'])
-        #print(pw_hash)
         result = mongo.check_login(email, request.form['password'])
         if result and result != "No Match":
             user_id = str(result)
@@ -663,7 +660,6 @@ def login():
             token = jwt.encode(payload, secret_key, algorithm='HS256')
             return jsonify({'message': 'User authenticated successfully', 'token': token})
         else:
-            print(result)
             return jsonify({'message': 'Registration Failed due to user not found', 'result': result}) 
     except Exception as e:
         print(e)
@@ -685,12 +681,15 @@ def signup():
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1)
             }
             token = jwt.encode(payload, secret_key, algorithm='HS256')
+            print("user registered successfully, token = " + token)
             return jsonify({'message': 'User registered successfully', 'token': token})
         else:
+            print("registration failed probably emailw as in system")
             return jsonify({'message': 'Registration Failed (likely email was in system)'})
     except Exception as e:
         print(e)
-        return jsonify({'message': 'Registration Failed due to unknwon error'})
+        print("that was an unknwon error")
+        return jsonify({'message': 'Registration Failed due to unknown error'})
 
 if __name__ == '__main__':
     app.run(debug=True) ## TODOOO ssl_context should be replaced with a real SSL immediately when this is hosted
