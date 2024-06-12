@@ -693,4 +693,4 @@ def signup():
         return jsonify({'message': 'Registration Failed due to unknown error'})
 
 if __name__ == '__main__':
-    app.run(debug=True) ## TODOOO ssl_context should be replaced with a real SSL immediately when this is hosted
+    app.run(debug=True, host="0.0.0.0", port=5000) ## TODOOO ssl_context should be replaced with a real SSL immediately when this is hosted
