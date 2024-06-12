@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'navigation_bar_controller.dart';
 import 'package:http/http.dart' as http;
@@ -66,7 +68,8 @@ class SignUpFormState extends State<SignUpForm> {
         url = Uri.parse(
             'http://10.0.2.2:5000/signup'); // URL for Android emulator
       } else if (Platform.isWindows) {
-        url = Uri.parse('http://localhost:5000/signup'); // URL for Windows app
+        url = Uri.parse(
+            'http://172.191.246.38:5000/signup'); // URL for Windows app
       }
     }
     var response = await http.post(
@@ -81,11 +84,11 @@ class SignUpFormState extends State<SignUpForm> {
     if (response.statusCode == 200) {
       // Request successful, do something
       Map<String, dynamic> jsonResponse = json.decode(response.body);
-      print(jsonResponse['token']);
+      log(jsonResponse['token']);
       if (jsonResponse['token'] != null) {
         return jsonResponse['token'];
       }
-      print("the thing is null");
+      log("the thing is null");
       if (jsonResponse['message'] ==
           "Registration Failed (likely email was in system)") {
         return "User in System";
@@ -93,7 +96,7 @@ class SignUpFormState extends State<SignUpForm> {
       return "Failure";
     } else {
       // Request failed, handle error
-      print('Error: ${response.reasonPhrase}');
+      log('Error: ${response.reasonPhrase}');
       return "Failure";
     }
   }

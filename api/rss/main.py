@@ -10,12 +10,13 @@ import parser
 import jwt
 import datetime
 from dotenv import load_dotenv
+from flask_cors import CORS
 #from flask_talisman import Talisman
 load_dotenv()
 secret_key = os.getenv("SECRET")
 
 app = Flask(__name__)
-#Talisman(app)
+CORS(app)
 app.app_context().push()
 basedir = os.path.abspath(os.path.dirname(__file__))
 

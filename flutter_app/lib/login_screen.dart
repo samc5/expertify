@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'navigation_bar_controller.dart';
 import 'package:http/http.dart' as http;
@@ -68,7 +70,8 @@ class LoginFormState extends State<LoginForm> {
         url =
             Uri.parse('http://10.0.2.2:5000/login'); // URL for Android emulator
       } else if (Platform.isWindows) {
-        url = Uri.parse('http://localhost:5000/login'); // URL for Windows app
+        url = Uri.parse(
+            'http://172.191.246.38:5000/login'); // URL for Windows app
       }
     }
     var response = await http.post(
@@ -83,15 +86,15 @@ class LoginFormState extends State<LoginForm> {
     if (response.statusCode == 200) {
       // Request successful, do something
       Map<String, dynamic> jsonResponse = json.decode(response.body);
-      print(jsonResponse['token']);
+      log(jsonResponse['token']);
       if (jsonResponse['token'] != null) {
         return jsonResponse['token'];
       }
-      print("reached second if thing");
+      log("reached second if thing");
       return "Failure";
     } else {
       // Request failed, handle error
-      print('Error: ${response.reasonPhrase}');
+      log('Error: ${response.reasonPhrase}');
       return "Failure";
     }
   }
