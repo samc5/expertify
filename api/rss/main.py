@@ -16,11 +16,11 @@ load_dotenv()
 secret_key = os.getenv("SECRET")
 
 app = Flask(__name__)
-CORS(app, resources={
-    r"/graphql": {"origins": "*"},
-    r"/login": {"origins": "*"},
-    r"/signup": {"origins": "*"}
-})
+# CORS(app, resources={
+#     r"/graphql": {"origins": "*"},
+#     r"/login": {"origins": "*"},
+#     r"/signup": {"origins": "*"}
+# })
 app.app_context().push()
 basedir = os.path.abspath(os.path.dirname(__file__))
 
