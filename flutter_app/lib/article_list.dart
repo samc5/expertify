@@ -8,6 +8,7 @@ import 'package:flutter_swipe_action_cell/flutter_swipe_action_cell.dart';
 import 'settings.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'subscribe_button.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 String categoryQuery = """
 query fetch_categories(\$token: String!) {
@@ -93,7 +94,11 @@ class _ArticleListState extends State<Article_List> {
 
   Future<void> _fetchToken() async {
     try {
-      token = await getToken();
+      if (kIsWeb) {
+        token = getWebToken();
+      } else {
+        token = await getToken();
+      }
     } catch (e) {
       print("Error fetching token: $e");
       // Handle error appropriately, like showing an error message

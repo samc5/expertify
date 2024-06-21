@@ -26,7 +26,7 @@ query fetchPersonalEntries(\$token: String!) {
 """;
 
 //final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
-final HttpLink httpLink = HttpLink("http://172.191.246.38:5000/graphql");
+final HttpLink httpLink = HttpLink("https://samcowan.net/graphql");
 final HttpLink androidLink = HttpLink("http://10.0.2.2:5000/graphql");
 
 ValueNotifier<GraphQLClient> client = ValueNotifier<GraphQLClient>(
@@ -55,7 +55,11 @@ class _ArticlesWidgetState extends State<ArticlesWidget> {
 
   Future<void> _fetchToken() async {
     try {
-      token = await getToken();
+      if (kIsWeb) {
+        token = getWebToken();
+      } else {
+        token = await getToken();
+      }
     } catch (e) {
       print("Error fetching token: $e");
       // Handle error appropriately, like showing an error message

@@ -63,15 +63,14 @@ class LoginFormState extends State<LoginForm> {
 
     var url;
     if (kIsWeb) {
-      url = Uri.parse('http://172.191.246.38:5000/login'); // URL for web
+      url = Uri.parse('https://samcowan.net/login'); // URL for web
       //url = Uri.parse('http://localhost:5000/login'); // URL for web
     } else {
       if (Platform.isAndroid) {
         url =
             Uri.parse('http://10.0.2.2:5000/login'); // URL for Android emulator
       } else if (Platform.isWindows) {
-        url = Uri.parse(
-            'http://172.191.246.38:5000/login'); // URL for Windows app
+        url = Uri.parse('https://samcowan.net/login'); // URL for Windows app
       }
     }
     var response = await http.post(
@@ -86,7 +85,7 @@ class LoginFormState extends State<LoginForm> {
     if (response.statusCode == 200) {
       // Request successful, do something
       Map<String, dynamic> jsonResponse = json.decode(response.body);
-      log(jsonResponse['token']);
+      log("token: " + jsonResponse['token']);
       if (jsonResponse['token'] != null) {
         return jsonResponse['token'];
       }
@@ -142,6 +141,7 @@ class LoginFormState extends State<LoginForm> {
                           final Future<String> loginResult =
                               submitForm(context);
                           String loginResult2 = await loginResult;
+                          log(loginResult2);
                           if (loginResult2 == "Failure") {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -151,8 +151,16 @@ class LoginFormState extends State<LoginForm> {
                               ),
                             );
                           } else {
-                            await deleteToken();
-                            await storeToken(loginResult2);
+                            if (kIsWeb) {
+                              deleteWebToken();
+                            } else {
+                              await deleteToken();
+                            }
+                            if (kIsWeb) {
+                              storeWebToken(loginResult2);
+                            } else {
+                              await storeToken(loginResult2);
+                            }
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(

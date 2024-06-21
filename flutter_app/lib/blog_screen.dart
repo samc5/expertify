@@ -3,6 +3,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'article_list.dart';
 import 'token_operations.dart';
 import 'subscribe_button.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 const String pub_query = """
 query fetchPubEntries(\$url: String!) {
@@ -36,7 +37,7 @@ query CheckForFeed(\$url: String!, \$token: String!) {
 """;
 
 //final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
-final HttpLink httpLink = HttpLink("http://172.191.246.38:5000/graphql");
+final HttpLink httpLink = HttpLink("https://samcowan.net/graphql");
 
 final ValueNotifier<GraphQLClient> client = ValueNotifier<GraphQLClient>(
   GraphQLClient(
@@ -68,7 +69,11 @@ class _PubArticlesWidgetState extends State<PubArticlesWidget> {
 
   Future<void> _fetchToken() async {
     try {
-      token = await getToken();
+      if (kIsWeb) {
+        token = getWebToken();
+      } else {
+        token = await getToken();
+      }
     } catch (e) {
       print("Error fetching token: $e");
       // Handle error appropriately, like showing an error message

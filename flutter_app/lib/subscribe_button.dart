@@ -290,7 +290,6 @@ class _SubscribeButtonState extends State<SubscribeButton> {
                           'token': widget.token,
                         });
                         _saveSubscriptionState(false);
-
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Unsubscribed!'),

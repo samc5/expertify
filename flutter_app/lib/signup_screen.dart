@@ -62,14 +62,13 @@ class SignUpFormState extends State<SignUpForm> {
     String password = passwordValue.text;
     var url;
     if (kIsWeb) {
-      url = Uri.parse('http://172.191.246.38:5000/signup'); // URL for web
+      url = Uri.parse('https://samcowan.net/signup'); // URL for web
     } else {
       if (Platform.isAndroid) {
         url = Uri.parse(
             'http://10.0.2.2:5000/signup'); // URL for Android emulator
       } else if (Platform.isWindows) {
-        url = Uri.parse(
-            'http://172.191.246.38:5000/signup'); // URL for Windows app
+        url = Uri.parse('https://samcowan.net/signup'); // URL for Windows app
       }
     }
     var response = await http.post(
@@ -173,8 +172,16 @@ class SignUpFormState extends State<SignUpForm> {
                                 ),
                               );
                             } else {
-                              await deleteToken();
-                              await storeToken(SignUpResult2);
+                              if (kIsWeb) {
+                                deleteWebToken();
+                              } else {
+                                await deleteToken();
+                              }
+                              if (kIsWeb) {
+                                storeWebToken(SignUpResult2);
+                              } else {
+                                await storeToken(SignUpResult2);
+                              }
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
