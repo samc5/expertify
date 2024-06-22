@@ -28,7 +28,7 @@ stacks = Substacks + non_substacks
 
 
 def construct_feed_dict(url):
-    feed = feedparser.parse(url)
+    feed = feedparser.parse(url, agent='Expertify/1.0 +https://samcowan.net/')
     res = {}
     feed_info = feed['feed']
     feed_name = feed_info.get('title', 'No Title')
