@@ -1,6 +1,5 @@
 import feedparser
 import mongo
-import cloudscraper
 ACX = "https://www.astralcodexten.com/feed/"
 FT = "https://www.ft.com/myft/following/15b4e217-cc5c-47a8-8234-8f5cf596769c.rss"
 MLBTR = "http://feeds.feedburner.com/MlbTradeRumors"
