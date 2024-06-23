@@ -108,20 +108,23 @@ class _ArticleListState extends State<Article_List> {
 
   Future<void> _fetchCategoryEntries() async {
     final client = GraphQLProvider.of(context).value;
-    final QueryOptions options = QueryOptions(
-      document: gql(categoryEntries),
-      variables: {
-        'token': token,
-        'category': selectedCategory,
-      },
-    );
-    final QueryResult result = await client.query(options);
-    if (!result.hasException) {
-      setState(() {
-        catResults = result.data!['category_entries']['entries'];
-      });
-    } else {
-      print("Error fetching category entries: ${result.exception.toString()}");
+    if (selectedCategory != null) {
+      final QueryOptions options = QueryOptions(
+        document: gql(categoryEntries),
+        variables: {
+          'token': token,
+          'category': selectedCategory,
+        },
+      );
+      final QueryResult result = await client.query(options);
+      if (!result.hasException) {
+        setState(() {
+          catResults = result.data!['category_entries']['entries'];
+        });
+      } else {
+        print(
+            "Error fetching category entries: ${result.exception.toString()}");
+      }
     }
   }
 
@@ -208,6 +211,7 @@ class _ArticleListState extends State<Article_List> {
                                 ? (i - 1)
                                 : i;
                         if (i == 0 && widget.showCategories) {
+                          print("Categories list" + categoriesList.toString());
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Padding(

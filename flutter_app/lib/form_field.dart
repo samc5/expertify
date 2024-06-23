@@ -5,11 +5,13 @@ class LogFormField extends StatelessWidget {
       {super.key,
       required this.textValue,
       required this.formLabel,
-      required this.password});
+      required this.password,
+      required this.onFieldSubmitted});
 
   final TextEditingController textValue;
   final String formLabel;
   final bool password;
+  final Function onFieldSubmitted;
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +20,15 @@ class LogFormField extends StatelessWidget {
       controller: textValue,
       decoration: InputDecoration(
         hintText: formLabel,
+        label: Text.rich(TextSpan(
+          children: <InlineSpan>[
+            WidgetSpan(
+              child: Text(
+                formLabel,
+              ),
+            ),
+          ],
+        )),
         border: OutlineInputBorder(
           // Solid border
           borderRadius: BorderRadius.circular(8.0), // Rounded corners
@@ -36,6 +47,11 @@ class LogFormField extends StatelessWidget {
           borderRadius: BorderRadius.circular(8.0), // Rounded corners
         ),
       ),
+      onFieldSubmitted: (value) {
+        if (password) {
+          onFieldSubmitted();
+        }
+      },
     );
   }
 }
