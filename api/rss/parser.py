@@ -1,6 +1,6 @@
 import feedparser
 import mongo
-
+import cloudscraper
 ACX = "https://www.astralcodexten.com/feed/"
 FT = "https://www.ft.com/myft/following/15b4e217-cc5c-47a8-8234-8f5cf596769c.rss"
 MLBTR = "http://feeds.feedburner.com/MlbTradeRumors"
@@ -26,10 +26,7 @@ stacks = Substacks + non_substacks
 
 
 def construct_feed_dict(url):
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-    }
-    feed = feedparser.parse(url, agent='Expertify/1.0 +https://samcowan.net/', request_headers=headers)
+    feed = feedparser.parse(url)
     res = {}
     feed_info = feed['feed']
     feed_name = feed_info.get('title', 'No Title')

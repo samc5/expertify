@@ -122,7 +122,7 @@ def add_user_link(user_id, blog):
     try:
         collection.update_one({"user_id": ObjectId(user_id)}, {"$addToSet": {"feeds": blog['url']}}, upsert=True)
         collection = db["feeds"]
-        collection.replace_one({'url': blog['url']}, blog, upsert=True)
+        #collection.replace_one({'url': blog['url']}, blog, upsert=True)
         collection.update_one(
         {'url': blog['url']},
         {
@@ -143,7 +143,7 @@ def add_user_category_link(user_id, blog, category):
         collection.update_one({"user_id": ObjectId(user_id)}, {"$addToSet": {f"Categories.{category}": blog['url']}}, upsert=True)
         collection.update_one({"user_id": ObjectId(user_id)}, {"$addToSet": {"feeds": blog['url']}}, upsert=True)
         collection = db["feeds"]
-        collection.replace_one({'url': blog['url']}, blog, upsert=True)
+        #collection.replace_one({'url': blog['url']}, blog, upsert=True)
     except Exception as e:
         print(e)
 
