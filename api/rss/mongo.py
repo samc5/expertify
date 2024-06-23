@@ -157,7 +157,7 @@ def add_user_categories_link(user_id, blog, categories):
             collection.update_one({"user_id": ObjectId(user_id)}, {"$addToSet": {f"Categories.{category}": blog['url']}}, upsert=True)
         collection.update_one({"user_id": ObjectId(user_id)}, {"$addToSet": {"feeds": blog['url']}}, upsert=True)
         collection = db["feeds"]
-        collection.replace_one({'url': blog['url']}, blog, upsert=True)
+        #collection.replace_one({'url': blog['url']}, blog, upsert=True)
         collection.update_one(
         {'url': blog['url']},
         { # Initialize count if document is new
