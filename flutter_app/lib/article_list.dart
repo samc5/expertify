@@ -141,11 +141,38 @@ class _ArticleListState extends State<Article_List> {
               ? AppBar(
                   surfaceTintColor: Colors.transparent,
                   centerTitle: true,
-                  automaticallyImplyLeading:
-                      widget.pub_title == 'Your Inbox' ? false : true,
+                  automaticallyImplyLeading: false,
                   leading: widget.pub_title == 'Your Inbox'
-                      ? BackButton(color: Colors.black)
-                      : null,
+                      ? null
+                      : BackButton(color: Colors.black),
+                  actions: <Widget>[
+                    Builder(
+                      builder: (BuildContext context) {
+                        return Row(
+                          children: [
+                            IconButton(
+                                icon: Icon(Icons.settings),
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              SettingsScreen()));
+                                }),
+                            IconButton(
+                              icon: Icon(Icons.add),
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => AddFeedScreen()));
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    )
+                  ],
                   title: Text(widget.pub_title),
                 )
               : null,

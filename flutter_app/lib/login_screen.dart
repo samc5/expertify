@@ -83,10 +83,13 @@ class LoginFormState extends State<LoginForm> {
 
     // Handle response
     if (response.statusCode == 200) {
+      log("response successful block");
       // Request successful, do something
-      Map<String, dynamic> jsonResponse = json.decode(response.body);
-      log("token: " + jsonResponse['token']);
+      Map<String, dynamic> jsonResponse =
+          json.decode(response.body); // it at least gets here
+      log(jsonResponse.toString());
       if (jsonResponse['token'] != null) {
+        print("return jsonResponse");
         return jsonResponse['token'];
       }
       log("reached second if thing");
@@ -99,6 +102,7 @@ class LoginFormState extends State<LoginForm> {
   }
 
   void login() async {
+    log("at the top of login");
     if (_formKey.currentState!.validate()) {
       // Process form data
       final Future<String> loginResult = submitForm(context);
@@ -117,6 +121,7 @@ class LoginFormState extends State<LoginForm> {
         } else {
           await deleteToken();
         }
+        await deleteAllStorage();
         if (kIsWeb) {
           storeWebToken(loginResult2);
         } else {
@@ -170,7 +175,10 @@ class LoginFormState extends State<LoginForm> {
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton(
-                        onPressed: login,
+                        onPressed: () {
+                          print("login button pressed");
+                          login();
+                        },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(
                               Color.fromARGB(255, 11, 88, 151)),

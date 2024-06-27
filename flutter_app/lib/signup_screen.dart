@@ -135,11 +135,13 @@ class SignUpFormState extends State<SignUpForm> {
           } else {
             await deleteToken();
           }
+          await deleteAllStorage();
           if (kIsWeb) {
             storeWebToken(SignUpResult2);
           } else {
             await storeToken(SignUpResult2);
           }
+          //deleteAllStorage();
           Navigator.push(
               context,
               MaterialPageRoute(

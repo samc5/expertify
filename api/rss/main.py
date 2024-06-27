@@ -663,12 +663,12 @@ def login():
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1)
             }
             token = jwt.encode(payload, secret_key, algorithm='HS256')
-            return jsonify({'message': 'User authenticated successfully', 'token': token})
+            return jsonify({'message': 'User authenticated successfully', 'token': token, 'result': result})
         else:
             return jsonify({'message': 'Registration Failed due to user not found', 'result': result}) 
     except Exception as e:
         print(e)
-        return jsonify({'message': 'Registration Failed due to unknwon error'})
+        return jsonify({'message': 'Registration Failed due to unknwon error', 'result': result})
 
 
 @app.route("/signup", methods=["POST"])

@@ -37,3 +37,21 @@ Future<void> deleteToken() async {
   final storage = FlutterSecureStorage();
   await storage.delete(key: 'jwt_token');
 }
+
+Future<void> deleteAllExcept(String keyToKeep) async {
+  // Get all keys
+  final storage = FlutterSecureStorage();
+  Map<String, String> allValues = await storage.readAll();
+
+  // Iterate over all keys and delete each one except the key to keep
+  for (String key in allValues.keys) {
+    if (key != keyToKeep) {
+      await storage.delete(key: key);
+    }
+  }
+}
+
+Future<void> deleteAllStorage() async {
+  final storage = FlutterSecureStorage();
+  await storage.deleteAll();
+}
