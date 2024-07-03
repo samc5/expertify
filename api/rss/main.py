@@ -656,15 +656,17 @@ def login():
     email = request.form['email']
     try:
         result = mongo.check_login(email, request.form['password'])
+        print(result, flush=True)
         if result and result != "No Match":
             user_id = str(result)
+
             payload = {
                 'id': user_id,
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1)
             }
-            print(payload)
+            print(payload, flush=True)
             token = jwt.encode(payload, secret_key, algorithm='HS256')
-            print(token)
+            print(token, flush=True)
             return jsonify({'message': 'User authenticated successfully', 'token': token, 'result': result})
         else:
             return jsonify({'message': 'Registration Failed due to user not found', 'result': result}) 
