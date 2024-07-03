@@ -660,7 +660,7 @@ def login():
             user_id = str(result)
             payload = {
                 'id': user_id,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1)
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds==30) # JWT lasts one week, so users should only have to sign in that often
             }
             token = jwt.encode(payload, secret_key, algorithm='HS256')
             return jsonify({'message': 'User authenticated successfully', 'token': token, 'result': result})
@@ -683,7 +683,7 @@ def signup():
             user_id = str(result)
             payload = {
                 'id': user_id,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1)
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=30)
             }
             token = jwt.encode(payload, secret_key, algorithm='HS256')
             print("user registered successfully, token = " + token)
