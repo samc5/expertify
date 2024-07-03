@@ -660,7 +660,7 @@ def login():
             user_id = str(result)
             payload = {
                 'id': user_id,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1) # JWT lasts one week, so users should only have to sign in that often
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1)
             }
             token = jwt.encode(payload, secret_key, algorithm='HS256')
             return jsonify({'message': 'User authenticated successfully', 'token': token, 'result': result})
