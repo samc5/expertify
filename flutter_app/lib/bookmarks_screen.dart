@@ -54,7 +54,7 @@ class _BookmarksWidgetState extends State<BookmarksWidget> {
   Future<void> _fetchToken() async {
     try {
       if (kIsWeb) {
-        token = getWebToken();
+        token = await getWebToken();
       } else {
         token = await getToken();
       }

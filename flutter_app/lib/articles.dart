@@ -56,7 +56,7 @@ class _ArticlesWidgetState extends State<ArticlesWidget> {
   Future<void> _fetchToken() async {
     try {
       if (kIsWeb) {
-        token = getWebToken();
+        token = await getWebToken();
       } else {
         token = await getToken();
       }

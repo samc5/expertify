@@ -7,8 +7,8 @@ void storeWebToken(String token) {
   html.window.localStorage['jwt_token'] = token;
 }
 
-String? getWebToken() {
-  return html.window.localStorage['jwt_token'];
+Future<String?> getWebToken() async {
+  return await html.window.localStorage['jwt_token'];
 }
 
 void deleteWebToken() {

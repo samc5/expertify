@@ -54,12 +54,13 @@ class SettingsFormState extends State<SettingsForm> {
         child: Center(
           child: ElevatedButton(
               child: Text("Log Out"),
-              onPressed: () {
+              onPressed: () async {
                 if (kIsWeb) {
                   deleteWebToken();
                 } else {
-                  deleteToken();
+                  await deleteToken();
                 }
+                Navigator.pop(context);
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => LoginScreen()));
               }),

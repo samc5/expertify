@@ -58,7 +58,7 @@ class MyApp extends StatelessWidget {
             primarySwatch: Colors.cyan,
             scaffoldBackgroundColor: Colors.white,
             textTheme: TextTheme(
-              //bodySmall: GoogleFonts.sourceSerif4(fontSize: 11),
+              bodySmall: GoogleFonts.sourceSerif4(fontSize: 12),
               bodyMedium: GoogleFonts.sourceSerif4(fontSize: 14),
               bodyLarge: GoogleFonts.sourceSerif4(fontSize: 16),
               displayLarge: GoogleFonts.sourceSerif4(fontSize: 16),

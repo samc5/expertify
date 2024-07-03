@@ -47,6 +47,8 @@ class SignUpFormState extends State<SignUpForm> {
   final _formKey = GlobalKey<FormState>();
   final emailValue = TextEditingController();
   final passwordValue = TextEditingController();
+  final confirmPasswordValue = TextEditingController();
+  bool isPressed = false;
 
   @override
   void dispose() {
@@ -66,7 +68,7 @@ class SignUpFormState extends State<SignUpForm> {
     } else {
       if (Platform.isAndroid) {
         url = Uri.parse(
-            'http://10.0.2.2:5000/signup'); // URL for Android emulator
+            'https://samcowan.net/signup'); // URL for Android emulator
       } else if (Platform.isWindows) {
         url = Uri.parse('https://samcowan.net/signup'); // URL for Windows app
       }
@@ -101,7 +103,8 @@ class SignUpFormState extends State<SignUpForm> {
   }
 
   void signup() async {
-    if (_formKey.currentState!.validate()) {
+    if (_formKey.currentState!.validate() &&
+        confirmPasswordValue.text == passwordValue.text) {
       // Process form data
       final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
       if (!emailRegex.hasMatch(emailValue.text)) {
@@ -148,6 +151,13 @@ class SignUpFormState extends State<SignUpForm> {
                   builder: (context) => BottomNavigationBarController()));
         }
       }
+    } else if (confirmPasswordValue.text != passwordValue.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Passwords do not match'),
+          duration: Duration(seconds: 2), // Adjust as needed
+        ),
+      );
     }
   }
 
@@ -185,15 +195,41 @@ class SignUpFormState extends State<SignUpForm> {
                         formLabel: "Password",
                         password: true,
                         onFieldSubmitted: signup),
+                    SizedBox(
+                        height:
+                            20), // Add space between text field and other widgets
+                    LogFormField(
+                        textValue: confirmPasswordValue,
+                        formLabel: "Confirm Password",
+                        password: true,
+                        onFieldSubmitted: signup),
                     Padding(padding: EdgeInsets.only(bottom: 25)),
                     SizedBox(
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton(
-                        onPressed: signup,
+                        onHover: (isHover) {
+                          isPressed = true;
+                        },
+                        onPressed: () {
+                          setState(() {
+                            isPressed = true;
+                          });
+                          //print("login button pressed");
+
+                          signup();
+                          Future.delayed(Duration(milliseconds: 800), () {
+                            setState(() {
+                              isPressed = false;
+                            });
+                          });
+                        },
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                              Color.fromARGB(255, 11, 88, 151)),
+                          backgroundColor: isPressed
+                              ? MaterialStateProperty.all<Color>(
+                                  Color.fromARGB(255, 119, 167, 206))
+                              : MaterialStateProperty.all<Color>(
+                                  Color.fromARGB(255, 11, 88, 151)),
                           shape:
                               MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(

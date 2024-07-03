@@ -95,7 +95,7 @@ class _ArticleListState extends State<Article_List> {
   Future<void> _fetchToken() async {
     try {
       if (kIsWeb) {
-        token = getWebToken();
+        token = await getWebToken();
       } else {
         token = await getToken();
       }

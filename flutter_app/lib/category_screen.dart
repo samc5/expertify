@@ -44,7 +44,7 @@ class _CategoryArticlesWidgetState extends State<CategoryArticlesWidget> {
   Future<void> _fetchToken() async {
     try {
       if (kIsWeb) {
-        token = getWebToken();
+        token = await getWebToken();
       } else {
         token = await getToken();
       }

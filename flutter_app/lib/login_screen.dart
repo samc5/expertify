@@ -47,13 +47,18 @@ class LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
   final emailValue = TextEditingController();
   final passwordValue = TextEditingController();
-
+  String? token;
+  bool isPressed = false;
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
     emailValue.dispose();
     passwordValue.dispose();
     super.dispose();
+  }
+
+  void initState() {
+    _fetchToken();
   }
 
   Future<String> submitForm(BuildContext context) async {
@@ -135,9 +140,49 @@ class LoginFormState extends State<LoginForm> {
     }
   }
 
+  Future<void> _fetchToken() async {
+    try {
+      if (kIsWeb) {
+        final _token = await getWebToken();
+        setState(() {
+          token = _token;
+        });
+      } else {
+        final _token = await getToken();
+        setState(() {
+          token = _token;
+        });
+      }
+      if (token != null) {
+        print('token: ' + token.toString());
+        _navigateToHome();
+      }
+    } catch (e) {
+      print("Error fetching token: $e");
+      // Handle error appropriately, like showing an error message
+    }
+    // setState(() {}); // Trigger a rebuild after token is fetched
+  }
+
+  void _navigateToHome() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => BottomNavigationBarController()));
+  }
+
   @override
   Widget build(BuildContext context) {
     // Build a Form widget using the _formKey created above.
+    //_fetchToken();
+    // if (token != null) {
+    //   Future.delayed(Duration(milliseconds: 1), () {
+    //     Navigator.push(
+    //         context,
+    //         MaterialPageRoute(
+    //             builder: (context) => BottomNavigationBarController()));
+    //   });
+    // }
     return Padding(
       padding:
           const EdgeInsets.only(top: 100, bottom: 100, right: 20, left: 20),
@@ -176,12 +221,24 @@ class LoginFormState extends State<LoginForm> {
                       height: 50,
                       child: ElevatedButton(
                         onPressed: () {
-                          print("login button pressed");
+                          setState(() {
+                            isPressed = true;
+                          });
+                          //print("login button pressed");
+
                           login();
+                          Future.delayed(Duration(milliseconds: 800), () {
+                            setState(() {
+                              isPressed = false;
+                            });
+                          });
                         },
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                              Color.fromARGB(255, 11, 88, 151)),
+                          backgroundColor: isPressed
+                              ? MaterialStateProperty.all<Color>(
+                                  Color.fromARGB(255, 119, 167, 206))
+                              : MaterialStateProperty.all<Color>(
+                                  Color.fromARGB(255, 11, 88, 151)),
                           shape:
                               MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
