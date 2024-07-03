@@ -2,6 +2,8 @@ import 'dart:developer';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:universal_html/html.dart' as html;
+import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void storeWebToken(String token) {
   html.window.localStorage['jwt_token'] = token;
@@ -54,4 +56,19 @@ Future<void> deleteAllExcept(String keyToKeep) async {
 Future<void> deleteAllStorage() async {
   final storage = FlutterSecureStorage();
   await storage.deleteAll();
+}
+
+Future<bool> verifyToken(String token) async {
+  //await dotenv.load(fileName: ".env");
+  try {
+    final jwt = JWT.verify(token, SecretKey(dotenv.env['SECRET']!));
+    return true;
+    //print('Payload: ${jwt.payload}');
+  } on JWTExpiredException {
+    return false;
+    //print('JWT expired');
+  } on JWTException catch (ex) {
+    return false;
+    //print('Error: $ex');
+  }
 }

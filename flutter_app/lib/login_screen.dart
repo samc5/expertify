@@ -155,7 +155,9 @@ class LoginFormState extends State<LoginForm> {
       }
       if (token != null) {
         print('token: ' + token.toString());
-        _navigateToHome();
+        if (await verifyToken(token!)) {
+          _navigateToHome();
+        }
       }
     } catch (e) {
       print("Error fetching token: $e");

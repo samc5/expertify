@@ -660,7 +660,7 @@ def login():
             user_id = str(result)
             payload = {
                 'id': user_id,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7)
             }
             token = jwt.encode(payload, secret_key, algorithm='HS256')
             return jsonify({'message': 'User authenticated successfully', 'token': token})
@@ -683,7 +683,7 @@ def signup():
             user_id = str(result)
             payload = {
                 'id': user_id,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7)
             }
             token = jwt.encode(payload, secret_key, algorithm='HS256')
             print("user registered successfully, token = " + token)
