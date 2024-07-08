@@ -73,7 +73,7 @@ class LoginFormState extends State<LoginForm> {
     } else {
       if (Platform.isAndroid) {
         url =
-            Uri.parse('http://10.0.2.2:5000/login'); // URL for Android emulator
+            Uri.parse('https://samcowan.net/login'); // URL for Android emulator
       } else if (Platform.isWindows) {
         url = Uri.parse('https://samcowan.net/login'); // URL for Windows app
       }
