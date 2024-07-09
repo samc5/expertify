@@ -76,12 +76,13 @@ class _MultiSelectState extends State<MultiSelect> {
 
   // this function is called when the Cancel button is pressed
   void _cancel() {
-    Navigator.pop(context);
+    Navigator.pop(context, {'action': 'cancel'});
   }
 
 // this function is called when the Submit button is tapped
   List<String> _submit() {
-    Navigator.pop(context, _selectedCategories);
+    Navigator.pop(
+        context, {'action': 'submit', 'categories': _selectedCategories});
     if (categoryValue.text.isNotEmpty &&
         !widget.categories.contains(categoryValue.text)) {
       setState(() {
@@ -175,6 +176,7 @@ class _SubscribeButtonState extends State<SubscribeButton> {
   bool isLoading = true;
   bool? changed;
   bool? old;
+  String buttonText = "Subscribe";
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
   Future<void> _checkFeed() async {
@@ -195,6 +197,7 @@ class _SubscribeButtonState extends State<SubscribeButton> {
       //isLoading = true;
       if (result.data != null && !result.hasException) {
         isSubscribed2 = result.data!['checkForFeed']['result'];
+        //buttonText = isSubscribed2 ? "Subscribed" : "Subscribe";
       }
     });
   }
@@ -208,6 +211,7 @@ class _SubscribeButtonState extends State<SubscribeButton> {
       // Info found in secure storage, use it
       setState(() {
         isSubscribed2 = storedSubscribed == 'true';
+        // buttonText = isSubscribed2 ? "Subscribed" : "Subscribe";
       });
     }
     isLoading = false;
@@ -272,9 +276,9 @@ class _SubscribeButtonState extends State<SubscribeButton> {
                 //if (isSubscribed2) {}
                 return OutlinedButton(
                     onPressed: () async {
-                      isSubscribed2 = !isSubscribed2;
-                      if (isSubscribed2) {
-                        List<String>? results = await showDialog(
+                      // isSubscribed2 = !isSubscribed2;
+                      if (!isSubscribed2) {
+                        var result = await showDialog(
                             context: context,
                             builder: (BuildContext context) {
                               return MultiSelect(
@@ -282,15 +286,29 @@ class _SubscribeButtonState extends State<SubscribeButton> {
                                   url: widget.url,
                                   token: widget.token);
                             });
-
-                        _saveSubscriptionState(true);
+                        print(result);
+                        if (result != null && result['action'] == 'submit') {
+                          //    isLoading = true;
+                          setState(() {
+                            isSubscribed2 = true;
+                            // buttonText = "Subscribed";
+                          });
+                          _saveSubscriptionState(true);
+                          //        isLoading = false;
+                        } else {
+                          // isSubscribed2 = false;
+                          // buttonText = "Subscribe";
+                        }
                       } else {
                         runMutation({
                           'url': widget.url,
                           'token': widget.token,
                         });
+                        setState(() {
+                          isSubscribed2 = false;
+                          //buttonText = "unsubscribed";
+                        });
                         _saveSubscriptionState(false);
-
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Unsubscribed!'),
@@ -298,7 +316,7 @@ class _SubscribeButtonState extends State<SubscribeButton> {
                           ),
                         );
                       }
-                      old = isSubscribed2;
+                      // old = isSubscribed2;
                       // _checkFeed();
                       print("new issubscribed2: " + isSubscribed2.toString());
                     },
@@ -346,7 +364,7 @@ class _SubscribeButtonState extends State<SubscribeButton> {
                                 FontWeight.bold), // Change text font size
                       ),
                     ),
-                    child: Text(isSubscribed2 ? 'Subscribed' : 'Subscribe'));
+                    child: Text(isSubscribed2 ? "Subscribed" : "Subscribe"));
               });
         },
       ),

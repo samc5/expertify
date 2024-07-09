@@ -8,6 +8,7 @@ import 'package:flutter_swipe_action_cell/flutter_swipe_action_cell.dart';
 import 'settings.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'subscribe_button.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 String categoryQuery = """
 query fetch_categories(\$token: String!) {
@@ -93,7 +94,11 @@ class _ArticleListState extends State<Article_List> {
 
   Future<void> _fetchToken() async {
     try {
-      token = await getToken();
+      if (kIsWeb) {
+        token = await getWebToken();
+      } else {
+        token = await getToken();
+      }
     } catch (e) {
       print("Error fetching token: $e");
       // Handle error appropriately, like showing an error message
@@ -103,20 +108,23 @@ class _ArticleListState extends State<Article_List> {
 
   Future<void> _fetchCategoryEntries() async {
     final client = GraphQLProvider.of(context).value;
-    final QueryOptions options = QueryOptions(
-      document: gql(categoryEntries),
-      variables: {
-        'token': token,
-        'category': selectedCategory,
-      },
-    );
-    final QueryResult result = await client.query(options);
-    if (!result.hasException) {
-      setState(() {
-        catResults = result.data!['category_entries']['entries'];
-      });
-    } else {
-      print("Error fetching category entries: ${result.exception.toString()}");
+    if (selectedCategory != null) {
+      final QueryOptions options = QueryOptions(
+        document: gql(categoryEntries),
+        variables: {
+          'token': token,
+          'category': selectedCategory,
+        },
+      );
+      final QueryResult result = await client.query(options);
+      if (!result.hasException) {
+        setState(() {
+          catResults = result.data!['category_entries']['entries'];
+        });
+      } else {
+        print(
+            "Error fetching category entries: ${result.exception.toString()}");
+      }
     }
   }
 
@@ -133,11 +141,38 @@ class _ArticleListState extends State<Article_List> {
               ? AppBar(
                   surfaceTintColor: Colors.transparent,
                   centerTitle: true,
-                  automaticallyImplyLeading:
-                      widget.pub_title == 'Your Inbox' ? false : true,
+                  automaticallyImplyLeading: false,
                   leading: widget.pub_title == 'Your Inbox'
-                      ? BackButton(color: Colors.black)
-                      : null,
+                      ? null
+                      : BackButton(color: Colors.black),
+                  actions: <Widget>[
+                    Builder(
+                      builder: (BuildContext context) {
+                        return Row(
+                          children: [
+                            IconButton(
+                                icon: Icon(Icons.settings),
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              SettingsScreen()));
+                                }),
+                            IconButton(
+                              icon: Icon(Icons.add),
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => AddFeedScreen()));
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    )
+                  ],
                   title: Text(widget.pub_title),
                 )
               : null,
@@ -203,6 +238,7 @@ class _ArticleListState extends State<Article_List> {
                                 ? (i - 1)
                                 : i;
                         if (i == 0 && widget.showCategories) {
+                          print("Categories list" + categoriesList.toString());
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Padding(

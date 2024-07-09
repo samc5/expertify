@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'navigation_bar_controller.dart';
 import 'package:http/http.dart' as http;
@@ -45,6 +47,8 @@ class SignUpFormState extends State<SignUpForm> {
   final _formKey = GlobalKey<FormState>();
   final emailValue = TextEditingController();
   final passwordValue = TextEditingController();
+  final confirmPasswordValue = TextEditingController();
+  bool isPressed = false;
 
   @override
   void dispose() {
@@ -60,13 +64,13 @@ class SignUpFormState extends State<SignUpForm> {
     String password = passwordValue.text;
     var url;
     if (kIsWeb) {
-      url = Uri.parse('http://172.191.246.38:5000/signup'); // URL for web
+      url = Uri.parse('https://samcowan.net/signup'); // URL for web
     } else {
       if (Platform.isAndroid) {
         url = Uri.parse(
-            'http://10.0.2.2:5000/signup'); // URL for Android emulator
+            'https://samcowan.net/signup'); // URL for Android emulator
       } else if (Platform.isWindows) {
-        url = Uri.parse('http://localhost:5000/signup'); // URL for Windows app
+        url = Uri.parse('https://samcowan.net/signup'); // URL for Windows app
       }
     }
     var response = await http.post(
@@ -81,11 +85,11 @@ class SignUpFormState extends State<SignUpForm> {
     if (response.statusCode == 200) {
       // Request successful, do something
       Map<String, dynamic> jsonResponse = json.decode(response.body);
-      print(jsonResponse['token']);
+      log(jsonResponse['token']);
       if (jsonResponse['token'] != null) {
         return jsonResponse['token'];
       }
-      print("the thing is null");
+      log("the thing is null");
       if (jsonResponse['message'] ==
           "Registration Failed (likely email was in system)") {
         return "User in System";
@@ -93,8 +97,67 @@ class SignUpFormState extends State<SignUpForm> {
       return "Failure";
     } else {
       // Request failed, handle error
-      print('Error: ${response.reasonPhrase}');
+      log('Error: ${response.reasonPhrase}');
       return "Failure";
+    }
+  }
+
+  void signup() async {
+    if (_formKey.currentState!.validate() &&
+        confirmPasswordValue.text == passwordValue.text) {
+      // Process form data
+      final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+      if (!emailRegex.hasMatch(emailValue.text)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Email invalid. Please enter a valid format'),
+            duration: Duration(seconds: 2), // Adjust as needed
+          ),
+        );
+      } else {
+        final Future<String> SignUpResult = submitForm(context);
+        String SignUpResult2 = await SignUpResult;
+        if (SignUpResult2 == "Failure") {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Unknwown Failure'),
+              duration: Duration(seconds: 2), // Adjust as needed
+            ),
+          );
+        } else if (SignUpResult2 == "User in System") {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                  'Email is already used. Please log in or try a different email'),
+              duration: Duration(seconds: 2), // Adjust as needed
+            ),
+          );
+        } else {
+          if (kIsWeb) {
+            deleteWebToken();
+          } else {
+            await deleteToken();
+          }
+          await deleteAllStorage();
+          if (kIsWeb) {
+            storeWebToken(SignUpResult2);
+          } else {
+            await storeToken(SignUpResult2);
+          }
+          //deleteAllStorage();
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => BottomNavigationBarController()));
+        }
+      }
+    } else if (confirmPasswordValue.text != passwordValue.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Passwords do not match'),
+          duration: Duration(seconds: 2), // Adjust as needed
+        ),
+      );
     }
   }
 
@@ -105,127 +168,111 @@ class SignUpFormState extends State<SignUpForm> {
       padding:
           const EdgeInsets.only(top: 100, bottom: 100, right: 20, left: 20),
       child: Center(
-        child: Container(
-          width: 1000,
-          padding: EdgeInsets.all(20),
-          // decoration: BoxDecoration(
-          //     border: Border.all(
-          //   color: Colors.black, // Add your desired border color here
-          //   width: 2.0,
-          // )),
-          child: Center(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: <Widget>[
-                  LogFormField(
-                      textValue: emailValue,
-                      formLabel: "Enter Your Email",
-                      password: false),
-                  SizedBox(
-                      height:
-                          20), // Add space between text field and other widgets
-                  LogFormField(
-                      textValue: passwordValue,
-                      formLabel: "Enter Your Password",
-                      password: true),
-                  Padding(padding: EdgeInsets.only(bottom: 25)),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        if (_formKey.currentState!.validate()) {
-                          // Process form data
-                          final emailRegex =
-                              RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-                          if (!emailRegex.hasMatch(emailValue.text)) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                    'Email invalid. Please enter a valid format'),
-                                duration:
-                                    Duration(seconds: 2), // Adjust as needed
-                              ),
-                            );
-                          } else {
-                            final Future<String> SignUpResult =
-                                submitForm(context);
-                            String SignUpResult2 = await SignUpResult;
-                            if (SignUpResult2 == "Failure") {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Unknwown Failure'),
-                                  duration:
-                                      Duration(seconds: 2), // Adjust as needed
-                                ),
-                              );
-                            } else if (SignUpResult2 == "User in System") {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                      'Email is already used. Please log in or try a different email'),
-                                  duration:
-                                      Duration(seconds: 2), // Adjust as needed
-                                ),
-                              );
-                            } else {
-                              await deleteToken();
-                              await storeToken(SignUpResult2);
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          BottomNavigationBarController()));
-                            }
-                          }
-                        }
-                      },
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                            Color.fromARGB(255, 11, 88, 151)),
-                        shape:
-                            MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(0.0),
+        child: SingleChildScrollView(
+          child: Container(
+            width: 1000,
+            padding: EdgeInsets.all(20),
+            // decoration: BoxDecoration(
+            //     border: Border.all(
+            //   color: Colors.black, // Add your desired border color here
+            //   width: 2.0,
+            // )),
+            child: Center(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: <Widget>[
+                    LogFormField(
+                        textValue: emailValue,
+                        formLabel: "Email",
+                        password: false,
+                        onFieldSubmitted: signup),
+                    SizedBox(
+                        height:
+                            20), // Add space between text field and other widgets
+                    LogFormField(
+                        textValue: passwordValue,
+                        formLabel: "Password",
+                        password: true,
+                        onFieldSubmitted: signup),
+                    SizedBox(
+                        height:
+                            20), // Add space between text field and other widgets
+                    LogFormField(
+                        textValue: confirmPasswordValue,
+                        formLabel: "Confirm Password",
+                        password: true,
+                        onFieldSubmitted: signup),
+                    Padding(padding: EdgeInsets.only(bottom: 25)),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onHover: (isHover) {
+                          isPressed = true;
+                        },
+                        onPressed: () {
+                          setState(() {
+                            isPressed = true;
+                          });
+                          //print("login button pressed");
+
+                          signup();
+                          Future.delayed(Duration(milliseconds: 800), () {
+                            setState(() {
+                              isPressed = false;
+                            });
+                          });
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: isPressed
+                              ? MaterialStateProperty.all<Color>(
+                                  Color.fromARGB(255, 119, 167, 206))
+                              : MaterialStateProperty.all<Color>(
+                                  Color.fromARGB(255, 11, 88, 151)),
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(0.0),
+                            ),
                           ),
                         ),
+                        child: Text('Sign Up',
+                            style: TextStyle(color: Colors.white)),
                       ),
-                      child:
-                          Text('Submit', style: TextStyle(color: Colors.white)),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 25.0),
-                  ),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => LoginScreen()));
-                      },
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                            Color.fromARGB(255, 2, 69, 8)),
-                        shape:
-                            MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(0.0),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 25.0),
+                    ),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => LoginScreen()));
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              Color.fromARGB(255, 2, 69, 8)),
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(0.0),
+                            ),
                           ),
                         ),
+                        child: Text('Log in instead',
+                            style: TextStyle(color: Colors.white)),
                       ),
-                      child: Text('Log in instead',
-                          style: TextStyle(color: Colors.white)),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 5.0),
-                  ),
-                ],
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 5.0),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

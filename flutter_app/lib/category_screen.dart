@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'article_list.dart';
 import 'token_operations.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 const String category_query = """
 query fetchCategoryEntries(\$category: String!, \$token: String!){
@@ -42,7 +43,11 @@ class _CategoryArticlesWidgetState extends State<CategoryArticlesWidget> {
 
   Future<void> _fetchToken() async {
     try {
-      token = await getToken();
+      if (kIsWeb) {
+        token = await getWebToken();
+      } else {
+        token = await getToken();
+      }
     } catch (e) {
       print("Error fetching token: $e");
       // Handle error appropriately, like showing an error message

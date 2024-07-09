@@ -4,6 +4,7 @@ import 'article_list.dart';
 import 'token_operations.dart';
 import 'subscribe_button.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 const String savedQuery = """
 query fetchSavedEntries (\$token: String!){
@@ -23,8 +24,8 @@ query fetchSavedEntries (\$token: String!){
 }
 """;
 
-final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
-//final HttpLink httpLink = HttpLink("http://172.191.246.38:5000/graphql");
+//final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
+final HttpLink httpLink = HttpLink("https://samcowan.net/graphql");
 
 final ValueNotifier<GraphQLClient> client = ValueNotifier<GraphQLClient>(
   GraphQLClient(
@@ -52,7 +53,11 @@ class _BookmarksWidgetState extends State<BookmarksWidget> {
 
   Future<void> _fetchToken() async {
     try {
-      token = await getToken();
+      if (kIsWeb) {
+        token = await getWebToken();
+      } else {
+        token = await getToken();
+      }
     } catch (e) {
       print("Error fetching token: $e");
       // Handle error appropriately, like showing an error message

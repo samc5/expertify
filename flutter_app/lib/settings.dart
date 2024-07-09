@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
 import 'token_operations.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -53,8 +54,13 @@ class SettingsFormState extends State<SettingsForm> {
         child: Center(
           child: ElevatedButton(
               child: Text("Log Out"),
-              onPressed: () {
-                deleteToken();
+              onPressed: () async {
+                if (kIsWeb) {
+                  deleteWebToken();
+                } else {
+                  await deleteToken();
+                }
+                Navigator.pop(context);
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => LoginScreen()));
               }),

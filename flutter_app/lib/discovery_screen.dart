@@ -26,6 +26,10 @@ query fetchLeaderboard{
 }
 """;
 
+String getTitle(Map<String, dynamic> feed) {
+  return feed['title']!;
+}
+
 class DiscoveryScreen extends StatelessWidget {
   const DiscoveryScreen({Key? key}) : super(key: key);
 
@@ -115,12 +119,14 @@ class DiscoveryFormState extends State<DiscoveryForm> {
                     (BuildContext context, SearchController controller) {
                   List<Map<String, dynamic>> filteredFeeds = [];
                   for (int i = 0; i < feeds.length; i++) {
-                    if (feeds[i]['title']
+                    if ((feeds[i]['title'] + feeds[i]['description'])
                         .toLowerCase()
                         .contains(controller.value.text.toLowerCase())) {
                       filteredFeeds.add(feeds[i]);
                     }
                   }
+                  filteredFeeds.sort((a, b) => getTitle(a).compareTo(getTitle(
+                      b))); //  fruits.sort((a, b) => getPrice(a).compareTo(getPrice(b)));
                   return List<ListTile>.generate(
                     filteredFeeds.length,
                     (int index) {
@@ -159,6 +165,7 @@ class DiscoveryFormState extends State<DiscoveryForm> {
                         onTap: () {
                           setState(() {
                             //controller.closeView(item);
+                            Navigator.pop(context);
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(

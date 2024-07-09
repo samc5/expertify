@@ -1,6 +1,5 @@
 import feedparser
 import mongo
-
 ACX = "https://www.astralcodexten.com/feed/"
 FT = "https://www.ft.com/myft/following/15b4e217-cc5c-47a8-8234-8f5cf596769c.rss"
 MLBTR = "http://feeds.feedburner.com/MlbTradeRumors"
@@ -23,8 +22,6 @@ stacks = Substacks + non_substacks
 #         #print(feed[i].keys())
 
 # print(feed['entries'][0].keys())
-
-
 
 
 def construct_feed_dict(url):

@@ -10,23 +10,28 @@ import parser
 import jwt
 import datetime
 from dotenv import load_dotenv
+from flask_cors import CORS
 #from flask_talisman import Talisman
 load_dotenv()
 secret_key = os.getenv("SECRET")
 
 app = Flask(__name__)
-#Talisman(app)
+# CORS(app, resources={
+#     r"/graphql": {"origins": "*"},
+#     r"/login": {"origins": "*"},
+#     r"/signup": {"origins": "*"}
+# })
 app.app_context().push()
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 
-@app.after_request
-def after_request(response):
-  response.headers.add('Access-Control-Allow-Origin', '*')
-  response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-  response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-  return response
+# @app.after_request
+# def after_request(response):
+#   response.headers.add('Access-Control-Allow-Origin', '*')
+#   response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+#   response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+#   return response
 
 pipeline2 = [
     
@@ -648,23 +653,19 @@ def graphql_server():
 
 @app.route("/login", methods=["POST"])
 def login():
-    print(request.form)
     email = request.form['email']
     try:
-        #pw_hash = mongo.hash(request.form['password'])
-        #print(pw_hash)
         result = mongo.check_login(email, request.form['password'])
         if result and result != "No Match":
             user_id = str(result)
             payload = {
                 'id': user_id,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1)
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7)
             }
             token = jwt.encode(payload, secret_key, algorithm='HS256')
             return jsonify({'message': 'User authenticated successfully', 'token': token})
         else:
-            print(result)
-            return jsonify({'message': 'Registration Failed due to user not found', 'result': result}) 
+            return jsonify({'message': 'Registration Failed due to user not found'}) 
     except Exception as e:
         print(e)
         return jsonify({'message': 'Registration Failed due to unknwon error'})
@@ -682,15 +683,18 @@ def signup():
             user_id = str(result)
             payload = {
                 'id': user_id,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1)
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7)
             }
             token = jwt.encode(payload, secret_key, algorithm='HS256')
+            print("user registered successfully, token = " + token)
             return jsonify({'message': 'User registered successfully', 'token': token})
         else:
+            print("registration failed probably emailw as in system")
             return jsonify({'message': 'Registration Failed (likely email was in system)'})
     except Exception as e:
         print(e)
-        return jsonify({'message': 'Registration Failed due to unknwon error'})
+        print("that was an unknwon error")
+        return jsonify({'message': 'Registration Failed due to unknown error'})
 
 if __name__ == '__main__':
-    app.run(debug=True) ## TODOOO ssl_context should be replaced with a real SSL immediately when this is hosted
+    app.run(debug=True, host="0.0.0.0", port=5000) ## TODOOO ssl_context should be replaced with a real SSL immediately when this is hosted
