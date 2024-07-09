@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'login_screen.dart';
 import 'token_operations.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -38,6 +39,27 @@ class SettingsFormState extends State<SettingsForm> {
   // not a GlobalKey<SettingsFormState>.
   final _formKey = GlobalKey<FormState>();
   final UrlValue = TextEditingController();
+  String? token;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchToken();
+  }
+
+  Future<void> _fetchToken() async {
+    try {
+      if (kIsWeb) {
+        token = await getWebToken();
+      } else {
+        token = await getToken();
+      }
+    } catch (e) {
+      print("Error fetching token: $e");
+      // Handle error appropriately, like showing an error message
+    }
+    setState(() {}); // Trigger a rebuild after token is fetched
+  }
 
   @override
   void dispose() {
@@ -52,18 +74,36 @@ class SettingsFormState extends State<SettingsForm> {
     return Padding(
         padding: const EdgeInsets.all(18.0),
         child: Center(
-          child: ElevatedButton(
-              child: Text("Log Out"),
-              onPressed: () async {
-                if (kIsWeb) {
-                  deleteWebToken();
-                } else {
-                  await deleteToken();
-                }
-                Navigator.pop(context);
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => LoginScreen()));
-              }),
+          child: Column(
+            children: [
+              SizedBox(
+                width: 500,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    if (kIsWeb) {
+                      deleteWebToken();
+                    } else {
+                      await deleteToken();
+                    }
+                    Navigator.pop(context);
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => LoginScreen()));
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all<Color>(
+                        Color.fromARGB(255, 140, 35, 6)),
+                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(0.0),
+                      ),
+                    ),
+                  ),
+                  child: Text('Log Out', style: TextStyle(color: Colors.white)),
+                ),
+              ),
+            ],
+          ),
         ));
   }
 }
