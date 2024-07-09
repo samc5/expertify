@@ -24,8 +24,9 @@ query fetchSavedEntries (\$token: String!){
 }
 """;
 
-//final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
-final HttpLink httpLink = HttpLink("https://samcowan.net/graphql");
+final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
+//final HttpLink httpLink = HttpLink("https://samcowan.net/graphql");
+final HttpLink androidLink = HttpLink("http://10.0.2.2:5000/graphql");
 
 final ValueNotifier<GraphQLClient> client = ValueNotifier<GraphQLClient>(
   GraphQLClient(

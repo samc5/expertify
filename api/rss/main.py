@@ -523,17 +523,31 @@ def resolve_delete_entry(obj, info, url, token):
 def resolve_bulk_entry(obj, info, bulkString):
     try: 
         feed_dicts = [parser.construct_feed_dict(i) for i in bulkString.split('\n')]
-        mongo.add_feeds(feed_dicts)
-        real_entries = []
+        bozos = []
+        filtered_dicts = []
         for feed in feed_dicts:
+            if feed['bozo'] == 1:
+                bozos.append(feed['url'])
+            else:
+                filtered_dicts.append(feed)
+        mongo.add_feeds(filtered_dicts)
+        real_entries = []
+        for feed in filtered_dicts:
             real_entries.append({
                     "url": feed['url'],
                     "title": feed['title']
                 })
-        payload = {
-             "entries": real_entries,
-            "success": True
-            }
+        if len(bozos) == 0:
+            payload = {
+                "entries": real_entries,
+                "success": True
+                }
+        else:
+            payload = {
+                "entries": real_entries,
+                "success": True,
+                "bozos": bozos
+                }            
     except Exception as error:
         payload = {
             "success": False,

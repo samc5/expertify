@@ -68,14 +68,14 @@ class LoginFormState extends State<LoginForm> {
 
     var url;
     if (kIsWeb) {
-      url = Uri.parse('https://samcowan.net/login'); // URL for web
-      //url = Uri.parse('http://localhost:5000/login'); // URL for web
+      //url = Uri.parse('https://samcowan.net/login'); // URL for web
+      url = Uri.parse('http://localhost:5000/login'); // URL for web
     } else {
       if (Platform.isAndroid) {
         url =
             Uri.parse('https://samcowan.net/login'); // URL for Android emulator
       } else if (Platform.isWindows) {
-        url = Uri.parse('https://samcowan.net/login'); // URL for Windows app
+        url = Uri.parse('http://localhost:5000/login'); // URL for Windows app
       }
     }
     var response = await http.post(

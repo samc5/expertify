@@ -44,6 +44,7 @@ type SimpleFeedsResult {
     success: Boolean!
     errors: [String]
     entries: [SimpleFeed]
+    bozos: [String!]
 }
 
 type User {
