@@ -7,15 +7,15 @@ from bson import ObjectId
 import dateutil.parser
 # set a string equal to the contents of mongodbpassword.txt
 load_dotenv()
-password = os.getenv("MONGO_PASSWORD")
+connection_string = os.getenv("CONNECTION_STRING")
 
 
 
 
 def add_feed(map):
-    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    uri = connection_string
     client = MongoClient(uri)
-    db = client["bb-app"]
+    db = client["expertify"]
     collection = db["feeds"]
     
     try:
@@ -26,9 +26,9 @@ def add_feed(map):
         print(e)
 
 def add_feeds(maps):
-    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    uri = connection_string
     client = MongoClient(uri)
-    db = client["bb-app"]
+    db = client["expertify"]
     collection = db["feeds"]
     try:
         for map in maps:
@@ -47,9 +47,9 @@ def check_user(user):
     """
     Returns the info about a user, given a dictionary with user['email'] and user['password']
     """
-    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    uri = connection_string
     client = MongoClient(uri)
-    db = client["bb-app"]
+    db = client["expertify"]
     collection = db["Users"]
     try:
         usr = collection.find_one({"email": user['email'], "password": user['password']})
@@ -62,9 +62,9 @@ def check_email(email):
     """
     Returns True if the entered email is already in the Users database, False otherwise
     """
-    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    uri = connection_string
     client = MongoClient(uri)
-    db = client["bb-app"]
+    db = client["expertify"]
     collection = db["Users"]
     try:
         usr = collection.find_one({"email": email})
@@ -75,9 +75,9 @@ def check_email(email):
         print(e)
 
 def check_login(email, pw):
-    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    uri = connection_string
     client = MongoClient(uri)
-    db = client["bb-app"]
+    db = client["expertify"]
     collection = db["Users"]
     try:
         usr = collection.find_one({"email": email})
@@ -89,7 +89,17 @@ def check_login(email, pw):
     except Exception as e:
         print(e)
 
-
+def get_email(user_id):
+    uri = connection_string
+    client = MongoClient(uri)
+    db = client["expertify"]
+    collection = db["Users"]
+    try:
+        usr = collection.find_one({"_id": ObjectId(user_id)})
+        if usr:
+            return usr['email']
+    except Exception as e:
+        print(e)
 
 def hash(password):
     """
@@ -104,9 +114,9 @@ def signUp(email, hash):
     if check_email(email):
         print("check email foudn ttue")
         return None
-    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    uri = connection_string
     client = MongoClient(uri)
-    db = client["bb-app"]
+    db = client["expertify"]
     collection = db["Users"]
     try:
         res = collection.insert_one({"email": email, "password": hash})
@@ -115,9 +125,9 @@ def signUp(email, hash):
         print(e)
 
 def add_user_link(user_id, blog):
-    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    uri = connection_string
     client = MongoClient(uri)
-    db = client["bb-app"]
+    db = client["expertify"]
     collection = db["UserData"]  
     try:
         collection.update_one({"user_id": ObjectId(user_id)}, {"$addToSet": {"feeds": blog['url']}}, upsert=True)
@@ -135,9 +145,9 @@ def add_user_link(user_id, blog):
         print(e)
 
 def add_user_category_link(user_id, blog, category):
-    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    uri = connection_string
     client = MongoClient(uri)
-    db = client["bb-app"]
+    db = client["expertify"]
     collection = db["UserData"]
     try:
         collection.update_one({"user_id": ObjectId(user_id)}, {"$addToSet": {f"Categories.{category}": blog['url']}}, upsert=True)
@@ -148,9 +158,9 @@ def add_user_category_link(user_id, blog, category):
         print(e)
 
 def add_user_categories_link(user_id, blog, categories):
-    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    uri = connection_string
     client = MongoClient(uri)
-    db = client["bb-app"]
+    db = client["expertify"]
     collection = db["UserData"]
     try:
         for category in categories:
@@ -168,20 +178,10 @@ def add_user_categories_link(user_id, blog, categories):
     except Exception as e:
         print(e)
 
-# def one_time():
-#     uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
-#     client = MongoClient(uri)
-#     db = client["bb-app"]
-#     collection = db["feeds"]
-#     collection.update_many(
-#     {'subscribers_count': {'$exists': False}},  # Condition to find documents without subscribers_count
-#     {'$set': {'subscribers_count': 0}}          # Initialize subscribers_count to 0
-# )
-
 def delete_user_link(user_id, url):
-    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    uri = connection_string
     client = MongoClient(uri)
-    db = client["bb-app"]
+    db = client["expertify"]
     collection = db["UserData"]
     try:
         user_data = collection.find_one({"user_id": ObjectId(user_id)})
@@ -199,9 +199,9 @@ def delete_user_link(user_id, url):
         print(e)        
 
 def get_user_categories(user_id):
-    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    uri = connection_string
     client = MongoClient(uri)
-    db = client["bb-app"]
+    db = client["expertify"]
     collection = db["UserData"]
     try:
         user = collection.find_one({"user_id": ObjectId(user_id)})
@@ -213,9 +213,9 @@ def get_user_categories(user_id):
         print(e)
 
 def get_user_category_links(user_id, category):
-    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    uri = connection_string
     client = MongoClient(uri)
-    db = client["bb-app"]
+    db = client["expertify"]
     collection = db["UserData"]
     try:
          user = collection.find_one({"user_id": ObjectId(user_id)})
@@ -226,9 +226,9 @@ def get_user_category_links(user_id, category):
 
 
 def get_user_feeds(user_id):
-    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    uri = connection_string
     client = MongoClient(uri)
-    db = client["bb-app"]
+    db = client["expertify"]
     collection = db["UserData"]
     try:
         user = collection.find_one({"user_id": ObjectId(user_id)})
@@ -237,9 +237,9 @@ def get_user_feeds(user_id):
         print(e)
 
 def check_user_feed(user_id, url):
-    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    uri = connection_string
     client = MongoClient(uri)
-    db = client["bb-app"]
+    db = client["expertify"]
     collection = db["UserData"]
     try:
         user = collection.find_one({"user_id": ObjectId(user_id)})
@@ -250,9 +250,9 @@ def check_user_feed(user_id, url):
         print(e)
 
 def fetch_all_feeds():
-    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    uri = connection_string
     client = MongoClient(uri)
-    db = client["bb-app"]
+    db = client["expertify"]
     collection = db["feeds"]
     try:
         feeds = collection.find()
@@ -261,9 +261,9 @@ def fetch_all_feeds():
         print(e)
 
 def fetch_user_bookmarks(user_id):
-    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    uri = connection_string
     client = MongoClient(uri)
-    db = client["bb-app"]
+    db = client["expertify"]
     collection = db["UserData"]
     search = []
     try:
@@ -277,9 +277,9 @@ def fetch_user_bookmarks(user_id):
         pass
 
 def get_attached_articles(search):
-    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    uri = connection_string
     client = MongoClient(uri)
-    db = client["bb-app"]
+    db = client["expertify"]
     collection = db["SavedArticles"]
     res = []
     try:
@@ -314,17 +314,17 @@ def convert_to_date(date_str):
 
 
 def aggregate(pipeline_input):
-    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    uri = connection_string
     client = MongoClient(uri)
-    db = client["bb-app"]
+    db = client["expertify"]
     collection = db["feeds"]
     x = list(collection.aggregate(pipeline_input))
     return x
 
 def save_article(blog_entry):
-    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    uri = connection_string
     client = MongoClient(uri)
-    db = client["bb-app"]
+    db = client["expertify"]
     collection = db["SavedArticles"]
     try:
         saved_id = collection.find_one_and_replace(
@@ -338,9 +338,9 @@ def save_article(blog_entry):
         print(f"Mongo error: {e}")
 
 def save_personal(blog_entry, user_id):
-    uri = f"mongodb+srv://samc5:{password}@bb-app.qmx5tog.mongodb.net/?retryWrites=true&w=majority"
+    uri = connection_string
     client = MongoClient(uri)
-    db = client["bb-app"]
+    db = client["expertify"]
     collection = db["UserData"]
     try:
         article = save_article(blog_entry)

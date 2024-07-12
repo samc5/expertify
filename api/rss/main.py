@@ -190,6 +190,20 @@ feed_and_url_pipeline = [
     }
 ]
 
+def feed_url_pipeline(url_list):
+    return [
+    {"$match": {"url": {"$in": url_list}}},
+    {
+        "$project": {
+            "_id": 0,
+            "title": 1,
+            "url": 1,
+            "description": 1
+        }
+    }
+]
+
+
 leaderboard_pipeline = [
     {"$sort": {"subscribers_count": -1}},  # Sort by subscribers_count in descending order
     {"$limit": 5},  # Limit to top 5
@@ -399,6 +413,24 @@ def resolve_all_feeds(obj, info):
     except Exception as error:
         print(str(error))
 
+def resolve_all_user_feeds(obj, info, token):
+    try:
+        received = jwt.decode(token, secret_key, algorithms=["HS256"])
+        user_id = received['id']
+        urls = mongo.get_user_feeds(user_id)
+        feeds = mongo.aggregate(feed_url_pipeline(urls))
+        #feeds = mongo.aggregate(personal_pipeline(urls))
+        payload = {
+            "success": True,
+            "feeds": feeds
+        }
+    except Exception as error:
+        payload = {
+            "success": False,
+            "errors": [str(error)]
+        }
+    return payload
+
 def resolve_check_feed(obj, info, url, token):
     try:
         received = jwt.decode(token, secret_key, algorithms=["HS256"])
@@ -598,6 +630,22 @@ def resolve_save_article(obj, info, article, token):
         }
     return payload
 
+def resolve_get_email(obj, info, token):
+    try:
+        received = jwt.decode(token, secret_key, algorithms=["HS256"])
+        user_id = received['id']
+        email = mongo.get_email(user_id)
+        payload = {
+            "success": True,
+            "email": email
+        }
+    except Exception as error:
+        payload = {
+            "success": False,
+            "errors": [str(error)]
+        }
+    return payload
+\
 def resolve_sign_up(obj, info, email, password):
     # TODO add hashing and put it into the mongo database
     try:
@@ -631,6 +679,8 @@ query.set_field("allFeeds", resolve_all_feeds)
 query.set_field("checkForFeed", resolve_check_feed)
 query.set_field("fetchLeaderboard", resolve_fetch_leaderboard)
 query.set_field("saved_entries", resolve_saved_entries)
+query.set_field("allUserFeeds", resolve_all_user_feeds)
+query.set_field("get_email", resolve_get_email)
 
 mutation = ObjectType("Mutation")
 
