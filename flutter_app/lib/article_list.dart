@@ -85,6 +85,7 @@ class _ArticleListState extends State<Article_List> {
   List<dynamic>? catResults;
   List<dynamic>? categoriesList;
   bool? nullColor;
+  bool urlVisible = false;
 
   @override
   void initState() {
@@ -373,12 +374,22 @@ class _ArticleListState extends State<Article_List> {
                                         widget.entries[0]['description'],
                                         textAlign: TextAlign.center)),
                               ),
+                              IconButton(
+                                  icon: Icon(Icons.info_outline_rounded),
+                                  onPressed: () {
+                                    setState(() {
+                                      urlVisible = !urlVisible;
+                                    });
+                                  }),
+
+                              urlVisible
+                                  ? Text(widget.entries[0]['pub_url'])
+                                  : Container(),
                               Padding(padding: EdgeInsets.all(8.0)),
                               Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 12.0, right: 12.0),
-                                child: Divider(),
-                              )
+                                  padding: const EdgeInsets.only(
+                                      left: 12.0, right: 12.0),
+                                  child: Divider())
                             ],
                           );
                         }

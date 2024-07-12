@@ -64,14 +64,13 @@ class DiscoveryFormState extends State<DiscoveryForm> {
   //
   // Note: This is a `GlobalKey<FormState>`,
   // not a GlobalKey<NewFeedFormState>.
-  final UrlValue = TextEditingController();
   final TextEditingController categoryValue = TextEditingController();
   String? categorySelected;
 
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
-    UrlValue.dispose();
+    // UrlValue.dispose();
     super.dispose();
   }
 

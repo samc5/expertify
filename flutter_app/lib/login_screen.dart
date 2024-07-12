@@ -154,7 +154,6 @@ class LoginFormState extends State<LoginForm> {
         });
       }
       if (token != null) {
-        print('token: ' + token.toString());
         if (await verifyToken(token!)) {
           _navigateToHome();
         }
