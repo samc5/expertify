@@ -48,6 +48,7 @@ mutation(\$bulkString: String!) {
      title
      url
     }
+    bozos
     success
     errors
   }
@@ -143,7 +144,35 @@ class NewFeedFormState extends State<NewFeedForm> {
               ),
               Padding(padding: EdgeInsets.only(bottom: 20)),
               Mutation(
-                options: MutationOptions(document: gql(bulkEntry)),
+                options: MutationOptions(
+                    document: gql(bulkEntry),
+                    onCompleted: (dynamic resultData) {
+                      //print(resultData);
+                      List<dynamic>? bozos1 =
+                          resultData['createBulkEntry']['bozos'];
+                      if (bozos1 != null) {
+                        // print(bozos1);
+                        List<String> bozos =
+                            (bozos1.map((e) => e as String)).toList();
+                        String bozoString = bozos.join('\n');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                                'The following feeds are not parsable and likely broken:\n\n $bozoString\n\nIf you submitted other feeds, they have probably gone through successfully',
+                                style: TextStyle(fontSize: 16.0)),
+                            duration: Duration(seconds: 4), // Adjust as needed
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                                'Feed(s) Submitted Successfully\n\nYou can now find them in the search feature'),
+                            duration: Duration(seconds: 1), // Adjust as needed
+                          ),
+                        );
+                      }
+                    }),
                 builder: (runMutation, result) {
                   return ElevatedButton(
                     onPressed: () async {
@@ -153,12 +182,6 @@ class NewFeedFormState extends State<NewFeedForm> {
                           'bulkString': bulkValue.text,
                         });
                         bulkValue.clear();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Submitted'),
-                            duration: Duration(seconds: 1), // Adjust as needed
-                          ),
-                        );
                       }
                     },
                     child: const Text('Submit'),

@@ -4,6 +4,29 @@ import 'token_operations.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:graphql_flutter/graphql_flutter.dart';
 
+const String user_feeds_query = """
+query fetchAllFeeds(\$token: String!) {
+  allUserFeeds(token: \$token) {
+    success
+    errors
+    feeds {
+      title
+      url
+    }
+  }
+}
+""";
+
+const String email_query = """
+query fetchEmail(\$token: String!) {
+  get_email(token: \$token) {
+    success
+    errors
+    email
+  }
+}
+""";
+
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({Key? key}) : super(key: key);
 
@@ -32,12 +55,7 @@ class SettingsForm extends StatefulWidget {
 // Define a corresponding State class.
 // This class holds data related to the form.
 class SettingsFormState extends State<SettingsForm> {
-  // Create a global key that uniquely identifies the Form widget
-  // and allows validation of the form.
-  //
-  // Note: This is a `GlobalKey<FormState>`,
-  // not a GlobalKey<SettingsFormState>.
-  final _formKey = GlobalKey<FormState>();
+//  final _formKey = GlobalKey<FormState>();
   final UrlValue = TextEditingController();
   String? token;
 
@@ -70,12 +88,36 @@ class SettingsFormState extends State<SettingsForm> {
 
   @override
   Widget build(BuildContext context) {
-    // Build a Form widget using the _formKey created above.
     return Padding(
         padding: const EdgeInsets.all(18.0),
         child: Center(
           child: Column(
             children: [
+              Query(
+                  options: QueryOptions(
+                      document: gql(email_query),
+                      variables: <String, dynamic>{"token": token}),
+                  builder: (result, {fetchMore, refetch}) {
+                    if (result.hasException) {
+                      print(result.exception.toString());
+                      return Container();
+                    }
+                    if (result.isLoading) {
+                      return Container();
+                    }
+                    if (result.data == null) {
+                      return Container();
+                    }
+                    final getEmailData = result.data!['get_email'];
+                    if (getEmailData == null || getEmailData['email'] == null) {
+                      return Container();
+                    }
+                    final email = getEmailData['email'];
+                    return Center(
+                        child: Text("You are $email",
+                            style: TextStyle(fontSize: 20)));
+                  }),
+              Padding(padding: const EdgeInsets.only(top: 20)),
               SizedBox(
                 width: 500,
                 height: 50,
@@ -100,6 +142,131 @@ class SettingsFormState extends State<SettingsForm> {
                     ),
                   ),
                   child: Text('Log Out', style: TextStyle(color: Colors.white)),
+                ),
+              ),
+              Padding(padding: const EdgeInsets.only(top: 20)),
+              SizedBox(
+                width: 500,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all<Color>(
+                        Color.fromARGB(255, 140, 35, 6)),
+                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(0.0),
+                      ),
+                    ),
+                  ),
+                  child: Text('Edit Categories',
+                      style: TextStyle(color: Colors.white)),
+                ),
+              ),
+              Padding(padding: const EdgeInsets.only(top: 20)),
+              SizedBox(
+                width: 500,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          //return Text("tester");
+                          return AlertDialog(
+                            content: Query(
+                                options: QueryOptions(
+                                    document: gql(user_feeds_query),
+                                    variables: <String, dynamic>{
+                                      "token": token!
+                                    }),
+                                builder: (result, {fetchMore, refetch}) {
+                                  if (result.hasException) {
+                                    print(result.exception.toString());
+                                    return const Center(
+                                      child: Text(
+                                          "Error occurred while fetching data!"),
+                                    );
+                                  }
+                                  if (result.data == null) {
+                                    return Center(
+                                      child: Text("Loading...",
+                                          style: TextStyle(fontSize: 25)),
+                                    );
+                                  }
+                                  //return Center(child: Text("kind of worked"))
+                                  final feeds =
+                                      result.data!['allUserFeeds']['feeds'];
+                                  print(feeds);
+                                  return Container(
+                                    width: double.infinity,
+                                    height: 300,
+                                    child: ListView.builder(
+                                      itemCount: 5,
+                                      itemBuilder: (context, index) {
+                                        final feed = feeds[index];
+                                        return Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 16, vertical: 8),
+                                          child: InkWell(
+                                            child: Container(
+                                              width: double
+                                                  .infinity, // Expand to full width
+                                              decoration: BoxDecoration(
+                                                color: Color(
+                                                    0xFF511730), // Change color as needed
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        8), // Add rounded corners
+                                              ),
+                                              child: Padding(
+                                                padding: EdgeInsets.all(8),
+                                                child: Column(
+                                                  children: [
+                                                    Text(
+                                                      feed['title'],
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style: TextStyle(
+                                                        color: Colors
+                                                            .white, // Change text color as needed
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      feed['url'],
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style: TextStyle(
+                                                        color: Colors
+                                                            .white, // Change text color as needed
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  );
+                                }),
+                          );
+                        });
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all<Color>(
+                        Color.fromARGB(255, 140, 35, 6)),
+                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(0.0),
+                      ),
+                    ),
+                  ),
+                  child: Text('View Subscribed Feeds',
+                      style: TextStyle(color: Colors.white)),
                 ),
               ),
             ],

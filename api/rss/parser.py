@@ -42,6 +42,7 @@ def construct_feed_dict(url):
     res['dates'] = [mongo.convert_to_date(entry.get('published', '')) for entry in entries] 
     res['links'] = [entry.get('link', '') for entry in entries]
     res['authors'] = [entry.get('author', 'Unknown') for entry in entries]
+    res['bozo'] = feed['bozo'] == 1 or len(entries) < 1
     
     return res
 

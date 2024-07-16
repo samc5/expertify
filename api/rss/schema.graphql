@@ -44,6 +44,7 @@ type SimpleFeedsResult {
     success: Boolean!
     errors: [String]
     entries: [SimpleFeed]
+    bozos: [String]
 }
 
 type User {
@@ -93,6 +94,18 @@ type leaderboardResult {
     feeds: [SimpleFeed]
 }
 
+type titleListResult {
+    success: Boolean!
+    errors: [String]
+    feeds: [SimpleFeed]
+}
+
+type emailResult {
+    success: Boolean!
+    errors: [String]
+    email: String
+}
+
 type Query {
     entries: BlogEntriesResult
     pub_entries(url: String!): BlogEntriesResult
@@ -104,8 +117,10 @@ type Query {
     user(email: String!, password: String!): UserResult
     users: [User]
     allFeeds: [SimpleFeed]
+    allUserFeeds(token: String!): titleListResult!
     checkForFeed(url: String!, token: String!): checkFeedResult!
     fetchLeaderboard: leaderboardResult
+    get_email(token: String!): emailResult
 }
 
 type DeleteEntryResult {

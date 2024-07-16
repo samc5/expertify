@@ -7,8 +7,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 //final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
+//final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
 final HttpLink httpLink = HttpLink("https://samcowan.net/graphql");
-final HttpLink androidLink = HttpLink("https://samcowan.net/graphql");
+final HttpLink androidLink = HttpLink("http://10.0.2.2:5000/graphql");
 // bool _certificateCheck(X509Certificate cert, String host, int port) =>
 //     host == 'local.domain.ext'; // <- change
 
