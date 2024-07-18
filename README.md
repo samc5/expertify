@@ -18,13 +18,14 @@ Currently a demo of the app is in hosted at https://expertify.samcowan.net/
 
 ## Built With
 
-**Frontend**: Flutter  
-**API**: GraphQL  
-**Backend**: Flask  
-**Database**: MongoDB Atlas  
-**Core Python Libraries**: Feedparser  
-**Core Flutter Packages**: flutter_widget_from_html, graphql_flutter, flutter_secure_storage  
-**Hosted on**: Azure  
+**Frontend**: [Flutter](https://docs.flutter.dev/)  
+**API**: [GraphQL](https://graphql.org/)  
+**Backend**: [Flask](https://flask.palletsprojects.com/en/3.0.x/)  
+**Database**: [MongoDB Atlas](https://www.mongodb.com/docs/atlas/)  
+**Core Python Libraries**: [Feedparser](https://feedparser.readthedocs.io/en/latest/)  
+**Core Flutter Packages**: [flutter_widget_from_html](https://pub.dev/packages/flutter_widget_from_html), [graphql_flutter](https://pub.dev/packages/graphql_flutter), [flutter_secure_storage](https://pub.dev/packages/flutter_secure_storage)  
+**Hosted on**: [Azure](https://learn.microsoft.com/en-us/azure/virtual-machines/)  
+
 
 ## Updating/Cloudflare Notes
 
