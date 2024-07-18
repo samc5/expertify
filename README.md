@@ -1,5 +1,5 @@
 
-# Expertify (to be changed)
+# Expertify (to be rebranded)
 Expertify is an RSS Reader that I have been building from scratch starting in January 2024, with a Flutter frontend and a Flask backend, with a GraphQL API doing most of the connecting between them. It uses the `feedparser` Python library to scrape and parse RSS Feeds, and the `flutter_widget_from_html` Flutter package to render the HTML of the feeds in Flutter. It is ultimately meant to be a free alternative to the freemium feed readers that populate the current RSS market.
 
 As an RSS reader, Expertify allows users to combine feeds from various news sources and blogs into one inbox (or multiple)
