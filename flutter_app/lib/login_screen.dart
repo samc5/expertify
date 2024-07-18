@@ -9,6 +9,7 @@ import 'form_field.dart';
 import 'token_operations.dart';
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'custom_logos.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -279,8 +280,9 @@ class LoginFormState extends State<LoginForm> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 5.0),
+                      padding: const EdgeInsets.only(bottom: 25.0),
                     ),
+                    GithubLink()
                   ],
                 ),
               ),

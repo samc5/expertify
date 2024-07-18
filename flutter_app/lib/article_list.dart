@@ -9,6 +9,7 @@ import 'settings.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'subscribe_button.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:url_launcher/url_launcher.dart';
 
 String categoryQuery = """
 query fetch_categories(\$token: String!) {
@@ -383,7 +384,12 @@ class _ArticleListState extends State<Article_List> {
                                   }),
 
                               urlVisible
-                                  ? Text(widget.entries[0]['pub_url'])
+                                  ? InkWell(
+                                      child: Text(widget.entries[0]['pub_url']),
+                                      onTap: () {
+                                        launchUrl(Uri.parse(
+                                            widget.entries[0]['pub_url']));
+                                      })
                                   : Container(),
                               Padding(padding: EdgeInsets.all(8.0)),
                               Padding(

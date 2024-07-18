@@ -3,6 +3,7 @@ import 'login_screen.dart';
 import 'token_operations.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'custom_logos.dart';
 
 const String user_feeds_query = """
 query fetchAllFeeds(\$token: String!) {
@@ -86,6 +87,63 @@ class SettingsFormState extends State<SettingsForm> {
     super.dispose();
   }
 
+  void _showFeedsDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Subscribed Feeds"),
+          content: Query(
+              options: QueryOptions(
+                  document: gql(user_feeds_query),
+                  variables: <String, dynamic>{"token": token!}),
+              builder: (result, {fetchMore, refetch}) {
+                if (result.hasException) {
+                  print(result.exception.toString());
+                  return const Center(
+                    child: Text("Error occurred while fetching data!"),
+                  );
+                }
+                if (result.data == null) {
+                  return Center(
+                    child: Text("Loading...", style: TextStyle(fontSize: 25)),
+                  );
+                }
+                //return Center(child: Text("kind of worked"))
+                final feeds = result.data!['allUserFeeds']['feeds'];
+                return Container(
+                  width: double.maxFinite,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: feeds.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      String feed_title = feeds[index]['title'];
+                      String feed_url = feeds[index]['url'];
+                      return Column(
+                        children: [
+                          ListTile(
+                              title: Text(feed_title),
+                              subtitle: Text(feed_url)),
+                          Divider()
+                        ],
+                      );
+                    },
+                  ),
+                );
+              }),
+          actions: <Widget>[
+            TextButton(
+              child: Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -146,129 +204,46 @@ class SettingsFormState extends State<SettingsForm> {
               ),
               Padding(padding: const EdgeInsets.only(top: 20)),
               SizedBox(
-                width: 500,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ButtonStyle(
-                    backgroundColor: WidgetStateProperty.all<Color>(
-                        Color.fromARGB(255, 140, 35, 6)),
-                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0.0),
+                  width: 500,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStateProperty.all<Color>(
+                          Color.fromARGB(255, 140, 35, 6)),
+                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(0.0),
+                        ),
                       ),
                     ),
-                  ),
-                  child: Text('Edit Categories',
-                      style: TextStyle(color: Colors.white)),
-                ),
+                    child: Text('Edit Categories',
+                        style: TextStyle(color: Colors.white)),
+                  )),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 25.0),
               ),
-              Padding(padding: const EdgeInsets.only(top: 20)),
               SizedBox(
-                width: 500,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    await showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          //return Text("tester");
-                          return AlertDialog(
-                            content: Query(
-                                options: QueryOptions(
-                                    document: gql(user_feeds_query),
-                                    variables: <String, dynamic>{
-                                      "token": token!
-                                    }),
-                                builder: (result, {fetchMore, refetch}) {
-                                  if (result.hasException) {
-                                    print(result.exception.toString());
-                                    return const Center(
-                                      child: Text(
-                                          "Error occurred while fetching data!"),
-                                    );
-                                  }
-                                  if (result.data == null) {
-                                    return Center(
-                                      child: Text("Loading...",
-                                          style: TextStyle(fontSize: 25)),
-                                    );
-                                  }
-                                  //return Center(child: Text("kind of worked"))
-                                  final feeds =
-                                      result.data!['allUserFeeds']['feeds'];
-                                  print(feeds);
-                                  return Container(
-                                    width: double.infinity,
-                                    height: 300,
-                                    child: ListView.builder(
-                                      itemCount: 5,
-                                      itemBuilder: (context, index) {
-                                        final feed = feeds[index];
-                                        return Padding(
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 16, vertical: 8),
-                                          child: InkWell(
-                                            child: Container(
-                                              width: double
-                                                  .infinity, // Expand to full width
-                                              decoration: BoxDecoration(
-                                                color: Color(
-                                                    0xFF511730), // Change color as needed
-                                                borderRadius:
-                                                    BorderRadius.circular(
-                                                        8), // Add rounded corners
-                                              ),
-                                              child: Padding(
-                                                padding: EdgeInsets.all(8),
-                                                child: Column(
-                                                  children: [
-                                                    Text(
-                                                      feed['title'],
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: TextStyle(
-                                                        color: Colors
-                                                            .white, // Change text color as needed
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      feed['url'],
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: TextStyle(
-                                                        color: Colors
-                                                            .white, // Change text color as needed
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  );
-                                }),
-                          );
-                        });
-                  },
-                  style: ButtonStyle(
-                    backgroundColor: WidgetStateProperty.all<Color>(
-                        Color.fromARGB(255, 140, 35, 6)),
-                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0.0),
+                  width: 500,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: _showFeedsDialog,
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStateProperty.all<Color>(
+                          Color.fromARGB(255, 140, 35, 6)),
+                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(0.0),
+                        ),
                       ),
                     ),
-                  ),
-                  child: Text('View Subscribed Feeds',
-                      style: TextStyle(color: Colors.white)),
-                ),
+                    child: Text('View Subscribed Feeds',
+                        style: TextStyle(color: Colors.white)),
+                  )),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 25.0),
               ),
+              GithubLink()
             ],
           ),
         ));
