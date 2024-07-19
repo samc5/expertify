@@ -14,13 +14,6 @@ Currently a demo of the app is in hosted at https://expertify.samcowan.net/. I h
 - Save articles/posts you like and read them any time
 - Search for feeds you're interested in and discover what others are reading
 
-## Preview
-
-![Inbox Screen](preview-A.png)
-![Article Screen](preview-B.png)
-
-
-
 ## Built With
 
 **Frontend**: [Flutter](https://docs.flutter.dev/)  
@@ -31,6 +24,10 @@ Currently a demo of the app is in hosted at https://expertify.samcowan.net/. I h
 **Core Flutter Packages**: [flutter_widget_from_html](https://pub.dev/packages/flutter_widget_from_html), [graphql_flutter](https://pub.dev/packages/graphql_flutter), [flutter_secure_storage](https://pub.dev/packages/flutter_secure_storage)  
 **Hosted on**: [Azure](https://learn.microsoft.com/en-us/azure/virtual-machines/)  
 
+## Preview
+
+![Inbox Screen](preview-A.png)
+![Article Screen](preview-B.png)
 
 ## Updating/Cloudflare Notes
 
