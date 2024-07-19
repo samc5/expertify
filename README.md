@@ -14,6 +14,11 @@ Currently a demo of the app is in hosted at https://expertify.samcowan.net/. I h
 - Save articles/posts you like and read them any time
 - Search for feeds you're interested in and discover what others are reading
 
+## Preview
+
+![Inbox Screen](preview-A.png)
+![Article Screen](preview-B.png)
+
 
 
 ## Built With
