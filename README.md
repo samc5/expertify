@@ -4,7 +4,7 @@ Expertify is an RSS Reader with a Flutter frontend, a Flask backend, and a Graph
 
 As an RSS reader, Expertify allows users to combine feeds from various news sources and blogs into one inbox (or multiple)
 
-Currently a demo of the app is in hosted at https://expertify.samcowan.net/
+Currently a demo of the app is in hosted at https://expertify.samcowan.net/. I have been building this app since January 2024 and plan to continue adding features in the near future.
 
 
 ## Features
