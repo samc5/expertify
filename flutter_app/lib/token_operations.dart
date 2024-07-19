@@ -63,12 +63,9 @@ Future<bool> verifyToken(String token) async {
   try {
     final jwt = JWT.verify(token, SecretKey(dotenv.env['SECRET']!));
     return true;
-    //print('Payload: ${jwt.payload}');
   } on JWTExpiredException {
     return false;
-    //print('JWT expired');
   } on JWTException catch (ex) {
     return false;
-    //print('Error: $ex');
   }
 }

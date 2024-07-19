@@ -147,11 +147,9 @@ class NewFeedFormState extends State<NewFeedForm> {
                 options: MutationOptions(
                     document: gql(bulkEntry),
                     onCompleted: (dynamic resultData) {
-                      //print(resultData);
                       List<dynamic>? bozos1 =
                           resultData['createBulkEntry']['bozos'];
                       if (bozos1 != null) {
-                        // print(bozos1);
                         List<String> bozos =
                             (bozos1.map((e) => e as String)).toList();
                         String bozoString = bozos.join('\n');

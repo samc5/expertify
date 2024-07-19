@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'blog_screen.dart';
@@ -234,23 +236,7 @@ class _SubscribeButtonState extends State<SubscribeButton> {
     if (isLoading) {
       return CircularProgressIndicator();
     }
-    //return
-    // Query(
-    //     options: QueryOptions(
-    //         document: gql(checkFeed),
-    //         variables: <String, dynamic>{
-    //           "url": widget.url,
-    //           "token": widget.token
-    //         }),
-    //     builder: (result2, {fetchMore, refetch}) {
-    //       // print("building with" + isSubscribed2.toString());
-    //       if (result2.data == null) {
-    //         return Center(
-    //           child: Text("",
-    //               style: TextStyle(fontSize: 25), textAlign: TextAlign.center),
-    //         );
-    //       }
-    //       isSubscribed2 = result2.data!["checkForFeed"]["result"];
+
     return FractionallySizedBox(
       widthFactor: 0.23,
       child: Mutation(
@@ -286,7 +272,7 @@ class _SubscribeButtonState extends State<SubscribeButton> {
                                   url: widget.url,
                                   token: widget.token);
                             });
-                        print(result);
+                        log(result);
                         if (result != null && result['action'] == 'submit') {
                           //    isLoading = true;
                           setState(() {
@@ -318,7 +304,7 @@ class _SubscribeButtonState extends State<SubscribeButton> {
                       }
                       // old = isSubscribed2;
                       // _checkFeed();
-                      print("new issubscribed2: " + isSubscribed2.toString());
+                      log("new issubscribed2: " + isSubscribed2.toString());
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateColor.resolveWith(

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'article_list.dart';
@@ -60,7 +62,7 @@ class _BookmarksWidgetState extends State<BookmarksWidget> {
         token = await getToken();
       }
     } catch (e) {
-      print("Error fetching token: $e");
+      log("Error fetching token: $e");
       // Handle error appropriately, like showing an error message
     }
     setState(() {}); // Trigger a rebuild after token is fetched
@@ -76,7 +78,7 @@ class _BookmarksWidgetState extends State<BookmarksWidget> {
               variables: <String, dynamic>{"token": token}),
           builder: (result, {fetchMore, refetch}) {
             if (result.hasException) {
-              print(result.exception.toString());
+              log(result.exception.toString());
               return const Center(
                 child: Text("Error occurred while fetching data!"),
               );

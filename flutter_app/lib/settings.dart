@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
 import 'token_operations.dart';
@@ -74,7 +76,7 @@ class SettingsFormState extends State<SettingsForm> {
         token = await getToken();
       }
     } catch (e) {
-      print("Error fetching token: $e");
+      log("Error fetching token: $e");
       // Handle error appropriately, like showing an error message
     }
     setState(() {}); // Trigger a rebuild after token is fetched
@@ -99,7 +101,7 @@ class SettingsFormState extends State<SettingsForm> {
                   variables: <String, dynamic>{"token": token!}),
               builder: (result, {fetchMore, refetch}) {
                 if (result.hasException) {
-                  print(result.exception.toString());
+                  log(result.exception.toString());
                   return const Center(
                     child: Text("Error occurred while fetching data!"),
                   );
@@ -157,7 +159,7 @@ class SettingsFormState extends State<SettingsForm> {
                       variables: <String, dynamic>{"token": token}),
                   builder: (result, {fetchMore, refetch}) {
                     if (result.hasException) {
-                      print(result.exception.toString());
+                      log(result.exception.toString());
                       return Container();
                     }
                     if (result.isLoading) {
@@ -203,26 +205,26 @@ class SettingsFormState extends State<SettingsForm> {
                 ),
               ),
               Padding(padding: const EdgeInsets.only(top: 20)),
-              SizedBox(
-                  width: 500,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all<Color>(
-                          Color.fromARGB(255, 140, 35, 6)),
-                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(0.0),
-                        ),
-                      ),
-                    ),
-                    child: Text('Edit Categories',
-                        style: TextStyle(color: Colors.white)),
-                  )),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 25.0),
-              ),
+              // SizedBox(
+              //     width: 500,
+              //     height: 50,
+              //     child: ElevatedButton(
+              //       onPressed: () {},
+              //       style: ButtonStyle(
+              //         backgroundColor: WidgetStateProperty.all<Color>(
+              //             Color.fromARGB(255, 140, 35, 6)),
+              //         shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+              //           RoundedRectangleBorder(
+              //             borderRadius: BorderRadius.circular(0.0),
+              //           ),
+              //         ),
+              //       ),
+              //       child: Text('Edit Categories',
+              //           style: TextStyle(color: Colors.white)),
+              //     )),
+              // Padding(
+              //   padding: const EdgeInsets.only(bottom: 20.0),
+              // ),
               SizedBox(
                   width: 500,
                   height: 50,

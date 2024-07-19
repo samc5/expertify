@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_app/add_feed_screen.dart';
 import 'article_screen.dart';
@@ -102,8 +104,7 @@ class _ArticleListState extends State<Article_List> {
         token = await getToken();
       }
     } catch (e) {
-      print("Error fetching token: $e");
-      // Handle error appropriately, like showing an error message
+      log("Error fetching token: $e");
     }
     setState(() {}); // Trigger a rebuild after token is fetched
   }
@@ -124,8 +125,7 @@ class _ArticleListState extends State<Article_List> {
           catResults = result.data!['category_entries']['entries'];
         });
       } else {
-        print(
-            "Error fetching category entries: ${result.exception.toString()}");
+        log("Error fetching category entries: ${result.exception.toString()}");
       }
     }
   }
@@ -240,7 +240,7 @@ class _ArticleListState extends State<Article_List> {
                                 ? (i - 1)
                                 : i;
                         if (i == 0 && widget.showCategories) {
-                          print("Categories list" + categoriesList.toString());
+                          log("Categories list" + categoriesList.toString());
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Padding(
@@ -420,7 +420,6 @@ class _ArticleListState extends State<Article_List> {
                             })),
                           );
                         }
-                        // catResults != null ? print("yes cat") : print("no cat");
                         if (shouldRenderTile) {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 10.0),

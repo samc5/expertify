@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'article_list.dart';
@@ -61,7 +63,7 @@ class _ArticlesWidgetState extends State<ArticlesWidget> {
         token = await getToken();
       }
     } catch (e) {
-      print("Error fetching token: $e");
+      log("Error fetching token: $e");
       // Handle error appropriately, like showing an error message
     }
     setState(() {}); // Trigger a rebuild after token is fetched
@@ -95,7 +97,7 @@ class _ArticlesWidgetState extends State<ArticlesWidget> {
             variables: <String, dynamic>{"token": token}),
         builder: (result, {fetchMore, refetch}) {
           if (result.hasException) {
-            print(result.exception.toString());
+            log(result.exception.toString());
             final excep = result.exception.toString();
             return Center(
               child: Text(excep),

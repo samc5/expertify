@@ -216,8 +216,6 @@ class SignUpFormState extends State<SignUpForm> {
                           setState(() {
                             isPressed = true;
                           });
-                          //print("login button pressed");
-
                           signup();
                           Future.delayed(Duration(milliseconds: 800), () {
                             setState(() {

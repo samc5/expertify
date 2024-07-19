@@ -95,7 +95,6 @@ class LoginFormState extends State<LoginForm> {
           json.decode(response.body); // it at least gets here
       log(jsonResponse.toString());
       if (jsonResponse['token'] != null) {
-        print("return jsonResponse");
         return jsonResponse['token'];
       }
       log("reached second if thing");
@@ -160,7 +159,7 @@ class LoginFormState extends State<LoginForm> {
         }
       }
     } catch (e) {
-      print("Error fetching token: $e");
+      log("Error fetching token: $e");
       // Handle error appropriately, like showing an error message
     }
     // setState(() {}); // Trigger a rebuild after token is fetched
@@ -226,8 +225,6 @@ class LoginFormState extends State<LoginForm> {
                           setState(() {
                             isPressed = true;
                           });
-                          //print("login button pressed");
-
                           login();
                           Future.delayed(Duration(milliseconds: 800), () {
                             setState(() {

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'blog_screen.dart';
@@ -85,7 +87,7 @@ class DiscoveryFormState extends State<DiscoveryForm> {
             options: QueryOptions(document: gql(feeds_query)),
             builder: (result, {fetchMore, refetch}) {
               if (result.hasException) {
-                print(result.exception.toString());
+                log(result.exception.toString());
                 return const Center(
                   child: Text("Error occurred while fetching data!"),
                 );
