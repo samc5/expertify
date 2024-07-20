@@ -48,7 +48,7 @@ Environment="PATH=/PATH/TO/VENV/bin"
 WantedBy=multi-user.target
 ```
 
-Obviously, this solution is not ideal. The process only runs when my personal laptop is turned on, and even then is not consistent (for reasons I'm not quite sure about). So as of now, the feeds update only sporadically, often at my manual restart of the daemon.
+Obviously, this solution is not ideal. The process only runs when my personal laptop is turned on, and even then is not consistent (for reasons I'm not quite sure of). So as of now, the feeds update only sporadically, often at my manual restart of the daemon.
 
 Eventually, I plan to try to register Expertify on Cloudflare's list of verified bots, which should fix the problem for a number of sites. Building my own scraper as part of this process will also help.
 
