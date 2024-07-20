@@ -31,7 +31,7 @@ Currently a demo of the app is in hosted at https://expertify.samcowan.net/. I h
 
 ## Updating/Cloudflare Notes
 
-Cloudflare and other hosts and websites are particularly strict about bot policies, and by default block any traffic coming from Azure VMs like the one this app is hosted on. Due to this, I am currently updating the feeds locally using a systemd daemon as follows.
+Cloudflare and other hosts and websites are particularly strict about bot policies, and by default block any traffic coming from Azure VMs like the one this app is hosted on. Due to this, I am currently updating the feeds locally using a systemd daemon as follows:
 
 ```
 Description=RSS Feed Updater
@@ -48,7 +48,7 @@ Environment="PATH=/PATH/TO/VENV/bin"
 WantedBy=multi-user.target
 ```
 
-Obviously, this solution is not ideal. The process only runs when my personal laptop is turned on, and even then is not consistent (for reasons I'm not quite sure). So as of now the feeds update only sporadically, often at my manual restart of the daemon.
+Obviously, this solution is not ideal. The process only runs when my personal laptop is turned on, and even then is not consistent (for reasons I'm not quite sure about). So as of now, the feeds update only sporadically, often at my manual restart of the daemon.
 
 Eventually, I plan to try to register Expertify on Cloudflare's list of verified bots, which should fix the problem for a number of sites. Building my own scraper as part of this process will also help.
 
@@ -57,4 +57,4 @@ Eventually, I plan to try to register Expertify on Cloudflare's list of verified
 
 If you aren't a complete nerd and/or were born after 1980, you may need an explanation of what RSS is and why it's so useful.
 
-[This link](https://zapier.com/blog/how-to-use-rss-feeds/) helped me when I first stumbled upon RSS
+[This link](https://zapier.com/blog/how-to-use-rss-feeds/) helped me when I first stumbled upon RSS.
