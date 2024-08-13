@@ -38,8 +38,8 @@ query CheckForFeed(\$url: String!, \$token: String!) {
 
 """;
 
-//final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
-final HttpLink httpLink = HttpLink("https://samcowan.net/graphql");
+final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
+//final HttpLink httpLink = HttpLink("https://samcowan.net/graphql");
 final HttpLink androidLink = HttpLink("http://10.0.2.2:5000/graphql");
 
 final ValueNotifier<GraphQLClient> client = ValueNotifier<GraphQLClient>(
@@ -96,7 +96,8 @@ class _PubArticlesWidgetState extends State<PubArticlesWidget> {
           if (result.hasException) {
             log(result.exception.toString());
             return const Center(
-              child: Text("Error occurred while fetching data!"),
+              child: Text(
+                  "There was an issue loading the content... please refresh the page or try again once you have internet connection"),
             );
           }
           if (result.data == null) {

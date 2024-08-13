@@ -89,7 +89,8 @@ class DiscoveryFormState extends State<DiscoveryForm> {
               if (result.hasException) {
                 log(result.exception.toString());
                 return const Center(
-                  child: Text("Error occurred while fetching data!"),
+                  child: Text(
+                      "There was an issue loading the content... please refresh the page or try again once you have internet connection"),
                 );
               }
               if (result.data == null) {
@@ -197,7 +198,9 @@ class DiscoveryFormState extends State<DiscoveryForm> {
               options: QueryOptions(document: gql(leaderboard_query)),
               builder: (result2, {fetchMore, refetch}) {
                 if (result2.hasException) {
-                  return Center(child: Text(result2.exception.toString()));
+                  return Center(
+                      child: Text(
+                          "There was an issue loading the content... please refresh the page or try again once you have internet connection"));
                 }
 
                 if (result2.isLoading) {

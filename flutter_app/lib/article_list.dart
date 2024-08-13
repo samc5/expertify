@@ -12,6 +12,8 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'subscribe_button.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'dates.dart';
 
 String categoryQuery = """
 query fetch_categories(\$token: String!) {
@@ -315,9 +317,9 @@ class _ArticleListState extends State<Article_List> {
                                               label: Text(
                                                 categoriesList![index],
                                                 style: (_value == index)
-                                                    ? TextStyle(
+                                                    ? GoogleFonts.firaSans(
                                                         color: Colors.black)
-                                                    : TextStyle(
+                                                    : GoogleFonts.firaSans(
                                                         color: Colors.white),
                                               ),
                                               shape: RoundedRectangleBorder(
@@ -580,7 +582,8 @@ class TileState extends State<ArticleTile> {
                       overflow: TextOverflow.ellipsis, maxLines: 2)),
               title: Text(widget.entries![widget.index]['title'],
                   overflow: TextOverflow.ellipsis, maxLines: 2),
-              trailing: Text(widget.entries![widget.index]['pub_date']),
+              trailing:
+                  Text(humanizeDate(widget.entries![widget.index]['pub_date'])),
             ),
           );
         });

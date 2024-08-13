@@ -26,8 +26,8 @@ query fetchSavedEntries (\$token: String!){
 }
 """;
 
-//final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
-final HttpLink httpLink = HttpLink("https://samcowan.net/graphql");
+final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
+//final HttpLink httpLink = HttpLink("https://samcowan.net/graphql");
 final HttpLink androidLink = HttpLink("http://10.0.2.2:5000/graphql");
 
 final ValueNotifier<GraphQLClient> client = ValueNotifier<GraphQLClient>(
@@ -70,6 +70,7 @@ class _BookmarksWidgetState extends State<BookmarksWidget> {
 
   @override
   Widget build(BuildContext context) {
+    // return Center(child: Text("hi"));
     return Scaffold(
       body: Query(
           options: QueryOptions(
@@ -80,8 +81,12 @@ class _BookmarksWidgetState extends State<BookmarksWidget> {
             if (result.hasException) {
               log(result.exception.toString());
               return const Center(
-                child: Text("Error occurred while fetching data!"),
+                child: Text(
+                    "There was an issue loading the content... please refresh the page or try again once you have internet connection"),
               );
+            }
+            if (result.isLoading) {
+              return Container();
             }
             if (result.data == null) {
               return Scaffold(
@@ -94,7 +99,7 @@ class _BookmarksWidgetState extends State<BookmarksWidget> {
                   body: Container());
             }
             final entries = result.data!["saved_entries"]["entries"];
-            //final token = await getToken();
+            //print(entries);
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [

@@ -10,6 +10,7 @@ import 'token_operations.dart';
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'custom_logos.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -69,14 +70,15 @@ class LoginFormState extends State<LoginForm> {
 
     var url;
     if (kIsWeb) {
-      url = Uri.parse('https://samcowan.net/login'); // URL for web
-      //url = Uri.parse('http://localhost:5000/login'); // URL for web
+      //url = Uri.parse('https://samcowan.net/login'); // URL for web
+      url = Uri.parse('http://localhost:5000/login'); // URL for web
     } else {
       if (Platform.isAndroid) {
         url =
             Uri.parse('https://samcowan.net/login'); // URL for Android emulator
       } else if (Platform.isWindows) {
-        url = Uri.parse('https://samcowan.net/login'); // URL for Windows app
+        //url = Uri.parse('https://samcowan.net/login'); // URL for Windows
+        url = Uri.parse('http://localhost:5000/login'); // URL for web
       }
     }
     var response = await http.post(
@@ -246,7 +248,7 @@ class LoginFormState extends State<LoginForm> {
                           ),
                         ),
                         child: Text('Log In',
-                            style: TextStyle(color: Colors.white)),
+                            style: GoogleFonts.firaSans(color: Colors.white)),
                       ),
                     ),
                     Padding(
@@ -273,7 +275,7 @@ class LoginFormState extends State<LoginForm> {
                           ),
                         ),
                         child: Text('Sign Up Instead',
-                            style: TextStyle(color: Colors.white)),
+                            style: GoogleFonts.firaSans(color: Colors.white)),
                       ),
                     ),
                     Padding(

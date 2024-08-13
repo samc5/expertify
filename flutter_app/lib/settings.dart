@@ -6,6 +6,7 @@ import 'token_operations.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'custom_logos.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 const String user_feeds_query = """
 query fetchAllFeeds(\$token: String!) {
@@ -103,12 +104,14 @@ class SettingsFormState extends State<SettingsForm> {
                 if (result.hasException) {
                   log(result.exception.toString());
                   return const Center(
-                    child: Text("Error occurred while fetching data!"),
+                    child: Text(
+                        "There was an issue loading the content... please refresh the page or try again once you have internet connection"),
                   );
                 }
                 if (result.data == null) {
                   return Center(
-                    child: Text("Loading...", style: TextStyle(fontSize: 25)),
+                    child: Text("Loading...",
+                        style: GoogleFonts.firaSans(fontSize: 25)),
                   );
                 }
                 //return Center(child: Text("kind of worked"))
@@ -148,6 +151,7 @@ class SettingsFormState extends State<SettingsForm> {
 
   @override
   Widget build(BuildContext context) {
+    print(token);
     return Padding(
         padding: const EdgeInsets.all(18.0),
         child: Center(
@@ -175,7 +179,7 @@ class SettingsFormState extends State<SettingsForm> {
                     final email = getEmailData['email'];
                     return Center(
                         child: Text("You are $email",
-                            style: TextStyle(fontSize: 20)));
+                            style: GoogleFonts.firaSans(fontSize: 20)));
                   }),
               Padding(padding: const EdgeInsets.only(top: 20)),
               SizedBox(
@@ -201,7 +205,8 @@ class SettingsFormState extends State<SettingsForm> {
                       ),
                     ),
                   ),
-                  child: Text('Log Out', style: TextStyle(color: Colors.white)),
+                  child: Text('Log Out',
+                      style: GoogleFonts.firaSans(color: Colors.white)),
                 ),
               ),
               Padding(padding: const EdgeInsets.only(top: 20)),
@@ -240,7 +245,7 @@ class SettingsFormState extends State<SettingsForm> {
                       ),
                     ),
                     child: Text('View Subscribed Feeds',
-                        style: TextStyle(color: Colors.white)),
+                        style: GoogleFonts.firaSans(color: Colors.white)),
                   )),
               Padding(
                 padding: const EdgeInsets.only(bottom: 25.0),

@@ -10,6 +10,7 @@ import 'token_operations.dart';
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'custom_logos.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SignUpScreen extends StatelessWidget {
   const SignUpScreen({Key? key}) : super(key: key);
@@ -65,13 +66,15 @@ class SignUpFormState extends State<SignUpForm> {
     String password = passwordValue.text;
     var url;
     if (kIsWeb) {
-      url = Uri.parse('https://samcowan.net/signup'); // URL for web
+      url = Uri.parse('http://localhost:5000/signup');
+      //url = Uri.parse('https://samcowan.net/signup'); // URL for web
     } else {
       if (Platform.isAndroid) {
         url = Uri.parse(
             'https://samcowan.net/signup'); // URL for Android emulator
       } else if (Platform.isWindows) {
-        url = Uri.parse('https://samcowan.net/signup'); // URL for Windows app
+        //url = Uri.parse('https://samcowan.net/signup'); // URL for Windows app
+        url = Uri.parse('http://localhost:5000/signup');
       }
     }
     var response = await http.post(
@@ -237,7 +240,7 @@ class SignUpFormState extends State<SignUpForm> {
                           ),
                         ),
                         child: Text('Sign Up',
-                            style: TextStyle(color: Colors.white)),
+                            style: GoogleFonts.firaSans(color: Colors.white)),
                       ),
                     ),
                     Padding(
@@ -264,7 +267,7 @@ class SignUpFormState extends State<SignUpForm> {
                           ),
                         ),
                         child: Text('Log in instead',
-                            style: TextStyle(color: Colors.white)),
+                            style: GoogleFonts.firaSans(color: Colors.white)),
                       ),
                     ),
                     Padding(
