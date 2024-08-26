@@ -147,7 +147,7 @@ class _ArticleListState extends State<Article_List> {
                   centerTitle: true,
                   automaticallyImplyLeading: false,
                   leading: widget.pub_title == 'Your Inbox'
-                      ? null
+                      ? Image.asset('assets/logooo.png', width: 5, height: 5)
                       : BackButton(color: Colors.black),
                   actions: <Widget>[
                     Builder(
@@ -193,7 +193,7 @@ class _ArticleListState extends State<Article_List> {
               centerTitle: true,
               automaticallyImplyLeading: false,
               leading: widget.pub_title == 'Your Inbox'
-                  ? null
+                  ? Image.asset('assets/logooo.png', width: 5, height: 5)
                   : BackButton(color: Colors.black),
               actions: <Widget>[
                 Builder(
@@ -559,7 +559,7 @@ class TileState extends State<ArticleTile> {
                   color: Color(0xFF511730)),
             ],
             child: ListTile(
-              tileColor: Color.fromARGB(255, 255, 255, 255),
+              tileColor: Color.fromRGBO(244, 230, 213, 1),
               onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(

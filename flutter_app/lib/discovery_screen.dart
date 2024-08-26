@@ -115,6 +115,7 @@ class DiscoveryFormState extends State<DiscoveryForm> {
                       controller.openView();
                     },
                     leading: const Icon(Icons.search),
+                    hintText: "Search for Feeds",
                   );
                 },
                 suggestionsBuilder:

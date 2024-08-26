@@ -70,15 +70,15 @@ class LoginFormState extends State<LoginForm> {
 
     var url;
     if (kIsWeb) {
-      //url = Uri.parse('https://samcowan.net/login'); // URL for web
-      url = Uri.parse('http://localhost:5000/login'); // URL for web
+      url = Uri.parse('https://samcowan.net/login'); // URL for web
+      //url = Uri.parse('http://localhost:5000/login'); // URL for web
     } else {
       if (Platform.isAndroid) {
         url =
             Uri.parse('https://samcowan.net/login'); // URL for Android emulator
       } else if (Platform.isWindows) {
-        //url = Uri.parse('https://samcowan.net/login'); // URL for Windows
-        url = Uri.parse('http://localhost:5000/login'); // URL for web
+        url = Uri.parse('https://samcowan.net/login'); // URL for Windows
+        //url = Uri.parse('http://localhost:5000/login'); // URL for web
       }
     }
     var response = await http.post(
@@ -187,8 +187,7 @@ class LoginFormState extends State<LoginForm> {
     //   });
     // }
     return Padding(
-      padding:
-          const EdgeInsets.only(top: 100, bottom: 100, right: 20, left: 20),
+      padding: const EdgeInsets.only(bottom: 50, right: 20, left: 20),
       child: Center(
         child: SingleChildScrollView(
           child: Container(
@@ -204,6 +203,8 @@ class LoginFormState extends State<LoginForm> {
                 key: _formKey,
                 child: Column(
                   children: <Widget>[
+                    Image.asset('assets/banner.png', height: 200),
+                    Padding(padding: const EdgeInsets.only(bottom: 20)),
                     LogFormField(
                         textValue: emailValue,
                         formLabel: "Email",

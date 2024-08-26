@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'token_operations.dart';
@@ -124,7 +125,7 @@ class NewFeedFormState extends State<NewFeedForm> {
               ),
               Center(
                 child: const Text(
-                  "Feeds will be added to Expertify's global database and made accessible by search to all users. To enter multiple feeds at once, each link must be on its own line (separated by the enter key)",
+                  "Feeds will be added to Papyrss's global database and made accessible by search to all users. To enter multiple feeds at once, each link must be on its own line (separated by the enter key)",
                   style: TextStyle(
                     fontSize: 14,
                   ),
@@ -135,11 +136,13 @@ class NewFeedFormState extends State<NewFeedForm> {
                 padding: const EdgeInsets.only(left: 8.0, right: 8.0),
                 child: TextField(
                   controller: bulkValue,
+
                   maxLines: null, // Allows for multiple lines
                   decoration: InputDecoration(
-                    hintText: 'Enter your text here',
-                    border: OutlineInputBorder(),
-                  ),
+                      hintText: 'Enter your feed URLs here',
+                      border: OutlineInputBorder(),
+                      fillColor: Colors.white,
+                      filled: true),
                 ),
               ),
               Padding(padding: EdgeInsets.only(bottom: 20)),
@@ -182,7 +185,17 @@ class NewFeedFormState extends State<NewFeedForm> {
                         bulkValue.clear();
                       }
                     },
-                    child: const Text('Submit'),
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStateProperty.all<Color>(
+                          Color.fromARGB(255, 255, 255, 255)),
+                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(0.0),
+                        ),
+                      ),
+                    ),
+                    child: const Text('Submit',
+                        style: TextStyle(color: Color(0xFF511730))),
                   );
                 },
               ),

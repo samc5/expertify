@@ -148,8 +148,6 @@ class _MultiSelectState extends State<MultiSelect> {
             builder: (runMutation, result, {fetchMore, refetch}) {
               return ElevatedButton(
                 onPressed: () {
-                  print(widget.url);
-                  print(widget.token);
                   runMutation({
                     'url': widget.url,
                     'token': widget.token,
@@ -315,7 +313,7 @@ class _SubscribeButtonState extends State<SubscribeButton> {
                                 .withOpacity(0.5); // Light color when disabled
                           }
                           return isSubscribed2
-                              ? Colors.white
+                              ? const Color.fromRGBO(233, 218, 206, 1)
                               : Color(
                                   0xFF511730); // Dark or light color based on subscription
                         },

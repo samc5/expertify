@@ -151,7 +151,6 @@ class SettingsFormState extends State<SettingsForm> {
 
   @override
   Widget build(BuildContext context) {
-    print(token);
     return Padding(
         padding: const EdgeInsets.all(18.0),
         child: Center(
