@@ -98,7 +98,8 @@ class _ArticlesWidgetState extends State<ArticlesWidget> {
         builder: (result, {fetchMore, refetch}) {
           if (result.hasException) {
             log(result.exception.toString());
-            final excep = result.exception.toString();
+            final excep =
+                "There was an issue loading the content... please refresh the page or try again once you have internet connection";
             return Center(
               child: Text(excep),
             );

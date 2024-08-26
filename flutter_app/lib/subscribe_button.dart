@@ -272,7 +272,6 @@ class _SubscribeButtonState extends State<SubscribeButton> {
                                   url: widget.url,
                                   token: widget.token);
                             });
-                        log(result);
                         if (result != null && result['action'] == 'submit') {
                           //    isLoading = true;
                           setState(() {
@@ -307,22 +306,22 @@ class _SubscribeButtonState extends State<SubscribeButton> {
                       log("new issubscribed2: " + isSubscribed2.toString());
                     },
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateColor.resolveWith(
+                      backgroundColor: WidgetStateColor.resolveWith(
                         (states) {
-                          if (states.contains(MaterialState.disabled)) {
+                          if (states.contains(WidgetState.disabled)) {
                             return Colors.grey
                                 .withOpacity(0.5); // Light color when disabled
                           }
                           return isSubscribed2
-                              ? Colors.white
+                              ? const Color.fromRGBO(233, 218, 206, 1)
                               : Color(
                                   0xFF511730); // Dark or light color based on subscription
                         },
                       ),
-                      foregroundColor: MaterialStateProperty.resolveWith<Color>(
-                        (Set<MaterialState> states) {
+                      foregroundColor: WidgetStateProperty.resolveWith<Color>(
+                        (Set<WidgetState> states) {
                           // Set colors based on subscription state
-                          if (states.contains(MaterialState.disabled)) {
+                          if (states.contains(WidgetState.disabled)) {
                             // Button is disabled
                             return Colors.white; // Light color
                           }
@@ -332,18 +331,18 @@ class _SubscribeButtonState extends State<SubscribeButton> {
                               : Colors.white; // Dark or light color
                         },
                       ),
-                      shape: MaterialStateProperty.all(
+                      shape: WidgetStateProperty.all(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(
                               Radius.circular(4)), // Square edges
                         ),
                       ),
-                      padding: MaterialStateProperty.all(
+                      padding: WidgetStateProperty.all(
                         EdgeInsets.symmetric(
                             vertical: 8.0,
                             horizontal: 10.0), // Customize padding
                       ),
-                      textStyle: MaterialStateProperty.all(
+                      textStyle: WidgetStateProperty.all(
                         TextStyle(
                             fontSize: 12.0,
                             fontWeight:

@@ -7,7 +7,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 //final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
-//final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
 final HttpLink httpLink = HttpLink("https://samcowan.net/graphql");
 final HttpLink androidLink = HttpLink("http://10.0.2.2:5000/graphql");
 // bool _certificateCheck(X509Certificate cert, String host, int port) =>
@@ -56,25 +55,30 @@ class MyApp extends StatelessWidget {
         client: client,
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'Expertify',
+          title: 'Papyrss',
           theme: ThemeData(
-              primarySwatch: Colors.cyan,
-              scaffoldBackgroundColor: Colors.white,
-              textTheme: TextTheme(
-                bodySmall: GoogleFonts.sourceSerif4(fontSize: 12),
-                bodyMedium: GoogleFonts.sourceSerif4(fontSize: 14),
-                bodyLarge: GoogleFonts.sourceSerif4(fontSize: 16),
-                displayLarge: GoogleFonts.sourceSerif4(fontSize: 16),
-                displayMedium: GoogleFonts.sourceSerif4(fontSize: 11),
-                displaySmall: GoogleFonts.sourceSerif4(fontSize: 11),
-                titleLarge: GoogleFonts.sourceSerif4(fontSize: 24),
-                titleMedium: GoogleFonts.sourceSerif4(fontSize: 16),
-                titleSmall: GoogleFonts.sourceSerif4(fontSize: 16),
-              ),
-              appBarTheme: AppBarTheme(
-                  backgroundColor: Color(0xFF511730).withOpacity(0.1)),
-              bottomNavigationBarTheme: BottomNavigationBarThemeData(
-                  selectedItemColor: Color(0xFF511730))),
+            primarySwatch: Colors.cyan,
+            scaffoldBackgroundColor: Color.fromRGBO(244, 230, 213, 1),
+            textTheme: TextTheme(
+              bodySmall: GoogleFonts.firaSans(fontSize: 12),
+              bodyMedium: GoogleFonts.firaSans(fontSize: 14),
+              bodyLarge: GoogleFonts.firaSans(fontSize: 16),
+              displayLarge: GoogleFonts.firaSans(fontSize: 16),
+              displayMedium: GoogleFonts.firaSans(fontSize: 11),
+              displaySmall: GoogleFonts.firaSans(fontSize: 11),
+              titleLarge: GoogleFonts.firaSans(fontSize: 24),
+              titleMedium: GoogleFonts.firaSans(fontSize: 16),
+              titleSmall: GoogleFonts.firaSans(fontSize: 16),
+            ),
+            appBarTheme: AppBarTheme(
+                backgroundColor: Color(0xFF511730).withOpacity(0.1)),
+            bottomNavigationBarTheme: BottomNavigationBarThemeData(
+                selectedItemColor: Color(0xFF511730),
+                backgroundColor: Color.fromRGBO(234, 220, 203, 1)),
+            searchBarTheme: SearchBarThemeData(
+                backgroundColor: WidgetStateProperty.all(Colors.white)),
+          ),
+
           initialRoute: '/',
           // home: const MyHomePage(title: 'Reader app'),
           home: LoginScreen(),

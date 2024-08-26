@@ -10,6 +10,7 @@ import 'token_operations.dart';
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'custom_logos.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -76,7 +77,8 @@ class LoginFormState extends State<LoginForm> {
         url =
             Uri.parse('https://samcowan.net/login'); // URL for Android emulator
       } else if (Platform.isWindows) {
-        url = Uri.parse('https://samcowan.net/login'); // URL for Windows app
+        url = Uri.parse('https://samcowan.net/login'); // URL for Windows
+        //url = Uri.parse('http://localhost:5000/login'); // URL for web
       }
     }
     var response = await http.post(
@@ -185,8 +187,7 @@ class LoginFormState extends State<LoginForm> {
     //   });
     // }
     return Padding(
-      padding:
-          const EdgeInsets.only(top: 100, bottom: 100, right: 20, left: 20),
+      padding: const EdgeInsets.only(bottom: 50, right: 20, left: 20),
       child: Center(
         child: SingleChildScrollView(
           child: Container(
@@ -202,6 +203,8 @@ class LoginFormState extends State<LoginForm> {
                 key: _formKey,
                 child: Column(
                   children: <Widget>[
+                    Image.asset('assets/banner.png', height: 200),
+                    Padding(padding: const EdgeInsets.only(bottom: 20)),
                     LogFormField(
                         textValue: emailValue,
                         formLabel: "Email",
@@ -246,7 +249,7 @@ class LoginFormState extends State<LoginForm> {
                           ),
                         ),
                         child: Text('Log In',
-                            style: TextStyle(color: Colors.white)),
+                            style: GoogleFonts.firaSans(color: Colors.white)),
                       ),
                     ),
                     Padding(
@@ -273,7 +276,7 @@ class LoginFormState extends State<LoginForm> {
                           ),
                         ),
                         child: Text('Sign Up Instead',
-                            style: TextStyle(color: Colors.white)),
+                            style: GoogleFonts.firaSans(color: Colors.white)),
                       ),
                     ),
                     Padding(
