@@ -27,6 +27,14 @@ query fetchPersonalEntries(\$token: String!) {
 
 """;
 
+const String getLatestCrawlTime = """
+query get_latest_time() {
+  get_latest_time {
+      timestamp
+    }
+  }
+""";
+
 final HttpLink httpLink = HttpLink("http://localhost:5000/graphql");
 // final HttpLink httpLink = HttpLink("https://samcowan.net/graphql");
 final HttpLink androidLink = HttpLink("http://10.0.2.2:5000/graphql");
@@ -69,6 +77,9 @@ class _ArticlesWidgetState extends State<ArticlesWidget> {
     setState(() {}); // Trigger a rebuild after token is fetched
   }
 
+  // get latest time crawling was updated using graphql query
+
+
   @override
   Widget build(BuildContext context) {
     if (kIsWeb) {
@@ -91,10 +102,42 @@ class _ArticlesWidgetState extends State<ArticlesWidget> {
       // If token is not fetched yet, you can show a loading indicator or some other widget
       return Center(child: CircularProgressIndicator());
     }
-    return Query(
+ return Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Query(
         options: QueryOptions(
-            document: gql(personalQuery),
-            variables: <String, dynamic>{"token": token}),
+          document: gql(getLatestCrawlTime),
+        ),
+        builder: (QueryResult result, {fetchMore, refetch}) {
+          if (result.hasException) {
+            log(result.exception.toString());
+            return Text("Error loading latest crawl time");
+          }
+          if (result.isLoading || result.data == null) {
+            return Text("Loading latest crawl time...");
+          }
+
+          final String latestTime = result.data!["get_latest_time"]["timestamp"];
+          // final DateTime parsedTime = DateTime.parse(latestTime);
+
+          return Text(
+            // "Last Updated: ${parsedTime.toLocal()}",
+            "Last Updated: ${latestTime}",
+
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          );
+        },
+      ),
+    ),
+    Expanded(
+      child: Query(
+        options: QueryOptions(
+          document: gql(personalQuery),
+          variables: <String, dynamic>{"token": token},
+        ),
         builder: (result, {fetchMore, refetch}) {
           if (result.hasException) {
             log(result.exception.toString());
@@ -116,6 +159,9 @@ class _ArticlesWidgetState extends State<ArticlesWidget> {
               showAppBar: true,
               showCategories: true,
               showDescription: false);
-        });
-  }
-}
+        },
+      ),
+    )
+  ],
+);
+  }}

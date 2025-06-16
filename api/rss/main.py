@@ -665,8 +665,13 @@ def resolve_sign_up(obj, info, email, password):
             "errors": "unknown errors"
         }
 
-
-
+def resolve_get_latest_time(obj, info):
+    latest_time = mongo.time_last_crawl()
+    if latest_time:
+        print(latest_time)
+        return {"timestamp": latest_time.isoformat() + 'Z'}
+    else:
+        return {"timestamp": None}
 query = ObjectType("Query")
 
 query.set_field("entries", resolve_entries)
@@ -681,6 +686,7 @@ query.set_field("fetchLeaderboard", resolve_fetch_leaderboard)
 query.set_field("saved_entries", resolve_saved_entries)
 query.set_field("allUserFeeds", resolve_all_user_feeds)
 query.set_field("get_email", resolve_get_email)
+query.set_field("get_latest_time", resolve_get_latest_time)
 
 mutation = ObjectType("Mutation")
 
