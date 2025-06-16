@@ -66,15 +66,15 @@ class SignUpFormState extends State<SignUpForm> {
     String password = passwordValue.text;
     var url;
     if (kIsWeb) {
-      //url = Uri.parse('http://localhost:5000/signup');
-      url = Uri.parse('https://samcowan.net/signup'); // URL for web
+      url = Uri.parse('http://localhost:5000/signup');
+      // url = Uri.parse('https://samcowan.net/signup'); // URL for web
     } else {
       if (Platform.isAndroid) {
         url = Uri.parse(
             'https://samcowan.net/signup'); // URL for Android emulator
       } else if (Platform.isWindows) {
-        url = Uri.parse('https://samcowan.net/signup'); // URL for Windows app
-        //url = Uri.parse('http://localhost:5000/signup');
+        // url = Uri.parse('https://samcowan.net/signup'); // URL for Windows app
+        url = Uri.parse('http://localhost:5000/signup');
       }
     }
     var response = await http.post(
