@@ -295,3 +295,13 @@ def save_personal(blog_entry, user_id):
             collection.update_one({"user_id": ObjectId(user_id)}, {"$addToSet": {"saved": article['_id']}}, upsert=True)
     except Exception as e:
         print(f"Mongo error: {e}")
+
+def time_last_crawl():
+    collection = connect_to_collection("Updates")
+    try:
+        last_crawl = collection.find_one({}, sort=[("time", -1)])
+        if last_crawl:
+            return last_crawl['time']
+        return None
+    except Exception as e:
+        print(e)

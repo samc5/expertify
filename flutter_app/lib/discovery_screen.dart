@@ -121,10 +121,23 @@ class DiscoveryFormState extends State<DiscoveryForm> {
                 suggestionsBuilder:
                     (BuildContext context, SearchController controller) {
                   List<Map<String, dynamic>> filteredFeeds = [];
+                  final List<String> html_elements = [
+                    "<title",
+                    "<p",
+                    "<h1",
+                    "<div"
+                  ];
+                  // bool for is there an html element in the description
                   for (int i = 0; i < feeds.length; i++) {
                     if ((feeds[i]['title'] + feeds[i]['description'])
                         .toLowerCase()
-                        .contains(controller.value.text.toLowerCase())) {
+                        .contains(controller.value.text.toLowerCase()) &&
+                        !feeds[i]['description'].contains("<title") &&
+                        !feeds[i]['description'].contains("<p") &&
+                        !feeds[i]['description'].contains("<h1") &&
+                        !feeds[i]['description'].contains("<div") &&
+                        !feeds[i]['description'].contains("<script")
+                        ){
                       filteredFeeds.add(feeds[i]);
                     }
                   }
@@ -139,32 +152,6 @@ class DiscoveryFormState extends State<DiscoveryForm> {
                       return ListTile(
                         title: Text(item),
                         subtitle: Text(description),
-                        // trailing: Container(
-                        //   width: 36,
-                        //   height: 36,
-                        //   decoration: BoxDecoration(
-                        //     shape: BoxShape.circle,
-                        //     color: Color(
-                        //         0xFF511730), // Use Color(0xFF511730) for the color #511730
-                        //   ),
-                        //   child: Center(
-                        //     child: IconButton(
-                        //       iconSize: 20,
-                        //       icon: Icon(Icons.add,
-                        //           color: Colors
-                        //               .white), // Ensure the icon color contrasts well with the background
-                        //       onPressed: () {
-                        //         Navigator.push(
-                        //             context,
-                        //             MaterialPageRoute(
-                        //                 builder: (context) => PubArticlesWidget(
-                        //                     url: filteredFeeds[index]['url'],
-                        //                     pub_name: filteredFeeds[index]
-                        //                         ['title'])));
-                        //       },
-                        //     ),
-                        //   ),
-                        // ),
                         onTap: () {
                           setState(() {
                             //controller.closeView(item);

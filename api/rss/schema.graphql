@@ -121,6 +121,7 @@ type Query {
     checkForFeed(url: String!, token: String!): checkFeedResult!
     fetchLeaderboard: leaderboardResult
     get_email(token: String!): emailResult
+    get_latest_time: time
 }
 
 type DeleteEntryResult {
@@ -133,6 +134,11 @@ type saveResult {
     errors: [String]
     url: String
 }
+scalar DateTime
+type time {
+    timestamp: DateTime!
+}
+
 
 type Mutation {
     createBlogEntry(url: String!): BlogEntryResult!
