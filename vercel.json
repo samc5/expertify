@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "pubspec.yaml",
+      "src": "flutter_app/pubspec.yaml",
       "use": "@vercel/flutter",
       "config": {
         "flutterVersion": "3.24.1"
