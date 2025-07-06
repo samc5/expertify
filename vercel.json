@@ -4,7 +4,7 @@
       "src": "pubspec.yaml",
       "use": "@vercel/flutter",
       "config": {
-        "flutterVersion": "3.22.2"
+        "flutterVersion": "3.24.1"
       }
     }
   ]
