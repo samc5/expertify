@@ -1,0 +1,11 @@
+{
+  "builds": [
+    {
+      "src": "pubspec.yaml",
+      "use": "@vercel/flutter",
+      "config": {
+        "flutterVersion": "3.22.2"
+      }
+    }
+  ]
+}
