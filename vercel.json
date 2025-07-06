@@ -1,4 +1,5 @@
 {
+  "version": 2,
   "builds": [
     {
       "src": "pubspec.yaml",
@@ -6,6 +7,12 @@
       "config": {
         "flutterVersion": "3.24.1"
       }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
